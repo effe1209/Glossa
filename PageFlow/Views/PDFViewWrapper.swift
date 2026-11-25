@@ -69,10 +69,24 @@ struct PDFViewWrapper: NSViewRepresentable {
     }
 
     private func configureAnnotationCallbacks(_ pdfView: StablePDFView, context: Context) {
+        pdfView.onSelectionFinished = { [weak pdfView, weak annotationManager] in
+            guard annotationManager?.applyStickyMarkup() == true else { return }
+            pdfView?.clearSelection()
+        }
+        pdfView.onEscape = { [weak pdfView, weak annotationManager, weak pdfManager] in
+            var handled = false
+            if annotationManager?.stickyMarkup != nil { annotationManager?.stickyMarkup = nil; handled = true }
+            if pdfManager?.interactionMode == .pan { pdfManager?.interactionMode = .select; handled = true }
+            if annotationManager?.selectedAnnotation != nil { annotationManager?.selectedAnnotation = nil; handled = true }
+            if handled { pdfView?.needsDisplay = true }
+            return handled
+        }
         pdfView.onAnnotationClick = { [weak commentManager, weak annotationManager] annotation in
             guard let commentManager = commentManager,
                   let annotationManager = annotationManager else { return }
 
+            // A markup tool in use marks text; it doesn't pick markup.
+            guard annotationManager.stickyMarkup == nil else { return }
             if !commentManager.selectAnnotation(annotation) {
                 annotationManager.selectedAnnotation = annotation
             }
@@ -583,6 +597,9 @@ struct PDFViewWrapper: NSViewRepresentable {
             // A newly loaded document's restored mode is not a reader's mode
             // change: its own restore or load fit owns the sizing.
             applyDisplayMode(pdfManager.displayMode, to: pdfView, refits: !documentDidChange)
+
+            pdfView.markupTool = annotationManager.stickyMarkup
+            pdfView.selectedMarkup = annotationManager.selectedAnnotation
 
             if pdfView.interactionMode != pdfManager.interactionMode {
                 pdfView.interactionMode = pdfManager.interactionMode

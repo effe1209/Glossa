@@ -209,7 +209,11 @@ extension GlassStyle {
         tint: .light, tintOpacity: DesignTokens.sidebarControlGlassTintOpacity, variant: .regular,
         legible: true
     )
-    static let newTabButton = tab(active: true).with(strokeOpacity: 0.22)
+    static let newTabButton = GlassStyle(
+        cornerRadius: DesignTokens.tabCornerRadius,
+        tint: .light, tintOpacity: DesignTokens.sidebarGlassTintOpacity, variant: .regular,
+        strokeOpacity: 0.22, legible: true
+    )
     static let dragHandle = GlassStyle(
         cornerRadius: 4,
         tint: .light, tintOpacity: 0.10, interactive: true, variant: .clear, strokeOpacity: 0.12
@@ -222,9 +226,9 @@ extension GlassStyle {
         GlassStyle(
             cornerRadius: DesignTokens.tabCornerRadius,
             tint: .light,
-            tintOpacity: active ? DesignTokens.sidebarGlassTintOpacity : DesignTokens.sidebarControlGlassTintOpacity,
+            tintOpacity: active ? 0.5 : DesignTokens.sidebarControlGlassTintOpacity * 0.8,
             variant: .regular,
-            strokeOpacity: active ? 0.3 : 0.18,
+            strokeOpacity: active ? 0.55 : 0.14,
             legible: true
         )
     }

@@ -182,12 +182,22 @@ struct GlassToolbarButton: View {
     var label: String?
     /// For a toggle, whether it is on (announced as selected).
     var isOn: Bool?
+    /// Marks an on tool with a dot under its icon, as an unsaved tab has one.
+    var showsOnDot = false
 
     @State private var settingsManager = SettingsManager.shared
 
     var body: some View {
         Button(action: action) {
             GlassToolbarLabel(icon: icon, interactive: !disabled)
+                .overlay(alignment: .bottom) {
+                    if showsOnDot, isOn == true {
+                        Circle()
+                            .fill(Color.accentColor)
+                            .frame(width: DesignTokens.tabDirtyIndicatorSize - 1, height: DesignTokens.tabDirtyIndicatorSize - 1)
+                            .offset(y: 1)
+                    }
+                }
         }
         .buttonStyle(.plain)
         .pageFlowClickCursor()

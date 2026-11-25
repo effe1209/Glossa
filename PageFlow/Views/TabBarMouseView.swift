@@ -406,7 +406,7 @@ final class TabBarMouseNSView: NSView, TabBarHandle {
     private func makeDragSnapshot(for tabID: UUID, in tabManager: TabManager) -> TabDragPreviewSnapshot? {
         guard let tab = tabManager.tabs.first(where: { $0.id == tabID }) else { return nil }
         let baseWidth = tabFrames[tabID]?.width ?? DesignTokens.tabMinWidth
-        let width = min(max(baseWidth, DesignTokens.tabMinWidth), DesignTokens.tabMaxWidth)
+        let width = min(max(baseWidth, DesignTokens.tabMinWidth), DesignTokens.tabAdaptiveMaxWidth)
         return TabDragPreviewSnapshot(
             title: tab.displayTitle,
             isDirty: tabManager.isTabDirty(tabID),

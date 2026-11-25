@@ -14,11 +14,21 @@ struct FloatingToolbar: View {
     @Bindable var annotationManager: AnnotationManager
     @Bindable var commentManager: CommentManager
     @Bindable var bookmarkManager: BookmarkManager
+    var undoAvailability: UndoAvailability
+    var onUndo: () -> Void
+    var onRedo: () -> Void
     var onOpenFilePicker: () -> Void
     @Binding var showingOutline: Bool
     @Binding var showingComments: Bool
     var onFind: () -> Void
     @State private var settingsManager = SettingsManager.shared
+
+    /// The markup buttons are tools that stay on: turning one on also marks
+    /// any text already selected; clicking it again turns it off.
+    private func toolAction(_ tool: AnnotationManager.StickyMarkup) {
+        annotationManager.toggleSticky(tool)
+        annotationManager.applyStickyMarkup()
+    }
 
     private var isBookmarked: Bool { bookmarkManager.isBookmarked(pdfManager.currentPageIndex) }
 
@@ -60,17 +70,21 @@ struct FloatingToolbar: View {
             Divider().frame(height: 16)
             GlassToolbarButton(
                 icon: "underline",
-                help: "Underline the selected text",
-                action: { annotationManager.underlineSelection(color: annotationManager.underlineColor) },
-                disabled: !pdfManager.permissions.annotate || !annotationManager.hasSelection,
-                label: "Underline"
+                help: "Underline: marks the selection and stays on for the next ones. Click again to turn off",
+                action: { toolAction(.underline) },
+                disabled: !pdfManager.permissions.annotate || !pdfManager.hasDocument,
+                label: "Underline",
+                isOn: annotationManager.stickyMarkup == .underline,
+                showsOnDot: true
             )
             GlassToolbarButton(
                 icon: "highlighter",
-                help: "Highlight the selected text",
-                action: { annotationManager.highlightSelection(color: annotationManager.highlightColor) },
-                disabled: !pdfManager.permissions.annotate || !annotationManager.hasSelection,
-                label: "Highlight"
+                help: "Highlight: marks the selection and stays on for the next ones. Click again to turn off",
+                action: { toolAction(.highlight) },
+                disabled: !pdfManager.permissions.annotate || !pdfManager.hasDocument,
+                label: "Highlight",
+                isOn: annotationManager.stickyMarkup == .highlight,
+                showsOnDot: true
             )
             AnnotationColorMenu(
                 isUnderlineColor: { $0.color.isEqual(to: annotationManager.underlineColor) },
@@ -103,17 +117,17 @@ struct FloatingToolbar: View {
                 isOn: isBookmarked
             )
             Divider().frame(height: 16)
-            GlassToolbarButton(icon: "arrow.uturn.backward", help: "Go back", action: { pdfManager.goBack() },
-                               disabled: !pdfManager.canGoBack, label: "Back")
-            GlassToolbarButton(icon: "arrow.uturn.forward", help: "Go forward", action: { pdfManager.goForward() },
-                               disabled: !pdfManager.canGoForward, label: "Forward")
+            GlassToolbarButton(icon: "arrow.uturn.backward", help: undoAvailability.undoTitle, action: onUndo,
+                               disabled: !undoAvailability.canUndo, label: "Undo")
+            GlassToolbarButton(icon: "arrow.uturn.forward", help: undoAvailability.redoTitle, action: onRedo,
+                               disabled: !undoAvailability.canRedo, label: "Redo")
             Divider().frame(height: 16)
-            GlassToolbarButton(icon: "chevron.left", help: "Previous page", action: { pdfManager.previousPage() },
-                               disabled: !pdfManager.hasDocument || pdfManager.currentPageIndex == 0,
-                               label: "Previous Page")
-            GlassToolbarButton(icon: "chevron.right", help: "Next page", action: { pdfManager.nextPage() },
-                               disabled: !pdfManager.hasDocument || pdfManager.currentPageIndex >= pdfManager.pageCount - 1,
-                               label: "Next Page")
+            // The jump history: back to where an internal link or outline
+            // jump left from. Page by page is the arrow keys' job.
+            GlassToolbarButton(icon: "chevron.left", help: "Go back", action: { pdfManager.goBack() },
+                               disabled: !pdfManager.canGoBack, label: "Back")
+            GlassToolbarButton(icon: "chevron.right", help: "Go forward", action: { pdfManager.goForward() },
+                               disabled: !pdfManager.canGoForward, label: "Forward")
         }
     }
 }

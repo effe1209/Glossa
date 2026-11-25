@@ -264,9 +264,16 @@ struct DesignTokens {
 
     // MARK: - Tabs
 
-    static let tabHeight: CGFloat = 26
-    static let tabMaxWidth: CGFloat = 160
+    static let tabHeight: CGFloat = 30
+    static let tabMaxWidth: CGFloat = 210
     static let tabMinWidth: CGFloat = 80
+    /// Adaptive widths for the full-width strip (`TabWidthLayout`): tabs sit
+    /// at the preferred width, shrink together toward the minimum as the strip
+    /// fills, and scroll beyond that. The Deck keeps `tabMaxWidth` cards.
+    static let tabAdaptivePreferredWidth: CGFloat = 200
+    static let tabAdaptiveMinWidth: CGFloat = 104
+    /// Ceiling for a tab pill's width, e.g. a dragged pill in flight.
+    static let tabAdaptiveMaxWidth: CGFloat = 240
     static let tabSpacing: CGFloat = 2
     static let tabCornerRadius: CGFloat = 6
     static let tabBarLeftMargin: CGFloat = 80

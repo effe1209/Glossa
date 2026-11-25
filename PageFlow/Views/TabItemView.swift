@@ -36,6 +36,9 @@ struct TabItemView: View {
     let isDirty: Bool
     let isHovering: Bool
     var style: Style = .glass
+    /// Fixed pill width from the adaptive strip layout; nil keeps the
+    /// flexible min/max pill (the Deck's cards size themselves).
+    var width: CGFloat? = nil
 
     var body: some View {
         // Strip pills and the Deck's cards share the sidebar's legible glass,
@@ -66,11 +69,11 @@ struct TabItemView: View {
                 }
                 icon
                 Text(tab.displayTitle)
-                    .font(.system(size: 11, weight: isActive ? .medium : .regular))
-                    .foregroundStyle(Color.primary.opacity(isActive ? 0.92 : 0.74))
+                    .font(.system(size: 12, weight: isActive ? .semibold : .regular))
+                    .foregroundStyle(Color.primary.opacity(isActive ? 1 : 0.58))
                     .lineLimit(1)
                     .truncationMode(.middle)
-                    .frame(maxWidth: DesignTokens.tabMaxWidth - DesignTokens.tabCloseButtonSize - DesignTokens.spacingSM, alignment: .leading)
+                    .frame(maxWidth: (width ?? DesignTokens.tabMaxWidth) - DesignTokens.tabCloseButtonSize - DesignTokens.spacingSM, alignment: .leading)
             }
 
             // A pill wider than its title (the minimum width, a Deck card)
@@ -87,7 +90,15 @@ struct TabItemView: View {
         .padding(.horizontal, DesignTokens.spacingSM)
         .padding(.vertical, DesignTokens.spacingXS)
         .frame(height: DesignTokens.tabHeight)
-        .frame(minWidth: DesignTokens.tabMinWidth, maxWidth: DesignTokens.tabMaxWidth)
+        .overlay(alignment: .bottom) {
+            // A short accent bar under the focused tab.
+            Capsule()
+                .fill(Color.accentColor)
+                .frame(width: 24, height: 2)
+                .padding(.bottom, 1)
+                .opacity(isActive ? 1 : 0)
+        }
+        .frame(minWidth: width ?? DesignTokens.tabMinWidth, maxWidth: width ?? DesignTokens.tabMaxWidth)
     }
 
     /// The icon centred in the shown edge, with the unsaved dot on its corner.
@@ -111,8 +122,8 @@ struct TabItemView: View {
 
     private var icon: some View {
         Image(systemName: (contentKind ?? .pdf).tabIconSystemName)
-            .font(.system(size: 9, weight: .medium))
-            .foregroundStyle(Color.secondary.opacity(isActive ? 0.82 : 0.6))
+            .font(.system(size: 10, weight: .medium))
+            .foregroundStyle(Color.primary.opacity(isActive ? 0.85 : 0.45))
     }
 
     private func dirtyDot(size: CGFloat) -> some View {
