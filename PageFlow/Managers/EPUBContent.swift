@@ -1462,7 +1462,7 @@ final class EPUBContent: TabDocument {
         case EPUBError.resourceLimit: return "This EPUB is too large to open safely."
         case EPUBError.unreadableArchive: return "The EPUB archive is damaged or unsupported."
         case EPUBError.drmProtected: return "This EPUB is protected by DRM and can’t be opened."
-        default: return "PageFlow could not read this EPUB."
+        default: return "Glossa could not read this EPUB."
         }
     }
 

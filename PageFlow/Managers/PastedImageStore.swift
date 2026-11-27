@@ -266,7 +266,7 @@ final class PastedImageStore: @unchecked Sendable {
         if canWrite(into: attachments) { return attachments }
         let allowed = folderAccess.requestAccess(
             to: folder,
-            message: "Allow PageFlow to save images in an “\(Self.attachmentsFolderName)” folder next to this note."
+            message: "Allow Glossa to save images in an “\(Self.attachmentsFolderName)” folder next to this note."
         )
         return allowed && canWrite(into: attachments) ? attachments : fallbackFolder
     }
@@ -355,7 +355,7 @@ final class PastedImageStore: @unchecked Sendable {
             if let url = write(data, named: name, into: attachments) { return url }
             let allowed = folderAccess.requestAccess(
                 to: folder,
-                message: "Allow PageFlow to save pasted images in an “\(Self.attachmentsFolderName)” folder next to this note."
+                message: "Allow Glossa to save pasted images in an “\(Self.attachmentsFolderName)” folder next to this note."
             )
             if allowed, let url = write(data, named: name, into: attachments) { return url }
         }
@@ -392,7 +392,7 @@ final class PastedImageStore: @unchecked Sendable {
                     askedForAccess = true
                     if folderAccess.requestAccess(
                         to: folder,
-                        message: "Allow PageFlow to move this note's pasted images into an “\(Self.attachmentsFolderName)” folder next to it."
+                        message: "Allow Glossa to move this note's pasted images into an “\(Self.attachmentsFolderName)” folder next to it."
                     ) {
                         guard whileApproved() else { return [] }
                         saved = write(data, named: file.lastPathComponent, into: attachments)

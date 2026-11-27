@@ -230,10 +230,10 @@ nonisolated struct WikiLinkAccessRequest: Equatable {
         if let vaultRoot {
             folder = vaultRoot.standardizedFileURL
             message = "Choose your vault folder, “\(vaultRoot.lastPathComponent)” (the folder that contains .obsidian), "
-                + "so PageFlow can open the notes this note links to."
+                + "so Glossa can open the notes this note links to."
         } else {
             folder = parent
-            message = "Allow PageFlow to open the notes this note links to: choose the folder that holds them."
+            message = "Allow Glossa to open the notes this note links to: choose the folder that holds them."
         }
     }
 }

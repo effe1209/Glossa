@@ -10,7 +10,7 @@
 				<string>pdf</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>AppIcon</string>
+			<string>PDFDocument</string>
 			<key>CFBundleTypeName</key>
 			<string>PDF Document</string>
 			<key>CFBundleTypeRole</key>
@@ -29,7 +29,7 @@
 				<string>markdown</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>AppIcon</string>
+			<string>MarkdownDocument</string>
 			<key>CFBundleTypeName</key>
 			<string>Markdown Document</string>
 			<key>CFBundleTypeRole</key>
@@ -122,6 +122,8 @@
 			<string>Markdown Document</string>
 			<key>UTTypeIdentifier</key>
 			<string>net.daringfireball.markdown</string>
+			<key>UTTypeIconFile</key>
+			<string>MarkdownDocument.icns</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>

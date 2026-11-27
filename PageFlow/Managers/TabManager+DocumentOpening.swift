@@ -594,7 +594,7 @@ extension TabManager {
         let type = (try? target.resourceValues(forKeys: [.contentTypeKey]))?.contentType
         let runnable: [UTType] = [.application, .applicationBundle, .executable, .script, .shellScript]
         if let type, runnable.contains(where: type.conforms(to:)) {
-            postTransientToast("PageFlow doesn’t open apps or scripts from links")
+            postTransientToast("Glossa doesn’t open apps or scripts from links")
             return nil
         }
         guard localFileLinkPrompt(target.lastPathComponent) else { return nil }

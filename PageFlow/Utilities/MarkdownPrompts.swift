@@ -32,7 +32,7 @@ func presentMarkdownExternalChangePrompt(title: String, isDirty: Bool) -> Markdo
     alert.messageText = "\"\(title)\" has changed on disk."
     alert.informativeText = isDirty
         ? "Reloading will discard the changes you've made here. Keep My Version to continue editing — it won't match the file on disk until you save."
-        : "Reload it, or keep the version open in PageFlow?"
+        : "Reload it, or keep the version open in Glossa?"
     alert.alertStyle = .warning
     alert.addButton(withTitle: "Reload")
     alert.addButton(withTitle: "Keep My Version")
@@ -61,8 +61,8 @@ func presentMarkdownMissingFilePrompt(title: String, isDirty: Bool) -> MarkdownM
     alert.icon = NSApp.applicationIconImage
     alert.messageText = "\"\(title)\" was deleted or moved."
     alert.informativeText = isDirty
-        ? "PageFlow still has your text. Keep it open and save to write the file back, or close the tab and decide whether to save."
-        : "PageFlow still has its text. Keep it open and save to write the file back, or close the tab."
+        ? "Glossa still has your text. Keep it open and save to write the file back, or close the tab and decide whether to save."
+        : "Glossa still has its text. Keep it open and save to write the file back, or close the tab."
     alert.alertStyle = .warning
     alert.addButton(withTitle: "Keep Open")
     alert.addButton(withTitle: "Close Tab")
@@ -78,7 +78,7 @@ func presentMarkdownEncodingDowngradeNote(title: String, originalEncoding: Strin
     let alert = NSAlert()
     alert.icon = NSApp.applicationIconImage
     alert.messageText = "\"\(title)\" was saved as UTF-8"
-    alert.informativeText = "It was \(String.localizedName(of: originalEncoding)). PageFlow saved it as UTF-8 so that every character is kept."
+    alert.informativeText = "It was \(String.localizedName(of: originalEncoding)). Glossa saved it as UTF-8 so that every character is kept."
     alert.alertStyle = .informational
     alert.addButton(withTitle: "OK")
     presentAsSheetOrModal(alert)
@@ -103,7 +103,7 @@ func presentMarkdownLargeNotePrompt(title: String, byteCount: Int) -> Bool {
     alert.icon = NSApp.applicationIconImage
     let size = ByteCountFormatter.string(fromByteCount: Int64(byteCount), countStyle: .file)
     alert.messageText = "\"\(title)\" is \(size)"
-    alert.informativeText = "Notes this large can be slow to open and edit in PageFlow."
+    alert.informativeText = "Notes this large can be slow to open and edit in Glossa."
     alert.alertStyle = .warning
     alert.addButton(withTitle: "Open Anyway")
     alert.addButton(withTitle: "Cancel")

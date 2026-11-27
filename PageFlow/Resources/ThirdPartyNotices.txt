@@ -1,4 +1,4 @@
-PageFlow - Third-Party Notices
+Glossa - Third-Party Notices
 
 License and copyright notices for the third-party components used by PageFlow.
 
