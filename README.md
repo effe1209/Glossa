@@ -106,7 +106,15 @@ cd Tests/MarkupPaletteTests && swift test
 
 ## Privacy
 
-No analytics, no telemetry, no account. The app's own code makes no network requests and has no updater, so new versions come from the releases page. Your documents stay where you saved them: annotations are written into the PDF, comments into the Markdown file, and settings are kept on your Mac.
+Glossa has no analytics, no telemetry, no account and no updater, so new versions come from the releases page. Your documents stay where you saved them: annotations are written into the PDF, comments into the Markdown file, and settings are kept on your Mac.
+
+Glossa does not have a networking layer of its own: a review of the app's source and its bundled and third-party dependencies found no `URLSession`, `Network.framework` or socket code. That is a source review, not a network capture, and a few things can still reach the network:
+
+- **Remote images in the Markdown split view.** The preview is rendered with WebKit, so an image that a note references by `http(s)` URL is loaded from that address when the preview is open.
+- **Links and Help.** Links you open, and the Help menu item (which opens a website), are handed to your default browser.
+- **macOS services.** Anything macOS itself does on an app's behalf is outside Glossa's control.
+
+The sandboxed build also carries the `com.apple.security.network.client` entitlement.
 
 ## Keyboard shortcuts
 
