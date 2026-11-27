@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/app-icon.png" alt="Glossa icon" width="128">
+<img src="assets/app-icon-preview.png" alt="Glossa icon" width="128" height="128">
 
 # Glossa
 
