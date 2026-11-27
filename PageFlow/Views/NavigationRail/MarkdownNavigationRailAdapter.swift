@@ -61,6 +61,7 @@ final class MarkdownNavigationRailAdapter {
     func update(eligible: Bool, topInset: CGFloat, onShowSidebar: @escaping () -> Void) {
         self.topInset = topInset
         rail.onShowSidebar = onShowSidebar
+        rail.showsSidebarButton = true
         requestedEligible = eligible
         hostPresenceChanged()
     }

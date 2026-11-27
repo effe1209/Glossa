@@ -55,7 +55,7 @@ struct TabContainerView: View {
     }
 
     private var activeWindowTitle: String {
-        tabManager.activeSession?.content.document.documentTitle ?? "PageFlow"
+        tabManager.activeSession?.content.document.documentTitle ?? "Glossa"
     }
 
     /// One warm tab in the ZStack: the active tab is visible, hit-testable and

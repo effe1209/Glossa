@@ -60,6 +60,8 @@ struct GlassSidebarTitle: View {
         Text(text)
             .font(.headline)
             .foregroundStyle(.primary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
     }
 }
 

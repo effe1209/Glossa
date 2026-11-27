@@ -17,6 +17,8 @@ import Observation
 /// when a tab is moved between windows. Not persisted.
 struct TabUIState: Sendable {
     var showingOutline = false
+    /// A Markdown tab shows its source beside an uneditable preview.
+    var markdownSplitView = false
     /// What a PDF's or a book's sidebar shows: the view of it unmounts while
     /// the tab is hidden, so the mode lives with the tab.
     var pdfSidebarMode = SidebarMode.outline

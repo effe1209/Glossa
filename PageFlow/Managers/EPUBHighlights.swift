@@ -85,11 +85,11 @@ final class EPUBHighlights {
     static let smallSelectionLength = 50_000
 
     static var defaultColor: String {
-        SettingsManager.shared.highlightPresets.first?.hex ?? "#FFFF00"
+        SettingsManager.shared.highlightPresets.first?.hex ?? MarkupPalette.defaultHighlightHex
     }
 
     static var defaultUnderlineColor: String {
-        SettingsManager.shared.underlinePresets.first?.hex ?? "#000000"
+        SettingsManager.shared.underlinePresets.first?.hex ?? MarkupPalette.defaultUnderlineHex
     }
 
     /// A new note's colour, as a new PDF comment's.

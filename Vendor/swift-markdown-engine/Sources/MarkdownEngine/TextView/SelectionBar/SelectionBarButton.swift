@@ -21,6 +21,8 @@ final class SelectionBarButton: NSView {
     /// Drawn with the reference editor's keyboard focus ring (F6 into the bar).
     var hasKeyboardFocus = false { didSet { if hasKeyboardFocus != oldValue { needsDisplay = true } } }
     var tooltip: String
+    /// Uniform draw scale; the selection bar sets it, anything else keeps 1.
+    var scale: CGFloat = 1 { didSet { if scale != oldValue { invalidateIntrinsicContentSize(); needsDisplay = true } } }
     var onPress: ((SelectionBarButton) -> Void)?
     var onHover: ((SelectionBarButton, Bool) -> Void)?
     /// A value that must be unchanged between mouse-down and mouse-up (the selection).
@@ -50,6 +52,12 @@ final class SelectionBarButton: NSView {
     /// the reference editor's widths: a plain button is 24; Text style is padding 0 4 0 8
     /// with a 3 gap and a 12 caret; List is padding 0 3 0 5 with a 1 gap.
     override var intrinsicContentSize: NSSize {
+        let size = naturalContentSize
+        let s = scale
+        return NSSize(width: size.width * s, height: size.height * s)
+    }
+
+    private var naturalContentSize: NSSize {
         guard hasCaret else { return NSSize(width: 24, height: 24) }
         switch content {
         case .text(let label):
@@ -63,7 +71,14 @@ final class SelectionBarButton: NSView {
     static let labelFont = NSFont.systemFont(ofSize: 13, weight: .regular)
 
     override func draw(_ dirtyRect: NSRect) {
-        let box = bounds
+        // Drawn in natural units under a uniform scale.
+        let s = scale
+        let box = NSRect(x: 0, y: 0, width: bounds.width / s, height: bounds.height / s)
+        NSGraphicsContext.saveGraphicsState()
+        defer { NSGraphicsContext.restoreGraphicsState() }
+        let transform = NSAffineTransform()
+        transform.scale(by: s)
+        transform.concat()
         if isEnabled, isPressed {
             ChromePalette.pressedFill.setFill()
             NSBezierPath(roundedRect: box, xRadius: 6, yRadius: 6).fill()
@@ -182,9 +197,14 @@ final class SelectionBarButton: NSView {
 
 /// The 1 × 18 rule between groups of controls, with 2 pt margins.
 final class SelectionBarSeparator: NSView {
-    override var intrinsicContentSize: NSSize { NSSize(width: 5, height: 24) }
+    var scale: CGFloat = 1 { didSet { if scale != oldValue { invalidateIntrinsicContentSize(); needsDisplay = true } } }
+    override var intrinsicContentSize: NSSize {
+        let s = scale
+        return NSSize(width: 5 * s, height: 24 * s)
+    }
     override func draw(_ dirtyRect: NSRect) {
+        let s = scale
         ChromePalette.border.setFill()
-        NSRect(x: 2, y: (bounds.height - 18) / 2, width: 1, height: 18).fill()
+        NSRect(x: 2 * s, y: (bounds.height - 18 * s) / 2, width: s, height: 18 * s).fill()
     }
 }

@@ -15,6 +15,42 @@ final class NavigationRailView: NSView {
     var updatePreview: ((NavigationRailTarget) -> Void)?
     var onActivate: ((NavigationRailTarget, Int) -> Void)?
     var onShowSidebar: (() -> Void)?
+    /// The pointer reached the rail's lane; the PDF peeks its sidebar in.
+    var onPointerEnteredLane: (() -> Void)?
+    /// A sidebar button above the marks (Markdown and EPUB, whose toolbars
+    /// don't carry one); the marks sit a little lower to make room.
+    var showsSidebarButton = false {
+        didSet {
+            guard showsSidebarButton != oldValue else { return }
+            geometry = makeGeometry()
+            needsDisplay = true
+        }
+    }
+    private var isPressingSidebarButton = false
+    /// The pointer is on the marks themselves (a little beyond the first and
+    /// last), not on the empty lane around them: the geometry would otherwise
+    /// resolve it to the nearest mark.
+    private func marksContain(_ y: CGFloat) -> Bool {
+        guard let first = geometry.marks.first?.y, let last = geometry.marks.last?.y else { return false }
+        return y >= first - 8 && y <= last + 8
+    }
+    /// Where the button sits: just above the first mark.
+    private var sidebarButtonTop: CGFloat = 0
+    private var sidebarButtonRect: NSRect {
+        NSRect(x: 10, y: sidebarButtonTop, width: 24, height: 24)
+    }
+    /// Button top to first mark: the 24 pt button and a small gap.
+    private static let buttonToMarks: CGFloat = 38
+    /// The sidebar is open beside the lane: the lane stays put as its edge,
+    /// shows no previews of its own (the sidebar has the pages) and doesn't
+    /// slide away with the pointer.
+    var isSidebarOpen = false {
+        didSet {
+            guard isSidebarOpen != oldValue else { return }
+            if isSidebarOpen { closePreview() }
+            updateVisibility(animated: true)
+        }
+    }
     var reservedNativeHit: ((NSPoint) -> NSView?)?
     var paintExclusions: (() -> [NSRect])?
     private(set) var kind: Kind = .pdf
@@ -122,6 +158,7 @@ final class NavigationRailView: NSView {
         makePreview = nil
         onActivate = nil
         onShowSidebar = nil
+        onPointerEnteredLane = nil
         targetAtRank = nil
         reservedNativeHit = nil
         paintExclusions = nil
@@ -133,8 +170,25 @@ final class NavigationRailView: NSView {
     }
 
     private func makeGeometry() -> NavigationRailGeometry {
-        NavigationRailGeometry(totalRanks: eligible || isSlidingOut ? count : 0, height: bounds.height,
-                               topInset: topInset)
+        let total = eligible || isSlidingOut ? count : 0
+        guard showsSidebarButton else {
+            return NavigationRailGeometry(totalRanks: total, height: bounds.height, topInset: topInset)
+        }
+        // The button sits just above the first mark; button and marks form one
+        // block, centred in the rail's height.
+        let blockHead = Self.buttonToMarks
+        var geometry = NavigationRailGeometry(totalRanks: total, height: bounds.height, topInset: topInset + blockHead)
+        let first = geometry.marks.first?.y ?? 0
+        let span = (geometry.marks.last?.y ?? 0) - first
+        let areaTop = max(0, topInset) + 20
+        let area = max(0, bounds.height - 20 - areaTop)
+        let blockTop = areaTop + max(0, (area - (blockHead + span)) / 2)
+        sidebarButtonTop = blockTop
+        let shift = blockTop + blockHead - first
+        geometry.marks = geometry.marks.map {
+            NavigationRailGeometry.Mark(ranks: $0.ranks, y: $0.y + shift)
+        }
+        return geometry
     }
     private var pointerIsInLane: Bool {
         guard let window else { return false }
@@ -240,10 +294,18 @@ final class NavigationRailView: NSView {
         }
         exitWork?.cancel()
         exitWork = nil
+        if eligible, !dragging, lane.contains(point) { onPointerEnteredLane?() }
+        if isSidebarOpen { return }
         guard eligible, window?.isKeyWindow == true, !dragging, !requiresFreshEntry,
               !isHiddenOrHasHiddenAncestor, !geometry.marks.isEmpty else { return }
         if panel?.frame.contains(point) == true { return }
         guard lane.contains(point) else { return }
+        if (showsSidebarButton && sidebarButtonRect.contains(point)) || !marksContain(point.y) {
+            hoveredRank = nil
+            closePreview()
+            needsDisplay = true
+            return
+        }
         guard reservedNativeHit?(convert(point, to: nil)) == nil else {
             if kind == .markdown && panelOwnsInteraction { return }
             window?.invalidateCursorRects(for: self)
@@ -362,7 +424,7 @@ final class NavigationRailView: NSView {
     /// becomes eligible or not, and, with `revealsOnHover`, as the pointer
     /// reaches or leaves it. Reduce Motion shows and hides it at once.
     private func updateVisibility(animated: Bool) {
-        let show = eligible && (!revealsOnHover || pointerInRegion || panel != nil)
+        let show = eligible && (!revealsOnHover || pointerInRegion || panel != nil || isSidebarOpen)
         guard show != isShowing else {
             if !eligible, !isSlidingOut {
                 isHidden = true
@@ -467,7 +529,12 @@ final class NavigationRailView: NSView {
 
     override func mouseDown(with event: NSEvent) {
         let point = convert(event.locationInWindow, from: nil)
-        guard eligible, window?.isKeyWindow == true, lane.contains(point),
+        if showsSidebarButton, eligible, window?.isKeyWindow == true, sidebarButtonRect.contains(point) {
+            isPressingSidebarButton = true
+            return
+        }
+        isPressingSidebarButton = false
+        guard eligible, window?.isKeyWindow == true, lane.contains(point), marksContain(point.y),
               reservedNativeHit?(event.locationInWindow) == nil,
               let rank = geometry.representative(at: point.y), let target = target(for: rank) else { return }
         requiresFreshEntry = false
@@ -477,7 +544,14 @@ final class NavigationRailView: NSView {
     }
 
     override func mouseUp(with event: NSEvent) {
-        defer { pressed = nil }
+        defer { pressed = nil; isPressingSidebarButton = false }
+        if isPressingSidebarButton {
+            if sidebarButtonRect.contains(convert(event.locationInWindow, from: nil)) {
+                closePreview()
+                onShowSidebar?()
+            }
+            return
+        }
         guard let pressed, pressed.generation == generation, eligible,
               window?.isKeyWindow == true, lane.contains(convert(event.locationInWindow, from: nil)),
               reservedNativeHit?(event.locationInWindow) == nil else { return }
@@ -495,9 +569,27 @@ final class NavigationRailView: NSView {
         return true
     }
 
+    private func drawSidebarButton() {
+        let rect = sidebarButtonRect
+        let config = NSImage.SymbolConfiguration(pointSize: 15, weight: .medium)
+        guard let symbol = NSImage(systemSymbolName: "sidebar.leading", accessibilityDescription: nil)?
+            .withSymbolConfiguration(config) else { return }
+        let size = symbol.size
+        let target = NSRect(x: rect.midX - size.width / 2, y: rect.midY - size.height / 2,
+                            width: size.width, height: size.height)
+        let tinted = NSImage(size: size, flipped: false) { bounds in
+            symbol.draw(in: bounds)
+            NSColor.secondaryLabelColor.set()
+            bounds.fill(using: .sourceIn)
+            return true
+        }
+        tinted.draw(in: target, from: .zero, operation: .sourceOver, fraction: 1, respectFlipped: true, hints: nil)
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         guard eligible || isSlidingOut else { return }
         let exclusions = paintExclusions?() ?? []
+        if showsSidebarButton { drawSidebarButton() }
         let hoveredIndex = hoveredRank.flatMap { rank in geometry.marks.firstIndex { $0.representative == rank } }
         for (index, mark) in geometry.marks.enumerated() {
             let active = mark.isActive(visible)

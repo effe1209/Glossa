@@ -22,8 +22,21 @@ struct DesignTokens {
     )
 
     // MARK: - Annotation Colors
+    //
+    // Markup colours fall in five groups, kept apart:
+    //   1. Default highlight colours   `MarkupPalette.highlightDefaults`
+    //   2. Default underline colours   `MarkupPalette.underlineDefaults`
+    //   3. The reader's presets        `SettingsManager.highlightPresets` / `underlinePresets`
+    //                                  (the defaults with the reader's layer on top)
+    //   4. Legacy rendering fallbacks  `legacyRenderFallback`, below
+    //   5. Unrelated interface colours Find matches (below), the split-view line flash,
+    //                                  comment colours, the colour well's parse fallback
 
-    static let highlightYellow = NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 1.0) // #FFFF00 @100%
+    /// How an EPUB highlight whose stored colour cannot be parsed is DRAWN. It is the
+    /// colour PageFlow used before Glossa's palette, kept so a highlight already saved never
+    /// changes colour. It is never the colour of a new highlight, underline or preset: those
+    /// come from `MarkupPalette`.
+    static let legacyRenderFallback = NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 1.0) // #FFFF00 @100%
 
     // MARK: - Search Highlight Colors
 
@@ -42,7 +55,7 @@ struct DesignTokens {
 
     // MARK: - Layout
 
-    static let sidebarWidth: CGFloat = 176
+    static let sidebarWidth: CGFloat = 232
     static let thumbnailWidth: CGFloat = 120
     static let sidebarThumbnailWidth: CGFloat = sidebarWidth - 24
     static let dialogWidth: CGFloat = 300
@@ -158,7 +171,9 @@ struct DesignTokens {
     static let markdownReadingGutter: CGFloat = 24
     /// Page look (doc 18 §4.3 D6): the reading column's measure in ems of the
     /// body font; the side-margin slider adds gutter on top.
-    static let markdownPageMeasureEm: CGFloat = 42
+    static let markdownPageMeasureEm: CGFloat = 64
+    /// How much larger the formatting bar over a selection is drawn.
+    static let markdownSelectionBarScale: CGFloat = 1.35
     /// Breathing room between the floating top chrome and the document's first line.
     static let markdownFirstLineGap: CGFloat = 24
 
@@ -264,10 +279,22 @@ struct DesignTokens {
 
     // MARK: - Tabs
 
-    static let tabHeight: CGFloat = 26
-    static let tabMaxWidth: CGFloat = 160
-    static let tabMinWidth: CGFloat = 80
-    static let tabSpacing: CGFloat = 2
+    /// The reader's tab size setting (`SettingsManager.tabScale`), mirrored
+    /// here so the pure layout types can size tabs without the settings object.
+    nonisolated(unsafe) static var tabScale: CGFloat = 1
+    static var tabHeight: CGFloat { 30 * tabScale }
+    static var tabMaxWidth: CGFloat { 210 * tabScale }
+    static var tabMinWidth: CGFloat { 80 * tabScale }
+    /// Adaptive widths for the full-width strip (`TabWidthLayout`): tabs sit
+    /// at the preferred width, shrink together toward the minimum as the strip
+    /// fills, and scroll beyond that. The Deck keeps `tabMaxWidth` cards.
+    static var tabAdaptivePreferredWidth: CGFloat { 200 * tabScale }
+    static var tabAdaptiveMinWidth: CGFloat { 104 * tabScale }
+    /// Ceiling for a tab pill's width, e.g. a dragged pill in flight.
+    static var tabAdaptiveMaxWidth: CGFloat { 240 * tabScale }
+    static var tabTitleFontSize: CGFloat { 12 * tabScale }
+    static var tabIconFontSize: CGFloat { 10 * tabScale }
+    static let tabSpacing: CGFloat = 5
     static let tabCornerRadius: CGFloat = 6
     static let tabBarLeftMargin: CGFloat = 80
     static let tabCloseButtonSize: CGFloat = 14

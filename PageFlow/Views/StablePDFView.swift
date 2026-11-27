@@ -32,6 +32,94 @@ final class StablePDFView: PDFView {
     private var lastPanLocation: NSPoint?
     private var isPanning = false
 
+    /// The sticky markup tool in use: the pointer becomes its icon.
+    var markupTool: AnnotationManager.StickyMarkup? {
+        didSet {
+            guard markupTool != oldValue else { return }
+            markupCursor = markupTool.map { Self.makeCursor(for: $0) }
+            updateMarkupCursorMonitor()
+            window?.invalidateCursorRects(for: self)
+            if let markupCursor { markupCursor.set() } else { NSCursor.arrow.set() }
+        }
+    }
+    private var markupCursor: NSCursor?
+    private var markupCursorMonitor: Any?
+    private var markupCursorTimer: Timer?
+
+    /// While a markup tool is on, its icon is the pointer everywhere in this
+    /// window — over the toolbar and tab strip too. Controls set their own
+    /// cursors (a hand, an arrow) as the pointer moves, so the icon is put
+    /// back right after each such event instead of being fought for.
+    private func updateMarkupCursorMonitor() {
+        if let monitor = markupCursorMonitor {
+            NSEvent.removeMonitor(monitor)
+            markupCursorMonitor = nil
+        }
+        markupCursorTimer?.invalidate()
+        markupCursorTimer = nil
+        MarkupCursorState.shared.setActive(markupCursor != nil, owner: self)
+        if let markupCursor, interactionMode != .pan {
+            MarkupCursorOverride.install()
+            MarkupCursorOverride.cursor = markupCursor
+            MarkupCursorOverride.window = window
+        } else if MarkupCursorOverride.window === window || MarkupCursorOverride.window == nil {
+            MarkupCursorOverride.cursor = nil
+        }
+        guard markupCursor != nil else { return }
+        // Other code's cursors are swapped for ours (`MarkupCursorOverride`);
+        // this tick only puts ours on when nothing else has asked for one.
+        let timer = Timer(timeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, let cursor = self.markupCursor, self.interactionMode != .pan,
+                      MarkupCursorOverride.pointerIsOverWindow() else { return }
+                cursor.set()
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        markupCursorTimer = timer
+        let events: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDragged, .leftMouseDown, .leftMouseUp,
+                                             .cursorUpdate, .mouseEntered, .mouseExited]
+        markupCursorMonitor = NSEvent.addLocalMonitorForEvents(matching: events) { [weak self] event in
+            if let self, let cursor = self.markupCursor, event.window != nil, event.window === self.window,
+               self.interactionMode != .pan {
+                MarkupCursorOverride.window = self.window
+                DispatchQueue.main.async { [weak self] in
+                    guard let self, self.markupCursor === cursor, MarkupCursorOverride.pointerIsOverWindow() else { return }
+                    cursor.set()
+                }
+            }
+            return event
+        }
+    }
+
+
+    private static func makeCursor(for tool: AnnotationManager.StickyMarkup) -> NSCursor {
+        let name = tool == .highlight ? "highlighter" : "underline"
+        let size = NSSize(width: 24, height: 24)
+        let config = NSImage.SymbolConfiguration(pointSize: 17, weight: .bold)
+        guard let symbol = NSImage(systemSymbolName: name, accessibilityDescription: nil)?
+            .withSymbolConfiguration(config) else { return .iBeam }
+        func tinted(_ color: NSColor) -> NSImage {
+            NSImage(size: size, flipped: false) { rect in
+                let r = NSRect(origin: .zero, size: symbol.size)
+                    .offsetBy(dx: (rect.width - symbol.size.width) / 2, dy: (rect.height - symbol.size.height) / 2)
+                symbol.draw(in: r)
+                color.set()
+                r.fill(using: .sourceIn)
+                return true
+            }
+        }
+        let black = tinted(.black), white = tinted(.white)
+        let image = NSImage(size: size, flipped: false) { rect in
+            for (dx, dy) in [(-1.0, 0.0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (-1, 1), (1, -1)] {
+                white.draw(in: rect.offsetBy(dx: dx, dy: dy))
+            }
+            black.draw(in: rect)
+            return true
+        }
+        return NSCursor(image: image, hotSpot: NSPoint(x: 4, y: 20))
+    }
+
     override init(frame: NSRect) {
         super.init(frame: frame)
         unregisterDraggedTypes()
@@ -123,6 +211,55 @@ final class StablePDFView: PDFView {
     var onCopyDocumentAsMarkdown: (() -> Void)?
     var onToggleBookmark: (() -> Void)?
     var onRequestFocus: (() -> Void)?
+    /// A text selection was just completed by releasing the mouse.
+    var onSelectionFinished: (() -> Void)?
+    /// Esc: drop whatever tool or selection is active. True if it did.
+    var onEscape: (() -> Bool)?
+
+    /// The highlight or underline picked with the pointer, outlined so Delete
+    /// has a visible target.
+    var selectedMarkup: PDFAnnotation? {
+        didSet {
+            guard selectedMarkup !== oldValue else { return }
+            updateSelectionOutline()
+        }
+    }
+    private var selectionOutline: MarkupSelectionOutline?
+    private var outlineObservers: [NSObjectProtocol] = []
+
+    private func updateSelectionOutline() {
+        guard let annotation = selectedMarkup,
+              annotation.markupType == .highlight || annotation.markupType == .underline else {
+            selectionOutline?.removeFromSuperview()
+            selectionOutline = nil
+            outlineObservers.forEach(NotificationCenter.default.removeObserver)
+            outlineObservers = []
+            return
+        }
+        let outline = selectionOutline ?? MarkupSelectionOutline(frame: bounds)
+        outline.pdfView = self
+        outline.annotation = annotation
+        if outline.superview == nil {
+            outline.autoresizingMask = [.width, .height]
+            addSubview(outline)
+            selectionOutline = outline
+            let center = NotificationCenter.default
+            var names: [(Notification.Name, AnyObject?)] = [
+                (.PDFViewScaleChanged, self), (.PDFViewPageChanged, self), (.PDFViewVisiblePagesChanged, self),
+                (.PDFViewSelectionChanged, self)
+            ]
+            if let clip = documentScrollView?.contentView {
+                clip.postsBoundsChangedNotifications = true
+                names.append((NSView.boundsDidChangeNotification, clip))
+            }
+            outlineObservers = names.map { name, object in
+                center.addObserver(forName: name, object: object, queue: .main) { [weak outline] _ in
+                    MainActor.assumeIsolated { outline?.needsDisplay = true }
+                }
+            }
+        }
+        outline.needsDisplay = true
+    }
     /// The reader moved the view: a pan, the scrollers, or the keys. The wheel reaches
     /// the scroll view first, so the coordinator's monitor reports that.
     var onReaderScroll: (() -> Void)?
@@ -165,6 +302,11 @@ final class StablePDFView: PDFView {
         pendingScrollRestore?.cancel()
         NotificationCenter.default.removeObserver(self)
         removeRightClickMonitor()
+        if let markupCursorMonitor { NSEvent.removeMonitor(markupCursorMonitor) }
+        markupCursorTimer?.invalidate()
+        if MarkupCursorOverride.window == nil { MarkupCursorOverride.cursor = nil }
+        let id = ObjectIdentifier(self)
+        Task { @MainActor in MarkupCursorState.shared.release(id) }
     }
 
     func setupRightClickMonitor() {
@@ -275,8 +417,18 @@ final class StablePDFView: PDFView {
         syncScrollerVisibility(in: scrollView)
     }
 
+    private var moveTrackingArea: NSTrackingArea?
+
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
+
+        // Whole-view move tracking (`.inVisibleRect` keeps it sized by itself),
+        // so the markup cursor can be re-applied as the pointer moves.
+        if moveTrackingArea == nil {
+            let area = NSTrackingArea(rect: .zero, options: [.mouseMoved, .activeInKeyWindow, .inVisibleRect], owner: self)
+            addTrackingArea(area)
+            moveTrackingArea = area
+        }
 
         if inLiveResize {
             needsTrackingAreaRefreshAfterLiveResize = true
@@ -529,6 +681,8 @@ final class StablePDFView: PDFView {
     override func cursorUpdate(with event: NSEvent) {
         if interactionMode == .pan {
             (isPanning ? NSCursor.closedHand : NSCursor.openHand).set()
+        } else if let markupCursor {
+            markupCursor.set()
         } else {
             super.cursorUpdate(with: event)
         }
@@ -609,6 +763,21 @@ final class StablePDFView: PDFView {
     }
 
     override func keyDown(with event: NSEvent) {
+        if event.keyCode == 53, onEscape?() == true { return }
+        // Delete and forward-delete remove the highlight or underline picked
+        // with the pointer.
+        if event.keyCode == 51 || event.keyCode == 117,
+           let annotation = selectedMarkup, annotation.page != nil {
+            onAnnotationRemove?(annotation)
+            return
+        }
+        // Left and right turn pages (in any display mode).
+        if event.modifierFlags.intersection([.command, .option, .control, .shift]).isEmpty,
+           interactionMode != .pan, event.keyCode == 123 || event.keyCode == 124 {
+            onReaderScroll?()
+            if event.keyCode == 123 { goToPreviousPage(nil) } else { goToNextPage(nil) }
+            return
+        }
         if Self.scrollingKeys.contains(event.keyCode) { onReaderScroll?() }
         super.keyDown(with: event)
     }
@@ -652,6 +821,7 @@ final class StablePDFView: PDFView {
     override func mouseUp(with event: NSEvent) {
         guard interactionMode == .pan else {
             super.mouseUp(with: event)
+            onSelectionFinished?()
             return
         }
 
@@ -671,5 +841,44 @@ final class StablePDFView: PDFView {
         let viewPoint = convert(event.locationInWindow, from: nil)
         let menu = buildContextMenu(for: event, at: viewPoint)
         menu.popUp(positioning: nil, at: viewPoint, in: self)
+    }
+}
+
+
+/// A thin outline around the highlight or underline that Delete will remove.
+/// It sits over the PDF view and never takes a click.
+@MainActor
+private final class MarkupSelectionOutline: NSView {
+    weak var pdfView: PDFView?
+    weak var annotation: PDFAnnotation?
+
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+    override func draw(_ dirtyRect: NSRect) {
+        guard let pdfView = pdfView as? StablePDFView, let annotation, let page = annotation.page,
+              // Marking text is not picking markup: no outline with a tool on
+              // or text selected.
+              pdfView.markupTool == nil,
+              pdfView.currentSelection?.string?.isEmpty != false else { return }
+        NSColor.controlAccentColor.setStroke()
+        for rect in lineRects(of: annotation) {
+            let shown = pdfView.convert(rect, from: page).insetBy(dx: -1, dy: -1)
+            let path = NSBezierPath(roundedRect: shown, xRadius: 2, yRadius: 2)
+            path.lineWidth = 1.5
+            path.stroke()
+        }
+    }
+
+    /// One rect per marked line, in page coordinates, from the annotation's
+    /// quadrilaterals (the whole bounds if it has none).
+    private func lineRects(of annotation: PDFAnnotation) -> [CGRect] {
+        guard let points = annotation.quadrilateralPoints, points.count >= 4 else { return [annotation.bounds] }
+        let origin = annotation.bounds.origin
+        return stride(from: 0, to: points.count - 3, by: 4).map { start in
+            let quad = points[start..<start + 4].map(\.pointValue)
+            let xs = quad.map(\.x), ys = quad.map(\.y)
+            return CGRect(x: origin.x + xs.min()!, y: origin.y + ys.min()!,
+                          width: xs.max()! - xs.min()!, height: ys.max()! - ys.min()!)
+        }
     }
 }

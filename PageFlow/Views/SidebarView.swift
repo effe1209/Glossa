@@ -22,6 +22,7 @@ struct SidebarView: View {
     @Binding var mode: SidebarMode
     let items: [OutlineItem]
     let onClose: () -> Void
+    var pin: SidebarPin?
 
     @State private var editingBookmarkID: UUID?
 
@@ -30,7 +31,8 @@ struct SidebarView: View {
             SidebarHeaderView(
                 mode: $mode,
                 isEditingPages: $isEditingPages,
-                onClose: onClose
+                onClose: onClose,
+                pin: pin
             )
         } content: {
             Group {

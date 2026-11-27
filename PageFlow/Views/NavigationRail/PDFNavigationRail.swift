@@ -9,12 +9,16 @@ struct PDFNavigationRail: NSViewRepresentable {
     let eligible: Bool
     let topInset: CGFloat
     let onShowSidebar: () -> Void
+    var onPointerEnteredLane: () -> Void = {}
+    var isSidebarOpen = false
     var pageRects: [NSRect] = []
 
     func makeNSView(context: Context) -> NavigationRailView { NavigationRailView() }
 
     func updateNSView(_ rail: NavigationRailView, context: Context) {
         rail.onShowSidebar = onShowSidebar
+        rail.onPointerEnteredLane = onPointerEnteredLane
+        rail.isSidebarOpen = isSidebarOpen
         let pageRects = self.pageRects
         rail.paintExclusions = { [weak rail] in
             guard let rail else { return [] }

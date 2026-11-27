@@ -34,6 +34,7 @@ struct EPUBNavigationRail: NSViewRepresentable {
                   case let .page(index) = target, index != content.currentPage else { return }
             content.jump(toPage: index)
         }
+        rail.showsSidebarButton = true
         let visible = Set(content.currentRow.pages)
         rail.configure(
             kind: .pdf,

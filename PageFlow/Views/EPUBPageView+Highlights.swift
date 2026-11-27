@@ -30,7 +30,7 @@ extension EPUBPageView {
     static let highlightPaintKeys: [NSAttributedString.Key] = [.backgroundColor, .underlineStyle, .underlineColor]
 
     /// How a highlight paints its words: a tint behind them, or a thick
-    /// line under them in its colour, deepened on light paper to show and,
+    /// line under them in its colour, deepened on light paper if it would not show and,
     /// on dark paper, the text's colour if it would sink into the paper.
     static func paintAttributes(_ highlight: EPUBPageHighlight,
                                 on palette: EPUBPagePalette) -> [NSAttributedString.Key: Any] {
@@ -44,7 +44,10 @@ extension EPUBPageView {
                 color = brightness < DesignTokens.epubUnderlineLeastBrightnessOnDark
                     ? EPUBTextStyling.themeTextColor(for: .dark) : highlight.color
             } else {
-                color = highlight.color.blended(withFraction: DesignTokens.epubUnderlineDeepening, of: .black) ?? highlight.color
+                // Deepened only if it would not show on this paper; a colour that already
+                // has the contrast is drawn as it is. The stored colour never changes.
+                color = ColorContrast.readableUnderline(highlight.color, on: EPUBTextStyling.themeBackgroundColor(for: palette),
+                                                        deepening: DesignTokens.epubUnderlineDeepening)
             }
             return [.underlineStyle: NSUnderlineStyle.thick.rawValue, .underlineColor: color]
         }
@@ -112,7 +115,7 @@ extension EPUBPageView {
 
     func drawNoteMarkers(_ content: EPUBPageContent) {
         for marker in noteMarkers(content) {
-            let color = content.highlights.first { $0.id == marker.id }?.color ?? DesignTokens.highlightYellow
+            let color = content.highlights.first { $0.id == marker.id }?.color ?? DesignTokens.legacyRenderFallback
             color.setFill()
             NSBezierPath(ovalIn: marker.rect).fill()
         }

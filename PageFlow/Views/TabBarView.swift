@@ -31,8 +31,9 @@ struct TabBarView: View {
     @State private var hoveredTabID: UUID?
     /// Tabs run past the strip's trailing edge (under the toolbar).
     @State private var overflowsTrailingEdge = false
-    /// The full-width strip's content width, as scrolled.
-    @State private var fullContentWidth: CGFloat = 0
+    /// The scroll view's visible width: what the adaptive layout fills. It
+    /// doesn't depend on the tabs, so resizing them can't feed back into it.
+    @State private var containerWidth: CGFloat = 0
     /// Showing the Deck: `compactTabs`, latched while a drag is in flight so
     /// the strip under the cursor never swaps layouts mid-drag.
     @State private var isCompact: Bool
@@ -50,6 +51,8 @@ struct TabBarView: View {
     }
 
     var body: some View {
+        // Re-render when the tab size setting changes.
+        let _ = SettingsManager.shared.tabScale
         ZStack {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: DesignTokens.tabSpacing) {
@@ -57,12 +60,15 @@ struct TabBarView: View {
                         deck
                     } else {
                         ForEach(tabManager.tabs, id: \.id) { tab in
-                            tabView(for: tab)
+                            tabView(for: tab, width: adaptiveLayout.tabWidth)
                         }
                     }
                     newTabButton
                 }
                 .padding(.horizontal, DesignTokens.spacingXS)
+                // Tabs glide to their new width as tabs open and close;
+                // window resizes and drags track directly.
+                .animation(DesignTokens.chromeAnimation(reduceMotion: reduceMotion), value: tabManager.tabs.count)
             }
             .onScrollGeometryChange(for: Bool.self) { geometry in
                 geometry.contentSize.width - geometry.visibleRect.maxX > 1
@@ -70,12 +76,9 @@ struct TabBarView: View {
                 overflowsTrailingEdge = overflows
             }
             .onScrollGeometryChange(for: CGFloat.self) { geometry in
-                geometry.contentSize.width
+                geometry.containerSize.width.rounded()
             } action: { _, width in
-                // The Deck's width animates with every slid-out sliver and
-                // `neededWidth` doesn't read it; don't re-render per frame.
-                guard !isCompact else { return }
-                fullContentWidth = width
+                containerWidth = width
             }
             .mask(trailingFadeMask)
             .onPreferenceChange(TabFramePreferenceKey.self) { frames in
@@ -160,17 +163,27 @@ struct TabBarView: View {
 
     /// The width the strip needs to show all its tabs: the Deck at rest (a
     /// slid-out sliver is transient and must not refold the toolbar), or the
-    /// full-width tabs as laid out.
+    /// full-width tabs at their minimum width. Not the current width: tabs
+    /// shrink to fit, so that would change with the very space this decides.
     private var neededWidth: CGFloat {
-        guard isCompact else { return fullContentWidth }
-        let deck = TabDeckLayout(count: tabManager.tabs.count, focusedIndex: 0).width
-        return deck + DesignTokens.tabSpacing + DesignTokens.chromeIconSize + 2 * DesignTokens.spacingXS
+        let count = tabManager.tabs.count
+        let tabs = isCompact
+            ? TabDeckLayout(count: count, focusedIndex: 0).width
+            : TabWidthLayout.minimumContentWidth(count: count)
+        return tabs + DesignTokens.tabSpacing + DesignTokens.chromeIconSize + 2 * DesignTokens.spacingXS
+    }
+
+    /// Tab widths for the full-width strip, filling what the new-tab button
+    /// and the strip's padding leave.
+    private var adaptiveLayout: TabWidthLayout {
+        let reserved = DesignTokens.tabSpacing + DesignTokens.chromeIconSize + 2 * DesignTokens.spacingXS
+        return TabWidthLayout(count: tabManager.tabs.count, availableWidth: containerWidth - reserved)
     }
 
     // MARK: - Tab View
 
     @ViewBuilder
-    private func tabView(for tab: TabModel) -> some View {
+    private func tabView(for tab: TabModel, width: CGFloat) -> some View {
         let isDragging = draggingLocalTabID == tab.id
 
         TabItemView(
@@ -179,7 +192,8 @@ struct TabBarView: View {
             isActive: tab.id == tabManager.activeTabID,
             isDirty: tabManager.isTabDirty(tab.id),
             isHovering: hoveredTabID == tab.id,
-            style: dragController.isActive ? .card : .glass
+            style: dragController.isActive ? .card : .glass,
+            width: width
         )
         .background(tabFrameReporter(for: tab.id))
         .offset(x: shiftOffset(for: tab.id))

@@ -33,6 +33,7 @@ struct EPUBToolbar: View {
             SidebarFindToolbarGroup(
                 showingSidebar: $showingContents,
                 canToggleSidebar: hasBook,
+                showsSidebarButton: false,
                 canFind: hasBook,
                 onFind: onFind
             )

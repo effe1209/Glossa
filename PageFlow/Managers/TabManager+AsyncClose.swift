@@ -76,7 +76,7 @@ final class DocumentCloseWaitSheet {
         guard !QAPresentation.runsInBackground else { return }
         #endif
         alert.messageText = quitting ? "Waiting to Quit" : "Waiting to Close"
-        alert.informativeText = "PageFlow is finishing a save. Cancel keeps your documents open; an already started save will continue."
+        alert.informativeText = "Glossa is finishing a save. Cancel keeps your documents open; an already started save will continue."
         alert.alertStyle = .informational
         alert.addButton(withTitle: "Cancel")
         presentation = Task { @MainActor [weak self] in

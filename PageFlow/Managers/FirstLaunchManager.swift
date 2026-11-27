@@ -56,8 +56,8 @@ final class FirstLaunchManager {
     /// Show native alert asking user to set PageFlow as default PDF reader
     private func showDefaultPDFReaderPrompt() {
         let alert = NSAlert()
-        alert.messageText = "Set PageFlow as Default PDF Reader?"
-        alert.informativeText = "Would you like to set PageFlow as your default application for opening PDF files?"
+        alert.messageText = "Set Glossa as Default PDF Reader?"
+        alert.informativeText = "Would you like to set Glossa as your default application for opening PDF files?"
         alert.alertStyle = .informational
         alert.addButton(withTitle: "Set as Default")
         alert.addButton(withTitle: "Not Now")
@@ -75,7 +75,7 @@ final class FirstLaunchManager {
         guard !isSettingDefaultPDFReader else { return }
         let applicationURL = Bundle.main.bundleURL
         guard applicationURL.pathExtension == "app" else {
-            showErrorAlert(message: "Could not determine the running PageFlow application location.")
+            showErrorAlert(message: "Could not determine the running Glossa application location.")
             return
         }
 
@@ -107,11 +107,11 @@ final class FirstLaunchManager {
         alert.informativeText = """
         \(reason)
 
-        To set PageFlow as your default PDF reader:
+        To set Glossa as your default PDF reader:
 
         1. Right-click any PDF file in Finder
         2. Select "Get Info" (or press ⌘I)
-        3. Under "Open with:", select this PageFlow copy at \(Bundle.main.bundleURL.path)
+        3. Under "Open with:", select this Glossa copy at \(Bundle.main.bundleURL.path)
         4. Click "Change All..."
 
         A PDF with its own "Open with" setting may need to be changed individually.
@@ -124,7 +124,7 @@ final class FirstLaunchManager {
     private func showSuccessAlert() {
         let alert = NSAlert()
         alert.messageText = "Success"
-        alert.informativeText = "PageFlow is now your default PDF reader. PDFs with an individual \"Open with\" setting may still open in another application."
+        alert.informativeText = "Glossa is now your default PDF reader. PDFs with an individual \"Open with\" setting may still open in another application."
         alert.alertStyle = .informational
         alert.addButton(withTitle: "OK")
         alert.runModal()

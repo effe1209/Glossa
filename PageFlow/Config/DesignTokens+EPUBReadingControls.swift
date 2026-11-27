@@ -15,7 +15,9 @@ extension DesignTokens {
     /// The typography popover's width.
     static let epubTypographyPopoverWidth: CGFloat = 280
     /// How far an underline highlight's colour is deepened toward black on
-    /// light and sepia paper, where a pale line would barely show.
+    /// light and sepia paper, but only when it has less than 3:1 contrast
+    /// with the paper (`ColorContrast.readableUnderline`); a colour that
+    /// already shows is drawn as it is. The stored colour never changes.
     static let epubUnderlineDeepening: CGFloat = 0.25
     /// An underline darker than this takes the text colour on dark paper.
     static let epubUnderlineLeastBrightnessOnDark: CGFloat = 0.35

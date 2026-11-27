@@ -100,6 +100,8 @@ struct MarkdownEditorView: View {
     /// Page look: fixed measure (42 em of the body font) centered in the
     /// window, on the same background as the rest of the editor.
     var pageLook: Bool = true
+    /// The Page look column's width, in ems of the body font (Settings, live).
+    var pageMeasureEm: CGFloat = DesignTokens.markdownPageMeasureEm
     /// Whether collapsed sections show a hidden-content summary row (Settings, live).
     var showsHiddenContentRow: Bool = true
     /// Forces the editor's `NSScrollView.appearance` independent of the system (fork
@@ -173,6 +175,7 @@ struct MarkdownEditorView: View {
         if let wikiLinkResolver { configuration.services.wikiLinks = wikiLinkResolver }
         // User-defined side margins (live) + top clearance so the first line
         // scrolls out from under the floating chrome.
+        MarkdownSelectionBarMetrics.scale = DesignTokens.markdownSelectionBarScale
         configuration.textInsets = TextInsets(horizontal: sideMargin, vertical: 0)
         configuration.safeAreaInsets = SafeAreaInsets(top: topInset, leading: 0, trailing: 0, bottom: 0)
         // Zoomed-out column placement (Settings toggle, live).
@@ -181,7 +184,7 @@ struct MarkdownEditorView: View {
         // The editor's own chords, as Settings > Shortcuts binds them (live).
         configuration.keyBindings = ShortcutCatalog.editorKeyBindings()
         if pageLook {
-            configuration.readingWidth = DesignTokens.markdownPageMeasureEm * fontSize
+            configuration.readingWidth = pageMeasureEm * fontSize
         }
         #if canImport(MarkdownEngineLatex)
         // Math ink must key off the editor's forced scheme, not the key window —

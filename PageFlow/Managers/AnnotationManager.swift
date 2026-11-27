@@ -29,17 +29,38 @@ final class AnnotationManager {
     /// PDFKit's selection can't be observed.
     private(set) var hasSelection = false
 
+    /// A markup tool that stays on: every selection is marked the moment the
+    /// mouse is released, until the tool is toggled off.
+    enum StickyMarkup { case highlight, underline }
+    var stickyMarkup: StickyMarkup?
+
+    func toggleSticky(_ tool: StickyMarkup) {
+        stickyMarkup = stickyMarkup == tool ? nil : tool
+    }
+
+    /// Marks the selection the user just finished making with the sticky
+    /// tool. Returns whether it did, so the caller can clear the selection.
+    @discardableResult
+    func applyStickyMarkup() -> Bool {
+        guard let tool = stickyMarkup, selectionProvider?().0?.string?.isEmpty == false else { return false }
+        switch tool {
+        case .highlight: highlightSelection()
+        case .underline: underlineSelection()
+        }
+        return true
+    }
+
     // Track if user explicitly selected a color (nil = use first preset)
     private var _underlineColor: NSColor?
     private var _highlightColor: NSColor?
 
     var underlineColor: NSColor {
-        get { _underlineColor ?? SettingsManager.shared.underlinePresets.first?.color ?? .black }
+        get { _underlineColor ?? SettingsManager.shared.underlinePresets.first?.color ?? MarkupPalette.defaultUnderlineColor }
         set { _underlineColor = newValue }
     }
 
     var highlightColor: NSColor {
-        get { _highlightColor ?? SettingsManager.shared.highlightPresets.first?.color ?? .yellow }
+        get { _highlightColor ?? SettingsManager.shared.highlightPresets.first?.color ?? MarkupPalette.defaultHighlightColor }
         set { _highlightColor = newValue }
     }
 
@@ -89,6 +110,7 @@ final class AnnotationManager {
     // MARK: - Actions
 
     func highlightSelection(color: NSColor? = nil) {
+        selectedAnnotation = nil
         addMarkup(
             subtype: .highlight,
             markupType: .highlight,
@@ -98,6 +120,7 @@ final class AnnotationManager {
     }
 
     func underlineSelection(color: NSColor? = nil) {
+        selectedAnnotation = nil
         addMarkup(
             subtype: .underline,
             markupType: .underline,

@@ -678,7 +678,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func showSaveFailureAlert(titles: [String]) {
         let alert = NSAlert()
         alert.icon = NSApp.applicationIconImage
-        alert.messageText = "PageFlow couldn't save all documents."
+        alert.messageText = "Glossa couldn't save all documents."
         alert.informativeText = titles.joined(separator: "\n")
         alert.alertStyle = .warning
         alert.addButton(withTitle: "OK")

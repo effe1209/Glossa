@@ -13,6 +13,9 @@ final class MarkdownSelectionBarView: NSView {
     }
 
     static let height: CGFloat = 34
+    /// How much larger than its natural size the bar is drawn
+    /// (`MarkdownSelectionBarMetrics.scale`).
+    static var scale: CGFloat { max(1, MarkdownSelectionBarMetrics.scale) }
     /// Set while the bar holds the keyboard (entered with F6).
     var onKeyboardExit: (() -> Void)?
     private(set) var focusedItem: Item?
@@ -160,13 +163,18 @@ final class MarkdownSelectionBarView: NSView {
     /// `maximumWidth`, controls fold from the end (Link stays) into "More
     /// formatting", and separators left alone are dropped (the reference editor).
     func layoutItems(maximumWidth: CGFloat = .greatestFiniteMagnitude) {
+        let s = Self.scale
+        let maximumWidth = maximumWidth / s
+        for button in buttons.values { button.scale = s }
+        moreButton.scale = s
+        for separator in separators { separator.scale = s }
         var entries = arrangement
         folded = []
         func width(of entries: [Item?], more: Bool) -> CGFloat {
             var total: CGFloat = 1 + 4 + 4 + 1
             for (index, entry) in entries.enumerated() {
                 if index > 0 { total += 2 }
-                total += entry.flatMap { buttons[$0]?.intrinsicContentSize.width } ?? 5
+                total += entry.flatMap { buttons[$0].map { $0.intrinsicContentSize.width / s } } ?? 5
             }
             return total + (more ? 2 + 24 : 0)
         }
@@ -193,17 +201,19 @@ final class MarkdownSelectionBarView: NSView {
                 view.isHidden = false
                 separatorIndex += 1
             }
-            let size = view.intrinsicContentSize
-            view.frame = NSRect(x: x, y: 1 + 4, width: size.width, height: 24)
-            x += size.width
+            let width = view.intrinsicContentSize.width / s
+            view.frame = NSRect(x: x * s, y: (1 + 4) * s, width: width * s, height: 24 * s)
+            x += width
         }
         moreButton.isHidden = folded.isEmpty
         if !folded.isEmpty {
             x += 2
-            moreButton.frame = NSRect(x: x, y: 1 + 4, width: 24, height: 24)
+            moreButton.frame = NSRect(x: x * s, y: (1 + 4) * s, width: 24 * s, height: 24 * s)
             x += 24
         }
-        setFrameSize(NSSize(width: x + 4 + 1, height: Self.height))
+        // Laid out in natural units, then everything scaled by the same factor
+        // (the controls draw themselves at `Self.scale`).
+        setFrameSize(NSSize(width: (x + 4 + 1) * s, height: Self.height * s))
     }
 
     override func updateLayer() {

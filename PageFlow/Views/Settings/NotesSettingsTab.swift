@@ -56,6 +56,21 @@ struct NotesSettingsTab: View {
                 }
 
                 Toggle("Page look", isOn: $settings.markdownPageLook)
+                Slider(value: $settings.markdownPageMeasure, in: SettingsManager.markdownPageMeasureRange) {
+                    HStack(spacing: DesignTokens.spacingXS) {
+                        Text("Page width")
+                        Text("\(Int(settings.markdownPageMeasure)) em")
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .disabled(!settings.markdownPageLook)
+                if abs(settings.markdownPageMeasure - Double(DesignTokens.markdownPageMeasureEm)) >= 0.5 {
+                    Button("Reset Page Width") {
+                        settings.markdownPageMeasure = Double(DesignTokens.markdownPageMeasureEm)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                }
                 Toggle("Center when zoomed out", isOn: $settings.markdownCentersZoomedOut)
                 Toggle("Show hidden-content row", isOn: $settings.markdownShowsHiddenContentRow)
             } header: {

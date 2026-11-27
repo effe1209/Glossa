@@ -19,14 +19,6 @@ enum EPUBHighlightStyle: String, Codable, Equatable, Sendable {
 extension EPUBHighlightStyle {
     var passageLabel: String { self == .underline ? "Underlined" : "Highlighted" }
     var removalTitle: String { self == .underline ? "Remove Underline" : "Remove Highlight" }
-
-    /// The colours this kind of mark offers.
-    @MainActor var presets: [SettingsManager.ColorPreset] {
-        switch self {
-        case .tint: SettingsManager.shared.highlightPresets
-        case .underline: SettingsManager.shared.underlinePresets
-        }
-    }
 }
 
 struct EPUBHighlight: Identifiable, Codable, Equatable, Sendable {
@@ -96,13 +88,7 @@ struct EPUBHighlight: Identifiable, Codable, Equatable, Sendable {
     /// written in it, as an empty PDF comment keeps its bubble.
     var isNote: Bool { note != nil }
 
-    /// The colours this mark offers: a note's are Settings' comment colours,
-    /// as a PDF comment's are.
-    @MainActor func presets(asNote: Bool) -> [SettingsManager.ColorPreset] {
-        asNote && style == .tint ? SettingsManager.shared.commentPresets : style.presets
-    }
-
-    var nsColor: NSColor { SettingsManager.ColorPreset.color(fromHex: color) ?? DesignTokens.highlightYellow }
+    var nsColor: NSColor { HexColor.color(fromHex: color) ?? DesignTokens.legacyRenderFallback }
 
     /// Reading order: by chapter, then by where the highlight starts.
     static func inReadingOrder(_ lhs: EPUBHighlight, _ rhs: EPUBHighlight) -> Bool {
@@ -125,7 +111,7 @@ extension Array where Element == EPUBHighlight {
             guard other.chapterIndex == chapter else { return false }
             let overlaps = other.range.location < NSMaxRange(range) && range.location < NSMaxRange(other.range)
             let adjoins = other.range.location == NSMaxRange(range) || range.location == NSMaxRange(other.range)
-            return overlaps || (adjoins && other.style == style && SettingsManager.ColorPreset.colorsMatch(other.color, color))
+            return overlaps || (adjoins && other.style == style && HexColor.colorsMatch(other.color, color))
         }
         var merged = range
         for index in touching { merged = NSUnionRange(merged, self[index].range) }

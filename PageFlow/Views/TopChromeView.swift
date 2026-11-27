@@ -30,9 +30,12 @@ struct TopChromeView: View {
 
     static func height(toolbarScale: Double) -> CGFloat {
         let metrics = SettingsManager.toolbarMetrics(for: toolbarScale)
+        // Tabs set the row's height too, once the tab size outgrows the toolbar.
+        let rowHeight = max(metrics.containerHeight, DesignTokens.tabHeight + 2 * DesignTokens.spacingXS)
+        _ = SettingsManager.shared.tabScale
         return max(
             DesignTokens.trafficLightHotspotHeight,
-            metrics.containerHeight + DesignTokens.windowDragRegionHeight + DesignTokens.spacingXS
+            rowHeight + DesignTokens.windowDragRegionHeight + DesignTokens.spacingXS
         )
     }
 
@@ -244,6 +247,9 @@ private struct ActiveFloatingToolbar: View {
                 annotationManager: runtime.annotationManager,
                 commentManager: runtime.commentManager,
                 bookmarkManager: runtime.bookmarkManager,
+                undoAvailability: tabManager.activeUndoAvailability,
+                onUndo: { tabManager.activeUndoManager?.undo() },
+                onRedo: { tabManager.activeUndoManager?.redo() },
                 onOpenFilePicker: { tabManager.openFilePicker() },
                 showingOutline: $tabManager.showingOutline,
                 showingComments: $tabManager.showingComments,
@@ -253,6 +259,8 @@ private struct ActiveFloatingToolbar: View {
         case .markdown(let runtime):
             MarkdownFormatToolbar(
                 content: runtime.content,
+                isSplitView: tabManager.markdownSplitView,
+                onToggleSplit: { tabManager.markdownSplitView.toggle() },
                 onOpenFilePicker: { tabManager.openFilePicker() },
                 showingOutline: $tabManager.showingOutline,
                 canFind: tabManager.canFind,

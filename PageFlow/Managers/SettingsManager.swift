@@ -55,11 +55,15 @@ final class SettingsManager {
         let id: UUID
         var name: String
         var hex: String
+        /// A default's stable key (`glossa.…`), or `user.…` for the reader's own;
+        /// nil in lists saved before palettes had keys.
+        var key: String?
 
-        init(id: UUID = UUID(), name: String, hex: String) {
+        init(id: UUID = UUID(), name: String, hex: String, key: String? = nil) {
             self.id = id
             self.name = name
             self.hex = hex
+            self.key = key
         }
 
         var color: NSColor {
@@ -68,45 +72,15 @@ final class SettingsManager {
         }
 
         /// A preset's colour from its hex form (EPUB highlights store the hex).
-        static func color(fromHex hex: String) -> NSColor? { hexToColor(hex) }
+        static func color(fromHex hex: String) -> NSColor? { HexColor.color(fromHex: hex) }
 
-        static func hex(from color: NSColor) -> String { colorToHex(color) }
+        static func hex(from color: NSColor) -> String { HexColor.hex(from: color) }
 
-        nonisolated static func colorsMatch(_ lhs: String, _ rhs: String) -> Bool {
-            if lhs == rhs { return true }
-            guard let left = rgbaValue(lhs), let right = rgbaValue(rhs) else { return false }
-            return left == right
-        }
+        nonisolated static func colorsMatch(_ lhs: String, _ rhs: String) -> Bool { HexColor.colorsMatch(lhs, rhs) }
 
-        /// Six-digit presets are opaque. The color picker also writes an alpha byte.
-        nonisolated private static func rgbaValue(_ hex: String) -> UInt32? {
-            let trimmed = hex.trimmingCharacters(in: .whitespacesAndNewlines)
-            let digits = trimmed.hasPrefix("#") ? trimmed.dropFirst() : trimmed[...]
-            guard digits.count == 6 || digits.count == 8, digits.allSatisfy(\.isHexDigit),
-                  let value = UInt32(digits, radix: 16) else { return nil }
-            return digits.count == 6 ? (value << 8) | 0xFF : value
-        }
+        private static func hexToColor(_ hex: String) -> NSColor? { HexColor.color(fromHex: hex) }
 
-        private static func hexToColor(_ hex: String) -> NSColor? {
-            guard let rgba = rgbaValue(hex) else { return nil }
-            return NSColor(
-                srgbRed: CGFloat((rgba >> 24) & 0xFF) / 255,
-                green: CGFloat((rgba >> 16) & 0xFF) / 255,
-                blue: CGFloat((rgba >> 8) & 0xFF) / 255,
-                alpha: CGFloat(rgba & 0xFF) / 255
-            )
-        }
-
-        private static func colorToHex(_ color: NSColor) -> String {
-            guard let rgbColor = color.usingColorSpace(.sRGB) else {
-                return "#000000FF"
-            }
-            let r = Int(rgbColor.redComponent * 255)
-            let g = Int(rgbColor.greenComponent * 255)
-            let b = Int(rgbColor.blueComponent * 255)
-            let a = Int(rgbColor.alphaComponent * 255)
-            return String(format: "#%02X%02X%02X%02X", r, g, b, a)
-        }
+        private static func colorToHex(_ color: NSColor) -> String { HexColor.hex(from: color) }
     }
 
     struct ToolbarMetrics {
@@ -118,7 +92,14 @@ final class SettingsManager {
     }
 
     static let defaultToolbarScale = 1.0
-    static let toolbarScaleRange: ClosedRange<Double> = 0.8...1.6
+    static let toolbarScaleRange: ClosedRange<Double> = 0.8...2.0
+
+    static let defaultTabScale = 1.0
+    static let tabScaleRange: ClosedRange<Double> = 0.8...1.6
+
+    static func clampedTabScale(_ scale: Double) -> Double {
+        min(max(scale, tabScaleRange.lowerBound), tabScaleRange.upperBound)
+    }
 
     static func clampedToolbarScale(_ scale: Double) -> Double {
         min(max(scale, toolbarScaleRange.lowerBound), toolbarScaleRange.upperBound)
@@ -152,6 +133,10 @@ final class SettingsManager {
         static let commentPresets = "settings.commentPresets"
         static let customShortcuts = "settings.customShortcuts"
         static let toolbarScale = "settings.toolbarScale"
+        /// Glossa's own preferences live under `glossa.*` (see docs/GLOSSA-IDENTITY-SEPARATION.md).
+        /// The `settings.*` names below them were written by earlier Glossa builds: read, never written.
+        static let tabScale = "glossa.tabs.scale"
+        static let legacyTabScale = "settings.tabScale"
         static let topBarAlwaysVisible = "settings.topBarAlwaysVisible"
         static let floatingToolbarAlwaysVisible = "settings.floatingToolbarAlwaysVisible"
         static let pageIndicatorAlwaysVisible = "settings.pageIndicatorAlwaysVisible"
@@ -169,6 +154,8 @@ final class SettingsManager {
         static let markdownFontSize = "settings.markdownFontSize"
         static let markdownCentersZoomedOut = "settings.markdownCentersZoomedOut"
         static let markdownPageLook = "settings.markdownPageLook"
+        static let markdownPageMeasure = "glossa.markdown.pageMeasure"
+        static let legacyMarkdownPageMeasure = "settings.markdownPageMeasure"
         static let markdownShowsHiddenContentRow = "settings.markdownShowsHiddenContentRow"
     }
 
@@ -195,23 +182,34 @@ final class SettingsManager {
     static let markdownFontSizeRange: ClosedRange<Double> = 10...28
     /// The side-margin slider's range (points); stored values clamp on load.
     static let markdownSideMarginRange: ClosedRange<Double> = 0...300
+    /// The reading column's width in ems of the body font (Page look).
+    static let markdownPageMeasureRange: ClosedRange<Double> = 40...140
 
     // MARK: - Default Presets
 
-    static let defaultHighlightPresets: [ColorPreset] = [
-        ColorPreset(name: "Yellow", hex: "#FFFF00"),
-        ColorPreset(name: "Green", hex: "#00B342"),
-        ColorPreset(name: "Red", hex: "#D20000"),
-        ColorPreset(name: "Blue", hex: "#0072C6")
-    ]
+    /// The current Glossa defaults (`MarkupPalette`), as presets.
+    static let defaultHighlightPresets: [ColorPreset] = presets(from: MarkupPalette.highlightDefaults)
+    static let defaultUnderlinePresets: [ColorPreset] = presets(from: MarkupPalette.underlineDefaults)
 
-    static let defaultUnderlinePresets: [ColorPreset] = [
-        ColorPreset(name: "Black", hex: "#000000"),
-        ColorPreset(name: "Yellow", hex: "#FFFF00"),
-        ColorPreset(name: "Green", hex: "#00B342"),
-        ColorPreset(name: "Red", hex: "#D20000"),
-        ColorPreset(name: "Blue", hex: "#0072C6")
-    ]
+    private static func presets(from palette: [PalettePreset]) -> [ColorPreset] {
+        palette.map { ColorPreset(name: $0.name, hex: $0.hex, key: $0.key) }
+    }
+
+    private static func palette(from presets: [ColorPreset]) -> [PalettePreset] {
+        presets.map { PalettePreset(key: $0.key ?? "user.\($0.id.uuidString)", name: $0.name, hex: $0.hex) }
+    }
+
+    /// Keeps the reader's changes to one palette as a layer over the defaults.
+    private func persistLayer(of presets: [ColorPreset], kind: MarkupKind) {
+        let layer = MarkupPalette.layer(from: Self.palette(from: presets), defaults: MarkupPalette.defaults(for: kind))
+        paletteStore.save(layer, kind: kind)
+    }
+
+    private var paletteStore: PaletteStore { PaletteStore(defaults: defaults) }
+
+    /// Colour lists that couldn't be read (saved by a newer version, or damaged): the
+    /// defaults show instead, nothing is overwritten, and Settings says so.
+    private(set) var markupPaletteIssues: [MarkupKind: PaletteStore.Issue] = [:]
 
     static let defaultCommentPresets: [ColorPreset] = [
         ColorPreset(name: "Gray", hex: "#80808099")  // 99 hex = 153 = 0.6 alpha
@@ -224,11 +222,11 @@ final class SettingsManager {
     private var isLoading = false
 
     var highlightPresets: [ColorPreset] = defaultHighlightPresets {
-        didSet { if !isLoading { savePresets(highlightPresets, forKey: Keys.highlightPresets) } }
+        didSet { if !isLoading { persistLayer(of: highlightPresets, kind: .highlight) } }
     }
 
     var underlinePresets: [ColorPreset] = defaultUnderlinePresets {
-        didSet { if !isLoading { savePresets(underlinePresets, forKey: Keys.underlinePresets) } }
+        didSet { if !isLoading { persistLayer(of: underlinePresets, kind: .underline) } }
     }
 
     var commentPresets: [ColorPreset] = defaultCommentPresets {
@@ -283,6 +281,19 @@ final class SettingsManager {
             if !isLoading {
                 defaults.set(toolbarScale, forKey: Keys.toolbarScale)
             }
+        }
+    }
+
+    /// The size of the tabs in the tab strip.
+    var tabScale = SettingsManager.defaultTabScale {
+        didSet {
+            let clamped = Self.clampedTabScale(tabScale)
+            if tabScale != clamped {
+                tabScale = clamped
+                return
+            }
+            DesignTokens.tabScale = CGFloat(tabScale)
+            if !isLoading { defaults.set(tabScale, forKey: Keys.tabScale) }
         }
     }
 
@@ -427,7 +438,16 @@ final class SettingsManager {
         }
     }
 
-    /// Page look: a centered 42-em reading column (doc 18 §4.3).
+    /// The width of the Page look column, in ems of the body font.
+    var markdownPageMeasure = Double(DesignTokens.markdownPageMeasureEm) {
+        didSet {
+            let clamped = min(max(markdownPageMeasure, Self.markdownPageMeasureRange.lowerBound), Self.markdownPageMeasureRange.upperBound)
+            if markdownPageMeasure != clamped { markdownPageMeasure = clamped; return }
+            if !isLoading { defaults.set(markdownPageMeasure, forKey: Keys.markdownPageMeasure) }
+        }
+    }
+
+    /// Page look: a centered reading column (doc 18 §4.3).
     var markdownPageLook = true {
         didSet {
             if !isLoading {
@@ -457,7 +477,8 @@ final class SettingsManager {
     // MARK: - Add/Remove Presets
 
     func addHighlightPreset() {
-        highlightPresets.append(ColorPreset(name: "New", hex: "#FFFF00"))
+        let preset = MarkupPalette.makeCustomPreset(for: .highlight, existing: Self.palette(from: highlightPresets))
+        highlightPresets.append(ColorPreset(name: preset.name, hex: preset.hex, key: preset.key))
     }
 
     func removeHighlightPreset(at index: Int) {
@@ -466,7 +487,8 @@ final class SettingsManager {
     }
 
     func addUnderlinePreset() {
-        underlinePresets.append(ColorPreset(name: "New", hex: "#000000"))
+        let preset = MarkupPalette.makeCustomPreset(for: .underline, existing: Self.palette(from: underlinePresets))
+        underlinePresets.append(ColorPreset(name: preset.name, hex: preset.hex, key: preset.key))
     }
 
     func removeUnderlinePreset(at index: Int) {
@@ -485,14 +507,46 @@ final class SettingsManager {
 
     // MARK: - Reset
 
+    /// Back to the current Glossa defaults: the reader's overrides, own presets and removed
+    /// defaults are cleared. What is replaced is kept (`glossa.markup.layer.*.backup`, and
+    /// `glossa.markup.comment.backup` for the comment colours); `restoreColorBackup()` puts it back.
+    /// Documents' annotations are not touched.
     func resetColors() {
+        for kind in MarkupKind.allCases { paletteStore.resetBackingUp(kind) }
+        if let comments = defaults.data(forKey: Keys.commentPresets) { defaults.set(comments, forKey: Self.commentBackupKey) }
         highlightPresets = Self.defaultHighlightPresets
         underlinePresets = Self.defaultUnderlinePresets
         commentPresets = Self.defaultCommentPresets
     }
 
+    private static let commentBackupKey = "glossa.markup.comment.backup"
+
+    /// The internal way back from `resetColors()`: restores the colours it replaced. Not offered
+    /// in the interface. False if there was nothing to restore.
+    @discardableResult
+    func restoreColorBackup() -> Bool {
+        let store = paletteStore
+        var restored = false
+        for kind in MarkupKind.allCases where store.restoreBackup(kind) { restored = true }
+        isLoading = true
+        highlightPresets = Self.presets(from: store.effective(.highlight))
+        underlinePresets = Self.presets(from: store.effective(.underline))
+        if let data = defaults.data(forKey: Self.commentBackupKey),
+           let comments = try? JSONDecoder().decode([ColorPreset].self, from: data) {
+            commentPresets = comments
+            defaults.set(data, forKey: Keys.commentPresets)
+            restored = true
+        }
+        isLoading = false
+        return restored
+    }
+
     func resetShortcuts() {
         customShortcuts = [:]
+    }
+
+    func resetTabScale() {
+        tabScale = Self.defaultTabScale
     }
 
     func resetToolbarScale() {
@@ -502,21 +556,18 @@ final class SettingsManager {
     // MARK: - Persistence
 
     private func loadSettings() {
-        if let data = defaults.data(forKey: Keys.highlightPresets) {
-            do {
-                highlightPresets = try JSONDecoder().decode([ColorPreset].self, from: data)
-            } catch {
-                logger.error("Failed to decode highlight presets: \(error.localizedDescription)")
-            }
+        // Highlight and underline colours: the defaults with the reader's layer
+        // on top. An older install's lists are brought across once, and left as they are.
+        let palettes = paletteStore
+        highlightPresets = Self.presets(from: palettes.effective(.highlight))
+        underlinePresets = Self.presets(from: palettes.effective(.underline))
+        var issues: [MarkupKind: PaletteStore.Issue] = [:]
+        for kind in MarkupKind.allCases {
+            guard let issue = palettes.issue(kind) else { continue }
+            issues[kind] = issue
+            logger.error("Saved \(kind.rawValue) colors can't be used (\(String(describing: issue))); showing the defaults and leaving the saved data alone")
         }
-
-        if let data = defaults.data(forKey: Keys.underlinePresets) {
-            do {
-                underlinePresets = try JSONDecoder().decode([ColorPreset].self, from: data)
-            } catch {
-                logger.error("Failed to decode underline presets: \(error.localizedDescription)")
-            }
-        }
+        markupPaletteIssues = issues
 
         if let data = defaults.data(forKey: Keys.commentPresets) {
             do {
@@ -532,6 +583,11 @@ final class SettingsManager {
             } catch {
                 logger.error("Failed to decode custom shortcuts: \(error.localizedDescription)")
             }
+        }
+
+        // The Glossa key wins; an earlier build's `settings.tabScale` is read once as a fallback.
+        if let key = [Keys.tabScale, Keys.legacyTabScale].first(where: { defaults.object(forKey: $0) != nil }) {
+            tabScale = Self.clampedTabScale(defaults.double(forKey: key))
         }
 
         if defaults.object(forKey: Keys.toolbarScale) != nil {
@@ -593,6 +649,9 @@ final class SettingsManager {
         }
 
         markdownCentersZoomedOut = defaults.bool(forKey: Keys.markdownCentersZoomedOut)
+        if let key = [Keys.markdownPageMeasure, Keys.legacyMarkdownPageMeasure].first(where: { defaults.object(forKey: $0) != nil }) {
+            markdownPageMeasure = defaults.double(forKey: key)
+        }
         markdownPageLook = defaults.object(forKey: Keys.markdownPageLook) == nil ? true : defaults.bool(forKey: Keys.markdownPageLook)
         if defaults.object(forKey: Keys.markdownShowsHiddenContentRow) != nil {
             markdownShowsHiddenContentRow = defaults.bool(forKey: Keys.markdownShowsHiddenContentRow)

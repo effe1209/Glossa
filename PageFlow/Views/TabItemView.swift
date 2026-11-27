@@ -36,15 +36,38 @@ struct TabItemView: View {
     let isDirty: Bool
     let isHovering: Bool
     var style: Style = .glass
+    /// Fixed pill width from the adaptive strip layout; nil keeps the
+    /// flexible min/max pill (the Deck's cards size themselves).
+    var width: CGFloat? = nil
 
     var body: some View {
+        // Re-render when the tab size setting changes.
+        let _ = SettingsManager.shared.tabScale
         // Strip pills and the Deck's cards share the sidebar's legible glass,
         // so a tab's adaptive label reads the same however the strip is laid out.
         content
             .pageFlowLiquidGlassSurface(.tab(active: isActive))
-        .shadow(color: .black.opacity(DesignTokens.glassElevationShadowOpacity), radius: isActive ? 8 : 4, y: isActive ? -3 : -2)
+        .shadow(color: .black.opacity(DesignTokens.glassElevationShadowOpacity * 0.5), radius: 2, y: -1)
+        // The focused tab carries an accent outline, so it reads on any page
+        // colour behind the glass.
+        .overlay {
+            if isActive, !isSliver {
+                RoundedRectangle(cornerRadius: DesignTokens.tabCornerRadius, style: .continuous)
+                    .fill(Color.accentColor.opacity(0.16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignTokens.tabCornerRadius, style: .continuous)
+                            .strokeBorder(Color.accentColor, lineWidth: 1)
+                    )
+                    .allowsHitTesting(false)
+            }
+        }
         .contentShape(Rectangle())
         // Gesture handling moved to TabBarView for unified tap/drag detection
+    }
+
+    private var isSliver: Bool {
+        if case .sliver = style { return true }
+        return false
     }
 
     @ViewBuilder
@@ -66,11 +89,11 @@ struct TabItemView: View {
                 }
                 icon
                 Text(tab.displayTitle)
-                    .font(.system(size: 11, weight: isActive ? .medium : .regular))
-                    .foregroundStyle(Color.primary.opacity(isActive ? 0.92 : 0.74))
+                    .font(.system(size: DesignTokens.tabTitleFontSize, weight: isActive ? .semibold : .regular))
+                    .foregroundStyle(Color.primary.opacity(isActive ? 1 : 0.58))
                     .lineLimit(1)
                     .truncationMode(.middle)
-                    .frame(maxWidth: DesignTokens.tabMaxWidth - DesignTokens.tabCloseButtonSize - DesignTokens.spacingSM, alignment: .leading)
+                    .frame(maxWidth: (width ?? DesignTokens.tabMaxWidth) - DesignTokens.tabCloseButtonSize - DesignTokens.spacingSM, alignment: .leading)
             }
 
             // A pill wider than its title (the minimum width, a Deck card)
@@ -87,7 +110,7 @@ struct TabItemView: View {
         .padding(.horizontal, DesignTokens.spacingSM)
         .padding(.vertical, DesignTokens.spacingXS)
         .frame(height: DesignTokens.tabHeight)
-        .frame(minWidth: DesignTokens.tabMinWidth, maxWidth: DesignTokens.tabMaxWidth)
+        .frame(minWidth: width ?? DesignTokens.tabMinWidth, maxWidth: width ?? DesignTokens.tabMaxWidth)
     }
 
     /// The icon centred in the shown edge, with the unsaved dot on its corner.
@@ -111,8 +134,8 @@ struct TabItemView: View {
 
     private var icon: some View {
         Image(systemName: (contentKind ?? .pdf).tabIconSystemName)
-            .font(.system(size: 9, weight: .medium))
-            .foregroundStyle(Color.secondary.opacity(isActive ? 0.82 : 0.6))
+            .font(.system(size: DesignTokens.tabIconFontSize, weight: .medium))
+            .foregroundStyle(Color.primary.opacity(isActive ? 0.85 : 0.45))
     }
 
     private func dirtyDot(size: CGFloat) -> some View {

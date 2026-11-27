@@ -128,7 +128,7 @@ struct PageFlowApp: App {
                 CommandMenu("Tab") { tabMenuContent }
                 // There is no help book: the system's item only says so.
                 CommandGroup(replacing: .help) {
-                    Button("PageFlow Help") {
+                    Button("Glossa Help") {
                         if let site = URL(string: "https://pageflow.pinchen.me") { NSWorkspace.shared.open(site) }
                     }
                 }
@@ -223,6 +223,13 @@ struct PageFlowApp: App {
         }
         .keyboardShortcut(for: "saveAs")
         .disabled(!canSaveAs)
+
+        Menu("Export As") {
+            ForEach(DocumentExporter.Format.allCases, id: \.self) { format in
+                Button(format.menuTitle) { exportActiveDocument(as: format) }
+            }
+        }
+        .disabled(!canExportDocument)
 
         if let epub = epubContent, focusedTabManager != nil {
             Divider()
@@ -554,6 +561,12 @@ struct PageFlowApp: App {
 
         Divider()
 
+        if focusedTabManager?.activeMarkdownContent != nil {
+            Button(focusedTabManager?.markdownSplitView == true ? "Hide Source" : "Show Source and Preview") {
+                focusedTabManager?.markdownSplitView.toggle()
+            }
+        }
+
         Button(showingSidebarLabel) {
             focusedTabManager?.showingOutline.toggle()
         }
@@ -857,6 +870,42 @@ struct PageFlowApp: App {
         let contentView = TabContainerView()
             .environment(recentFilesManager)
         appDelegate.createNewWindow(with: contentView)
+    }
+
+    // MARK: - Export as PDF / HTML / Word
+
+    /// A note, or a PDF whose text may be copied.
+    private var canExportDocument: Bool {
+        guard let session = focusedTabManager?.activeSession else { return false }
+        switch session.content {
+        case .markdown(let content): return !content.documentManager.text.isEmpty
+        case .pdf(let content): return content.pdfManager.hasDocument && content.pdfManager.permissions.copy
+        case .epub: return false
+        }
+    }
+
+    /// Exports the active tab: a note from its text; a PDF through the same
+    /// text extraction as "Save as Markdown".
+    private func exportActiveDocument(as format: DocumentExporter.Format) {
+        guard let session = focusedTabManager?.activeSession else { return }
+        let window = NSApp.keyWindow
+        let fail: (String) -> Void = { showAlert(message: $0) }
+        switch session.content {
+        case .markdown(let content):
+            content.reconcileLiveText()
+            let manager = content.documentManager
+            DocumentExporter.export(markdown: manager.text, title: manager.documentTitle, format: format,
+                                    baseURL: manager.documentURL?.deletingLastPathComponent(), from: window, onFailure: fail)
+        case .pdf(let content):
+            let manager = content.pdfManager
+            guard manager.permissions.copy else { return }
+            let title = manager.documentURL?.deletingPathExtension().lastPathComponent ?? "document"
+            manager.exportMarkdown(scope: .entireDocument, comments: comments) { markdown in
+                DocumentExporter.export(markdown: markdown, title: title, format: format, from: window, onFailure: fail)
+            }
+        case .epub:
+            break
+        }
     }
 
     // MARK: - Markdown Export

@@ -182,12 +182,22 @@ struct GlassToolbarButton: View {
     var label: String?
     /// For a toggle, whether it is on (announced as selected).
     var isOn: Bool?
+    /// Marks an on tool with a dot under its icon, as an unsaved tab has one.
+    var showsOnDot = false
 
     @State private var settingsManager = SettingsManager.shared
 
     var body: some View {
         Button(action: action) {
             GlassToolbarLabel(icon: icon, interactive: !disabled)
+                .overlay(alignment: .bottom) {
+                    if showsOnDot, isOn == true {
+                        Circle()
+                            .fill(Color.accentColor)
+                            .frame(width: DesignTokens.tabDirtyIndicatorSize - 1, height: DesignTokens.tabDirtyIndicatorSize - 1)
+                            .offset(y: 1)
+                    }
+                }
         }
         .buttonStyle(.plain)
         .pageFlowClickCursor()
@@ -278,10 +288,13 @@ struct ZoomToolbarGroup: View {
 struct SidebarFindToolbarGroup: View {
     @Binding var showingSidebar: Bool
     var canToggleSidebar = true
+    /// Off where the rail's own button opens the sidebar (Markdown, EPUB).
+    var showsSidebarButton = true
     var canFind: Bool
     var onFind: () -> Void
 
     var body: some View {
+        if showsSidebarButton {
         GlassToolbarButton(
             icon: "sidebar.leading",
             help: "Show or hide the sidebar",
@@ -294,6 +307,7 @@ struct SidebarFindToolbarGroup: View {
             label: "Sidebar",
             isOn: showingSidebar
         )
+        }
         GlassToolbarButton(icon: "magnifyingglass", help: "Find", action: onFind, disabled: !canFind, label: "Find")
     }
 }
@@ -341,5 +355,34 @@ struct AnnotationColorMenu: View {
                 }
             }
         }
+    }
+}
+
+
+/// Small colour dots for the markup tool that is on; the chosen one is ringed.
+struct MarkupColorSwatches: View {
+    let presets: [SettingsManager.ColorPreset]
+    let isChosen: (SettingsManager.ColorPreset) -> Bool
+    let choose: (SettingsManager.ColorPreset) -> Void
+
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(presets) { preset in
+                Button { choose(preset) } label: {
+                    Circle()
+                        .fill(Color(nsColor: preset.color))
+                        .frame(width: 13, height: 13)
+                        .overlay(Circle().strokeBorder(Color.primary.opacity(0.25)))
+                        .padding(2)
+                        .overlay(Circle().strokeBorder(Color.primary, lineWidth: isChosen(preset) ? 1.5 : 0))
+                }
+                .buttonStyle(.plain)
+                .pageFlowClickCursor()
+                .help(preset.name)
+                .accessibilityLabel(preset.name)
+                .accessibilityAddTraits(isChosen(preset) ? .isSelected : [])
+            }
+        }
+        .padding(.horizontal, 3)
     }
 }
