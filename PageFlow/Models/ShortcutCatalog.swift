@@ -103,7 +103,7 @@ enum ShortcutCatalog {
         format("bold", "Bold", ShortcutModel(key: "b"), .bold),
         format("italic", "Italic", ShortcutModel(key: "i"), .italic),
         format("strikethrough", "Strikethrough", ShortcutModel(key: "x", shift: true), .strikethrough),
-        // ⌘E is Center, so Code takes ⇧⌘C.
+        // ⌘E is Inline Math, so Code takes ⇧⌘C.
         format("code", "Code", ShortcutModel(key: "c", shift: true), .inlineCode),
         format("link", "Link", ShortcutModel(key: "k"), .link),
         // ⌥⌘7 after the heading run: the ⌘0 family is zoom in every tab (⌥⌘0 is Zoom to Fit).
@@ -122,9 +122,12 @@ enum ShortcutCatalog {
         format("codeBlock", "Code Block", ShortcutModel(key: "c", option: true), .codeBlock),
         format("table", "Table", ShortcutModel(key: "t", option: true), .insertTable),
         format("divider", "Divider", .none, nil),
-        // Word-processor alignment; ⌘E / ⌘R keep their PDF meanings in PDF tabs.
+        // Formulas: `$…$` and a `$$` block. ⌘E was Center, which moved to ⇧⌘\ (the macOS ⌘| chord).
+        format("inlineMath", "Inline Math", ShortcutModel(key: "e"), .inlineMath),
+        format("displayMath", "Display Math", ShortcutModel(key: "e", shift: true), .displayMath),
+        // Word-processor alignment; ⌘R keeps its PDF meaning in PDF tabs.
         format("alignLeft", "Align Left", ShortcutModel(key: "l"), .alignLeft),
-        format("alignCenter", "Center", ShortcutModel(key: "e"), .alignCenter),
+        format("alignCenter", "Center", ShortcutModel(key: "\\", shift: true), .alignCenter),
         format("alignRight", "Align Right", ShortcutModel(key: "r"), .alignRight),
         format("alignJustify", "Justify", ShortcutModel(key: "j"), .alignJustify),
         format("clearFormatting", "Clear Formatting", ShortcutModel(key: "\\"), .clearFormatting),

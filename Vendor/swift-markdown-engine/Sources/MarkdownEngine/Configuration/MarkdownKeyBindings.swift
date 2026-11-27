@@ -21,6 +21,8 @@ public enum MarkdownEditorKeyCommand: String, CaseIterable, Hashable, Sendable {
     case toggleFold, collapseAll, expandAll
     /// Word-processor alignment (⌘L / ⌘E / ⌘R / ⌘J by default in PageFlow).
     case alignLeft, alignCenter, alignRight, alignJustify
+    /// Inline `$…$` and display `$$…$$` formulas.
+    case inlineMath, displayMath
     case clearFormatting, moveLinesUp, moveLinesDown, insertTable
 
     /// The format the command applies, for the ones that are formats.
@@ -50,6 +52,8 @@ public enum MarkdownEditorKeyCommand: String, CaseIterable, Hashable, Sendable {
         case .alignCenter: .align(.center)
         case .alignRight: .align(.right)
         case .alignJustify: .align(.justify)
+        case .inlineMath: .inlineMath
+        case .displayMath: .displayMath
         case .clearFormatting: .clearFormatting
         case .moveLinesUp: .moveLines(up: true)
         case .moveLinesDown: .moveLines(up: false)
@@ -72,7 +76,7 @@ public enum MarkdownEditorKeyCommand: String, CaseIterable, Hashable, Sendable {
         switch self {
         case .paragraph, .heading1, .heading2, .heading3, .heading4, .heading5, .heading6,
              .bulletedList, .numberedList, .checklist, .quote, .codeBlock, .toggleChecked,
-             .alignLeft, .alignCenter, .alignRight, .alignJustify, .moveLinesUp, .moveLinesDown, .insertTable: true
+             .alignLeft, .alignCenter, .alignRight, .alignJustify, .displayMath, .moveLinesUp, .moveLinesDown, .insertTable: true
         default: false
         }
     }

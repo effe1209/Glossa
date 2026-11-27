@@ -175,6 +175,14 @@ public final class NativeTextViewCoordinator: NSObject, NSTextViewDelegate {
     var tableGapCaret: Int?
     /// the reference editor's selection bar, when the configuration shows it.
     var selectionBar: MarkdownSelectionBarController?
+    /// The "/" command menu, made the first time a "/" is typed.
+    var slashMenu: SlashMenuController?
+    @MainActor func slashMenuController() -> SlashMenuController {
+        if let slashMenu { return slashMenu }
+        let made = SlashMenuController(coordinator: self)
+        slashMenu = made
+        return made
+    }
     /// the reference editor's "…" button for the table with the caret (with the selection bar).
     var tableActions: TableActionsController?
     /// the reference editor's hover chrome for tables: grips, handle, add bars (with the selection bar).

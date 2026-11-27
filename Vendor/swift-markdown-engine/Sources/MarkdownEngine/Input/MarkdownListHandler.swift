@@ -65,6 +65,25 @@ struct MarkdownLists {
         return false
     }
 
+    /// What a new item starts with after `line`'s list item: its indent, then its marker (a number counts up, a
+    /// checkbox comes back unchecked, a legacy `•` becomes `-`).
+    static func continuationPrefix(of line: String, match: NSTextCheckingResult) -> String {
+        let leadingWhitespace: String
+        if let wsMatch = leadingWhitespaceRegex.firstMatch(in: line, range: NSRange(location: 0, length: line.utf16.count)) {
+            leadingWhitespace = (line as NSString).substring(with: wsMatch.range)
+        } else {
+            leadingWhitespace = ""
+        }
+        let markerRaw = (line as NSString).substring(with: match.range(at: 1))
+        let marker = markerRaw.trimmingCharacters(in: .whitespaces)
+        let hasCheckbox = marker.range(of: #"\[[ xX]\]"#, options: .regularExpression) != nil
+        if match.range(at: 2).location != NSNotFound, let number = Int((line as NSString).substring(with: match.range(at: 2))) {
+            return leadingWhitespace + "\(number + 1). " + (hasCheckbox ? "[ ] " : "")
+        }
+        let bulletChar = (marker.first == "•") ? "-" : String(marker.prefix(1))
+        return leadingWhitespace + bulletChar + " " + (hasCheckbox ? "[ ] " : "")
+    }
+
     // MARK: - Input Handling
 
     static func handleInsertion(
@@ -79,7 +98,10 @@ struct MarkdownLists {
         if replacementString.count == 1,
            let ch = replacementString.first,
            ch != ">" && ch != "[" && ch != "(" && ch != "{" &&
-           ch != "\t" && ch != " " && ch != "\n" {
+           ch != "\t" && ch != " " && ch != "\n",
+           // A "-" after "<" is the left arrow; any other "-" is ordinary typing.
+           !(ch == "-" && affectedCharRange.location > 0 && affectedCharRange.location <= (textView.string as NSString).length
+             && (textView.string as NSString).character(at: affectedCharRange.location - 1) == 0x3C) {
             return true
         }
 
@@ -116,6 +138,18 @@ struct MarkdownLists {
             let previousChar = nsText.substring(with: previousCharRange)
             if previousChar == "-" {
                 MarkdownLists.performEdit(textView, replace: previousCharRange, with: "→")
+                textView.setSelectedRange(NSRange(location: insertionLocation, length: 0))
+                return false
+            }
+        }
+        // `<` then `-` is a left arrow; the right arrow's `<->` ("←" then ">") stays as it is typed.
+        if replacementString == "-" && affectedCharRange.length == 0 && !isInCodeBlock,
+           activeConfig.inputSubstitution.rewritesTypedPunctuation {
+            let insertionLocation = affectedCharRange.location
+            guard insertionLocation > 0 else { return true }
+            let previousCharRange = NSRange(location: insertionLocation - 1, length: 1)
+            if (textView.string as NSString).substring(with: previousCharRange) == "<" {
+                MarkdownLists.performEdit(textView, replace: previousCharRange, with: "←")
                 textView.setSelectedRange(NSRange(location: insertionLocation, length: 0))
                 return false
             }
@@ -244,6 +278,25 @@ struct MarkdownLists {
                         prefixLength: prefixLength
                     )
                 }
+                // A list inside the quote (`> - item`, `> 1. item`, `> - [ ] item`) carries on as a list, in the
+                // quote; on an empty item the list ends and the line stays a plain quote line.
+                // After the markers and the one space that follows them, so a nested item keeps its indent.
+                var insideStart = NSMaxRange(quoteMatch.range(at: 2))
+                if insideStart < quoteLine.utf16.count, [0x20, 0x09].contains((quoteLine as NSString).character(at: insideStart)) { insideStart += 1 }
+                let inside = (quoteLine as NSString).substring(from: insideStart)
+                if let item = MarkdownLists.listRegex.firstMatch(in: inside, range: NSRange(location: 0, length: inside.utf16.count)) {
+                    let itemText = (inside as NSString).substring(from: item.range.length).trimmingCharacters(in: .whitespacesAndNewlines)
+                    if itemText.isEmpty {
+                        let removable = (inside as NSString).substring(to: item.range.length)
+                            .trimmingCharacters(in: .newlines).utf16.count
+                        performEdit(textView, replace: NSRange(location: currentLineRange.location + insideStart, length: removable), with: "")
+                        textView.setSelectedRange(NSRange(location: currentLineRange.location + insideStart, length: 0))
+                        return false
+                    }
+                    let carried = continuationPrefix(of: inside, match: item)
+                    MarkdownLists.performEdit(textView, replace: affectedCharRange, with: "\n" + ws + markers + " " + carried)
+                    return false
+                }
                 MarkdownLists.performEdit(textView, replace: affectedCharRange, with: "\n" + ws + markers + " ")
                 return false
             }
@@ -261,32 +314,7 @@ struct MarkdownLists {
                         prefixLength: match.range.location + match.range.length
                     )
                 }
-                let leadingWhitespace: String
-                if let wsMatch = MarkdownLists.leadingWhitespaceRegex.firstMatch(in: listLine, range: NSRange(location: 0, length: listLine.utf16.count)) {
-                    leadingWhitespace = (listLine as NSString).substring(with: wsMatch.range)
-                } else {
-                    leadingWhitespace = ""
-                }
-                let markerRaw = (listLine as NSString).substring(with: match.range(at: 1))
-                let marker = markerRaw.trimmingCharacters(in: .whitespaces)
-                let hasCheckbox = marker.range(of: #"\[[ xX]\]"#, options: .regularExpression) != nil
-                let newListItem: String
-                if match.range(at: 2).location != NSNotFound,
-                   let number = Int((listLine as NSString).substring(with: match.range(at: 2))) {
-                    if hasCheckbox {
-                        newListItem = "\n" + leadingWhitespace + "\(number + 1). [ ] "
-                    } else {
-                        newListItem = "\n" + leadingWhitespace + "\(number + 1). "
-                    }
-                } else {
-                    // Continue with the user's marker char (legacy `•` → `-`), keeping leading whitespace.
-                    let bulletChar = (marker.first == "•") ? "-" : String(marker.prefix(1))
-                    if hasCheckbox {
-                        newListItem = "\n" + leadingWhitespace + bulletChar + " [ ] "
-                    } else {
-                        newListItem = "\n" + leadingWhitespace + bulletChar + " "
-                    }
-                }
+                let newListItem = "\n" + continuationPrefix(of: listLine, match: match)
                 MarkdownLists.performEdit(textView, replace: affectedCharRange, with: newListItem)
                 return false
             }

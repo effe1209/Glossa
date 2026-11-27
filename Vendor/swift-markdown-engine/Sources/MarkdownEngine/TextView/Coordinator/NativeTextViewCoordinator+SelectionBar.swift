@@ -107,6 +107,19 @@ extension NativeTextViewCoordinator {
         }
         // A fence outside a local region is unknown; keep the last known code-block context.
         if found.isLocal, publishedFormatState.context == .codeBlock, state.context != .none { state.context = .codeBlock }
+        // The colour spans the selection is in, for the colour menu's check marks.
+        state.textColor = MarkdownSourceFormatting.colorSpan(of: .text, containing: selection, in: text)?.hex
+        state.highlightColor = MarkdownSourceFormatting.colorSpan(of: .highlight, containing: selection, in: text)?.hex
+        // The paragraph's alignment: the wrapper the selection start sits in, if any.
+        if text.range(of: "<div align=", options: .caseInsensitive).location != NSNotFound,
+           let region = MarkdownAlignmentStyling.regions(in: text).first(where: { NSLocationInRange(selection.location, $0.span) }) {
+            switch region.alignment {
+            case .center: state.alignment = .center
+            case .right: state.alignment = .right
+            case .justified: state.alignment = .justify
+            default: state.alignment = .left
+            }
+        }
         return state
     }
 

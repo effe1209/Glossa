@@ -396,6 +396,8 @@ enum MarkdownASTStyler {
         let indentPerLevel = MarkdownTextLayoutFragment.blockquoteIndentPerLevel
         var lineStart = range.location
         let end = NSMaxRange(range)
+        // An Obsidian callout: the first line reads `[!kind] Title`. Its bar and title take the kind's colour.
+        var callout: NSColor?
         while lineStart < end {
             let line = ctx.ns.lineRange(for: NSRange(location: lineStart, length: 0))
             let lineEnd = NSMaxRange(line)
@@ -434,12 +436,21 @@ enum MarkdownASTStyler {
             para.paragraphSpacingBefore = 0
             attrs.append((ctx.ns.paragraphRange(for: tokenRange), [.paragraphStyle: para]))
 
-            if contentRange.length > 0 {
-                attrs.append((contentRange, [.foregroundColor: ctx.theme.mutedText]))
+            if lineStart == range.location, contentRange.length > 0 {
+                let first = ctx.ns.substring(with: contentRange)
+                if first.hasPrefix("[!"), let close = first.firstIndex(of: "]") {
+                    let kind = String(first[first.index(first.startIndex, offsetBy: 2)..<close])
+                    if !kind.isEmpty, kind.allSatisfy({ $0.isLetter }) { callout = MarkdownEditorTheme.calloutColor(for: kind) }
+                }
+                if let callout { attrs.append((contentRange, [.foregroundColor: callout])) }
+            }
+            if contentRange.length > 0, !(callout != nil && lineStart == range.location) {
+                attrs.append((contentRange, [.foregroundColor: callout != nil ? ctx.theme.bodyText : ctx.theme.quoteText]))
             }
             attrs.append((markerRange, [.foregroundColor: NSColor.clear, .font: ctx.inlineMarkerFont]))
             // Whole line, not just the first char, so each soft-wrapped visual line
             attrs.append((tokenRange, [.blockquoteLevel: level]))
+            if let callout { attrs.append((tokenRange, [.calloutColor: callout])) }
         }
     }
 
@@ -570,7 +581,8 @@ enum MarkdownASTStyler {
                     font.fontDescriptor.symbolicTraits.intersection([.bold, .italic]),
                     to: ctx.codeFont
                 )
-                attrs.append((contentRange, [.font: codeFont, .backgroundColor: ctx.codeBackground]))
+                attrs.append((contentRange, [.font: codeFont, .backgroundColor: ctx.codeBackground,
+                                             .foregroundColor: ctx.theme.inlineCodeText]))
                 // Suppress spell-check underlines on inline `code` spans (markers + content).
                 attrs.append((range, [.spellingState: 0, .markdownCode: 1]))
                 let markerAttrs: [NSAttributedString.Key: Any] = [

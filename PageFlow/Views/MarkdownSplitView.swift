@@ -194,7 +194,7 @@ private struct MarkdownPreviewView: NSViewRepresentable {
         webView.setValue(false, forKey: "drawsBackground")
         webView.underPageBackgroundColor = NSColor(white: 0.9, alpha: 1)
         context.coordinator.webView = webView
-        webView.loadHTMLString(Self.shell(body: MarkdownHTML.body(from: markdown, annotated: true), topInset: topInset),
+        webView.loadHTMLString(Self.shell(body: Self.body(from: markdown), topInset: topInset),
                                baseURL: baseURL)
         context.coordinator.rendered = markdown
         return webView
@@ -212,7 +212,7 @@ private struct MarkdownPreviewView: NSViewRepresentable {
             guard let coordinator else { return }
             coordinator.rendered = markdown
             coordinator.renderedInset = inset
-            let body = MarkdownHTML.body(from: markdown, annotated: true)
+            let body = MainActor.assumeIsolated { MarkdownPreviewView.body(from: markdown) }
             let payload = (try? JSONSerialization.data(withJSONObject: [body], options: []))
                 .flatMap { String(data: $0, encoding: .utf8) } ?? "[\"\"]"
             coordinator.webView?.evaluateJavaScript("setBody(\(payload)[0], \(Int(inset)))", completionHandler: nil)
@@ -241,26 +241,24 @@ private struct MarkdownPreviewView: NSViewRepresentable {
         }
     }
 
+    /// The note as the preview shows it: formulas typeset, code coloured, callouts and highlights styled, as in the export.
+    @MainActor
+    static func body(from markdown: String) -> String {
+        MarkdownHTML.body(from: markdown, annotated: true, math: MathExport.embedded, code: CodeExport.html)
+    }
+
     /// The page: grey desk, one white sheet like a PDF page. Always light,
     /// whatever the app's appearance.
     private static func shell(body: String, topInset: CGFloat) -> String {
         """
         <!DOCTYPE html><html><head><meta charset="utf-8">
         <style>
+        \(MarkdownHTML.stylesheet())
         html { background: #e6e6e9; }
-        body { margin: 0; padding: \(Int(topInset))px 24px 40px; font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #1d1d1f; }
+        body { margin: 0; max-width: none; padding: \(Int(topInset))px 24px 40px; line-height: 1.6; }
         #c { background: #fff; max-width: 780px; min-height: 90vh; margin: 0 auto; padding: 48px 56px; box-shadow: 0 1px 4px rgba(0,0,0,.18), 0 4px 18px rgba(0,0,0,.10); box-sizing: border-box; }
-        h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.3em 0 0.5em; }
-        h1 { font-size: 2em; margin-top: 0; } h2 { font-size: 1.5em; } h3 { font-size: 1.25em; }
-        code { font-family: Menlo, Consolas, monospace; font-size: .9em; background: #f2f2f4; padding: .1em .3em; border-radius: 3px; }
-        pre { background: #f2f2f4; padding: .8em 1em; border-radius: 6px; overflow-x: auto; }
-        pre code { background: none; padding: 0; }
-        blockquote { margin: 1em 0; padding: 0 1em; border-left: 3px solid #c7c7cc; color: #555; }
-        table { border-collapse: collapse; margin: 1em 0; }
-        th, td { border: 1px solid #d1d1d6; padding: .4em .8em; text-align: left; }
-        th { background: #f2f2f4; }
-        img { max-width: 100%; } hr { border: none; border-top: 1px solid #d1d1d6; margin: 2em 0; }
-        a { color: #0a60d8; } [data-line] { cursor: default; }
+        h1 { margin-top: 0; }
+        [data-line] { cursor: default; }
         </style></head>
         <body><div id="c">\(body)</div>
         <script>

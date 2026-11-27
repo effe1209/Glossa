@@ -3,7 +3,7 @@
 //  PageFlow
 //
 //  Exports a document's Markdown as HTML, a Word document (.docx) or a PDF.
-//  HTML is written as is; the other two lay the HTML out with AppKit.
+//  HTML is written as is; a PDF is laid out and printed by WebKit, a Word document by AppKit.
 //
 
 import AppKit
@@ -33,36 +33,70 @@ enum DocumentExporter {
         let errorDescription: String?
     }
 
-    /// Asks where to save, then writes `markdown` in `format`.
+    /// Asks where to save, then writes `markdown` in `format`. A PDF also asks how large to set the text.
     static func export(markdown: String, title: String, format: Format, baseURL: URL? = nil,
                        from window: NSWindow? = nil, onFailure: @escaping (String) -> Void) {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [format.contentType]
         panel.nameFieldStringValue = "\(title).\(format.fileExtension)"
         panel.canCreateDirectories = true
+        let scalePicker = format == .pdf ? ScalePicker() : nil
+        panel.accessoryView = scalePicker?.view
         let finish: (NSApplication.ModalResponse) -> Void = { response in
             guard response == .OK, let url = panel.url else { return }
-            do {
-                try write(markdown: markdown, title: title, format: format, baseURL: baseURL, to: url)
-            } catch {
-                onFailure("Export failed: \(error.localizedDescription)")
+            let scale = scalePicker?.scale ?? 1
+            if scalePicker != nil { PDFExport.preferredScale = scale }
+            Task { @MainActor in
+                do {
+                    try await write(markdown: markdown, title: title, format: format, baseURL: baseURL, scale: scale, to: url)
+                } catch {
+                    onFailure("Export failed: \(error.localizedDescription)")
+                }
             }
         }
         if let window { panel.beginSheetModal(for: window, completionHandler: finish) } else { panel.begin(completionHandler: finish) }
     }
 
-    static func write(markdown: String, title: String, format: Format, baseURL: URL? = nil, to url: URL) throws {
-        let html = MarkdownHTML.page(from: markdown, title: title)
+    /// Writes `markdown` in `format`. `scale` sets the size of a PDF's text (1 is 100%).
+    static func write(markdown: String, title: String, format: Format, baseURL: URL? = nil, scale: Double = 1,
+                      to url: URL) async throws {
         switch format {
         case .html:
+            // Formulas are typeset and embedded as images, so the page needs nothing else to show them.
+            let html = MarkdownHTML.page(from: markdown, title: title, math: MathExport.embedded, code: CodeExport.html)
             try html.write(to: url, atomically: true, encoding: .utf8)
         case .docx:
+            // AppKit's Word writer keeps text and drops pictures, so formulas stay as their source here.
+            let html = MarkdownHTML.page(from: markdown, title: title, code: CodeExport.html)
             let text = try attributedString(fromHTML: html, baseURL: baseURL)
             let data = try text.data(from: NSRange(location: 0, length: text.length),
                                      documentAttributes: [.documentType: NSAttributedString.DocumentType.officeOpenXML])
             try data.write(to: url, options: .atomic)
         case .pdf:
-            try writePDF(attributed: try attributedString(fromHTML: html, baseURL: baseURL), to: url)
+            let html = MarkdownHTML.page(from: markdown, title: title, math: MathExport.embedded, code: CodeExport.html, scale: scale)
+            try await PDFExport.write(html: html, baseURL: baseURL, to: url)
+        }
+    }
+
+    /// The Save panel's "Scale" row for a PDF.
+    @MainActor
+    private final class ScalePicker {
+        private let popup = NSPopUpButton(frame: .zero, pullsDown: false)
+        let view = NSView(frame: NSRect(x: 0, y: 0, width: 260, height: 44))
+
+        init() {
+            for scale in PDFExport.scales { popup.addItem(withTitle: PDFExport.title(for: scale)) }
+            popup.selectItem(at: PDFExport.scales.firstIndex(of: PDFExport.preferredScale) ?? 0)
+            let label = NSTextField(labelWithString: "Scale:")
+            label.frame = NSRect(x: 8, y: 12, width: 48, height: 20)
+            popup.frame = NSRect(x: 60, y: 8, width: 120, height: 26)
+            view.addSubview(label)
+            view.addSubview(popup)
+        }
+
+        var scale: Double {
+            let index = popup.indexOfSelectedItem
+            return PDFExport.scales.indices.contains(index) ? PDFExport.scales[index] : 1
         }
     }
 
@@ -74,40 +108,5 @@ enum DocumentExporter {
         if let baseURL { options[.baseURL] = baseURL }
         guard let data = html.data(using: .utf8) else { throw ExportError(errorDescription: "The text could not be encoded.") }
         return try NSAttributedString(data: data, options: options, documentAttributes: nil)
-    }
-
-    /// Paginated A4, laid out in a text view and printed to a file.
-    private static func writePDF(attributed: NSAttributedString, to url: URL) throws {
-        let page = NSSize(width: 595, height: 842)
-        let margin: CGFloat = 56
-        let printInfo = NSPrintInfo()
-        printInfo.paperSize = page
-        printInfo.topMargin = margin
-        printInfo.bottomMargin = margin
-        printInfo.leftMargin = margin
-        printInfo.rightMargin = margin
-        printInfo.isVerticallyCentered = false
-        printInfo.jobDisposition = .save
-        printInfo.dictionary()[NSPrintInfo.AttributeKey.jobSavingURL] = url
-
-        let textView = NSTextView(frame: NSRect(x: 0, y: 0, width: page.width - 2 * margin - 8, height: page.height - 2 * margin))
-        textView.appearance = NSAppearance(named: .aqua)
-        textView.isEditable = false
-        textView.drawsBackground = true
-        textView.backgroundColor = .white
-        textView.textContainerInset = .zero
-        textView.textStorage?.setAttributedString(attributed)
-        if let container = textView.textContainer, let layout = textView.layoutManager {
-            layout.ensureLayout(for: container)
-            // Exactly the text's height, so no empty page trails it.
-            textView.setFrameSize(NSSize(width: textView.frame.width, height: ceil(layout.usedRect(for: container).height)))
-        }
-
-        let operation = NSPrintOperation(view: textView, printInfo: printInfo)
-        operation.showsPrintPanel = false
-        operation.showsProgressPanel = false
-        guard operation.run(), FileManager.default.fileExists(atPath: url.path) else {
-            throw ExportError(errorDescription: "The PDF could not be written.")
-        }
     }
 }

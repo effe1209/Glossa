@@ -57,6 +57,12 @@ public struct MarkdownFormatState: Equatable, Sendable {
     public var showsIndentRows = false
     /// False for a range of more than one cell.
     public var linkEnabled = true
+    /// How the paragraph holding the selection start is aligned (left without a wrapper).
+    public var alignment: MarkdownTextAlignment = .left
+    /// The colour (`#RRGGBB`) of the text span the selection is in, if any.
+    public var textColor: String?
+    /// The highlight colour (`#RRGGBB`) of the span the selection is in, if any.
+    public var highlightColor: String?
 
     public init() {}
 }

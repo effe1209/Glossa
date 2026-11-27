@@ -261,7 +261,6 @@ private struct ActiveFloatingToolbar: View {
                 content: runtime.content,
                 isSplitView: tabManager.markdownSplitView,
                 onToggleSplit: { tabManager.markdownSplitView.toggle() },
-                onOpenFilePicker: { tabManager.openFilePicker() },
                 showingOutline: $tabManager.showingOutline,
                 canFind: tabManager.canFind,
                 onFind: { tabManager.requestFind() }

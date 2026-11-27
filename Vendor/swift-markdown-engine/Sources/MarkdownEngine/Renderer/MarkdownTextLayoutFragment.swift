@@ -24,6 +24,8 @@ extension NSAttributedString.Key {
     /// Int nesting level (1-based) of a blockquote line; the fragment
     /// paints that many vertical bars in the left gutter.
     static let blockquoteLevel = NSAttributedString.Key("BlockquoteLevel")
+    /// NSColor — set on every line of an Obsidian callout (`> [!tip]`): the colour of its bar.
+    static let calloutColor = NSAttributedString.Key("CalloutColor")
     /// String — the language of a fenced block whose fences are hidden, set on
     /// its first code line; the fragment paints it as a corner label.
     static let codeBlockLanguage = NSAttributedString.Key("CodeBlockLanguage")
@@ -786,8 +788,6 @@ final class MarkdownTextLayoutFragment: NSTextLayoutFragment {
         defer { NSGraphicsContext.restoreGraphicsState() }
         let nsContext = NSGraphicsContext(cgContext: context, flipped: true)
         NSGraphicsContext.current = nsContext
-        theme.mutedText.withAlphaComponent(0.5).setFill()
-
         let fragLocation = fragmentNSRange?.location ?? 0
         let leftEdge = point.x - layoutFragmentFrame.origin.x
         for lineFragment in textLineFragments {
@@ -799,6 +799,8 @@ final class MarkdownTextLayoutFragment: NSTextLayoutFragment {
             guard docStart < ts.length else { continue }
             let tb = lineFragment.typographicBounds
             if let level = ts.attribute(.blockquoteLevel, at: docStart, effectiveRange: nil) as? Int {
+                // A callout's bar takes its kind's colour; a plain quote's, the theme's.
+                ((ts.attribute(.calloutColor, at: docStart, effectiveRange: nil) as? NSColor) ?? theme.quoteBar).setFill()
                 // tb.origin.y is already relative to this layout fragment.
                 let barY = point.y + tb.origin.y
                 for i in 0..<level {

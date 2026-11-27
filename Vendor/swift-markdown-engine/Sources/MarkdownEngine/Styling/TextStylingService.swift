@@ -97,6 +97,11 @@ struct TextStylingService {
             hiddenFont: NSFont(name: baseFont.fontName, size: configuration.markers.hiddenMarkerFontSize)
                 ?? .systemFont(ofSize: configuration.markers.hiddenMarkerFontSize)
         )
+        styledRanges = MarkdownColorStyling.applying(
+            to: styledRanges, text: text,
+            hiddenFont: NSFont(name: baseFont.fontName, size: configuration.markers.hiddenMarkerFontSize)
+                ?? .systemFont(ofSize: configuration.markers.hiddenMarkerFontSize)
+        )
         }
 
         var spellingDisabledRanges: [NSRange] = []

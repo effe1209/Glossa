@@ -401,7 +401,7 @@ enum MarkdownSourceFormatting {
 
     // MARK: - Lines
 
-    private struct Line {
+    struct Line {
         let content: String
         let terminator: String
     }
@@ -417,7 +417,7 @@ enum MarkdownSourceFormatting {
         return text.lineRange(for: probe)
     }
 
-    private static func splitLines(_ span: String) -> [Line] {
+    static func splitLines(_ span: String) -> [Line] {
         let source = span as NSString
         guard source.length > 0 else { return [Line(content: "", terminator: "")] }
         var lines: [Line] = []

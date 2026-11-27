@@ -67,6 +67,8 @@ enum MarkdownFormatCommand: String, CaseIterable, Identifiable, Sendable {
     case alignCenter
     case alignRight
     case alignJustify
+    case inlineMath
+    case displayMath
     case clearFormatting
     case moveLineUp
     case moveLineDown
@@ -76,9 +78,9 @@ enum MarkdownFormatCommand: String, CaseIterable, Identifiable, Sendable {
     /// Commands that change whole lines (styles, lists, blocks), not text runs.
     var isBlock: Bool {
         switch self {
-        case .bold, .italic, .underline, .strikethrough, .code, .highlight, .link, .clearFormatting: return false
+        case .bold, .italic, .underline, .strikethrough, .code, .highlight, .link, .inlineMath, .clearFormatting: return false
         case .text, .heading, .heading2, .heading3, .bulletedList, .numberedList, .checklist, .quote,
-             .codeBlock, .divider, .table, .alignLeft, .alignCenter, .alignRight, .alignJustify,
+             .codeBlock, .divider, .table, .alignLeft, .alignCenter, .alignRight, .alignJustify, .displayMath,
              .moveLineUp, .moveLineDown: return true
         }
     }
@@ -118,6 +120,8 @@ enum MarkdownFormatCommand: String, CaseIterable, Identifiable, Sendable {
         case .alignCenter: return "Center"
         case .alignRight: return "Align Right"
         case .alignJustify: return "Justify"
+        case .inlineMath: return "Inline Math"
+        case .displayMath: return "Display Math"
         case .clearFormatting: return "Clear Formatting"
         case .moveLineUp: return "Move Line Up"
         case .moveLineDown: return "Move Line Down"
@@ -151,6 +155,8 @@ enum MarkdownFormatCommand: String, CaseIterable, Identifiable, Sendable {
         case .alignCenter: return "text.aligncenter"
         case .alignRight: return "text.alignright"
         case .alignJustify: return "text.justify"
+        case .inlineMath: return "function"
+        case .displayMath: return "sum"
         case .clearFormatting: return "textformat"
         case .moveLineUp: return "arrow.up"
         case .moveLineDown: return "arrow.down"

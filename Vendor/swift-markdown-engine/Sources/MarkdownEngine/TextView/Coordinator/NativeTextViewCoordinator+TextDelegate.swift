@@ -41,6 +41,7 @@ extension NativeTextViewCoordinator {
     }
 
     public func textDidChange(_ notification: Notification) {
+        MainActor.assumeIsolated { slashMenu?.textChanged() }
         tableChrome?.invalidate()
         tableProxy?.update()
         // Native Undo and host replacements bypass admission; cell editing
@@ -321,6 +322,7 @@ extension NativeTextViewCoordinator {
     }
 
     public func textViewDidChangeSelection(_ notification: Notification) {
+        MainActor.assumeIsolated { slashMenu?.selectionChanged() }
         guard !emphasisEditor.navigating else { return }
         if let view = notification.object as? NSTextView { emphasisSelectionDidChange(in: view) }
         selectionBar?.setNeedsUpdate()
@@ -701,6 +703,8 @@ extension NativeTextViewCoordinator {
     }
 
     public func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        // The "/" menu, while it is up, takes the arrows, Return, Tab and Escape.
+        if MainActor.assumeIsolated({ slashMenu?.handle(commandSelector) }) == true { return true }
         if let handled = handleImageCommand(commandSelector, in: textView) { return handled }
         if commandSelector == #selector(NSResponder.insertBacktab(_:)) {
             return handleBacktab(textView)

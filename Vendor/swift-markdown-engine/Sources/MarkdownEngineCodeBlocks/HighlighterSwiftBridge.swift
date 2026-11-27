@@ -85,22 +85,30 @@ public final class HighlighterSwiftBridge: SyntaxHighlighter, @unchecked Sendabl
 
     public func backgroundColor() -> NSColor { background }
 
+    /// Fences whose contents aren't code to colour: a diagram, a formula, plain text.
+    private static let uncolouredLanguages: Set<String> = ["mermaid", "latex", "math", "tex", "text", "txt", "plain", "plaintext"]
+
     public func highlight(code: String, language: String?) -> NSAttributedString? {
         // Colours only for a language the fence names and highlight.js knows.
         // Never auto-detect: it runs every grammar over the block (tens of
         // milliseconds per keystroke while the caret is inside) and paints an
         // unlabeled or `mermaid` block in a random language's colours.
+        //
+        // An unlabeled fence (pseudo-code, notes) or one highlight.js doesn't know still gets the
+        // simple colours PseudoCodeHighlighter reads: comments, strings, numbers, keywords, calls.
         guard let language = language?.lowercased().trimmingCharacters(in: .whitespaces),
-              !language.isEmpty else { return nil }
+              !language.isEmpty else { return PseudoCodeHighlighter.highlight(code) }
+        // These are drawn or plain, never coloured as code.
+        guard !Self.uncolouredLanguages.contains(language) else { return nil }
         renderingLock.lock()
         defer { renderingLock.unlock() }
-        guard !unsupportedLanguages.contains(language) else { return nil }
+        guard !unsupportedLanguages.contains(language) else { return PseudoCodeHighlighter.highlight(code) }
         // NSString compares literal source units; Swift String hashing treats
         // canonically equivalent spellings as equal even when their ranges differ.
         let cacheKey = (language + "\u{0}" + code) as NSString
 
         if let cached = highlightCache.object(forKey: cacheKey) { return cached }
-        if failedCache.object(forKey: cacheKey) != nil { return nil }
+        if failedCache.object(forKey: cacheKey) != nil { return PseudoCodeHighlighter.highlight(code) }
 
         guard let renderer else { return nil }
         renderer.engine.theme = renderer.light
@@ -108,7 +116,7 @@ public final class HighlighterSwiftBridge: SyntaxHighlighter, @unchecked Sendabl
             // Unknown to highlight.js: plain code styling from now on, no retry.
             unsupportedLanguages.insert(language)
             failedCache.setObject(NSNumber(value: true), forKey: cacheKey, cost: code.utf16.count)
-            return nil
+            return PseudoCodeHighlighter.highlight(code)
         }
         renderer.engine.theme = renderer.dark
         let dark = renderer.engine.highlight(code, as: language) ?? light
