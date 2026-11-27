@@ -151,6 +151,9 @@ private struct ToolbarFoldEffect: ViewModifier {
 struct GlassToolbarLabel: View {
     let icon: String
     var interactive: Bool = true
+    /// Off for a label inside a `Menu`, which AppKit draws as a picture that can't follow the
+    /// cursor: the menu itself is then magnified from outside (`proximityMagnified()`).
+    var magnifies: Bool = true
 
     @State private var settingsManager = SettingsManager.shared
 
@@ -165,7 +168,16 @@ struct GlassToolbarLabel: View {
             .contentShape(RoundedRectangle(cornerRadius: DesignTokens.spacingSM))
             .foregroundStyle(.primary)
             .opacity(interactive ? 1 : DesignTokens.disabledControlOpacity)
-            .proximityMagnified()
+            .modifier(OptionalProximityMagnification(isOn: magnifies))
+    }
+}
+
+private struct OptionalProximityMagnification: ViewModifier {
+    let isOn: Bool
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if isOn { content.proximityMagnified() } else { content }
     }
 }
 

@@ -41,6 +41,16 @@ public enum MarkdownFormat: Equatable, Sendable {
     case table
     /// Wraps the selection as a link and puts the caret where typing continues.
     case link
+    /// `$…$` around the selection: an inline formula. Applied to one, removes it.
+    case inlineMath
+    /// A `$$` block around the selection: a display formula on its own lines.
+    case displayMath
+    /// The selection's text colour as `#RRGGBB` (`<span style="color: …">`), or nil to take it off.
+    case textColor(String?)
+    /// The colour behind the selection as `#RRGGBB` (`<mark style="background: …">`), or nil to take it off.
+    case highlightColor(String?)
+    /// Makes the selected lines an Obsidian callout of the kind (`> [!tip]`), or changes the kind of one.
+    case callout(String)
     /// Aligns the selected blocks (a `<div align>` wrapper), or a selected image.
     case align(MarkdownTextAlignment)
     /// Removes inline marks from the selection, or the caret's line.

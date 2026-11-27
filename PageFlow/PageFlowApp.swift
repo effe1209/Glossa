@@ -368,6 +368,14 @@ struct PageFlowApp: App {
     private var formatMenuContent: some View {
         ForEach([MarkdownFormatCommand.bold, .italic, .underline, .strikethrough, .code, .highlight, .link]) { formatButton($0) }
         Divider()
+        ForEach([MarkdownFormatCommand.inlineMath, .displayMath]) { formatButton($0) }
+        Menu("Callout") { calloutButtons }
+            .disabled(!canFormatMarkdown)
+        Menu("Text Color") { colorButtons(.text) }
+            .disabled(!canFormatMarkdown)
+        Menu("Highlight Color") { colorButtons(.highlight) }
+            .disabled(!canFormatMarkdown)
+        Divider()
         ForEach([MarkdownFormatCommand.text, .heading, .heading2, .heading3]) { formatButton($0) }
         Divider()
         ForEach([MarkdownFormatCommand.bulletedList, .numberedList, .checklist, .quote, .codeBlock]) { formatButton($0) }
@@ -378,6 +386,47 @@ struct PageFlowApp: App {
         ForEach([MarkdownFormatCommand.alignLeft, .alignCenter, .alignRight, .alignJustify]) { formatButton($0) }
         Divider()
         ForEach([MarkdownFormatCommand.clearFormatting, .moveLineUp, .moveLineDown]) { formatButton($0) }
+    }
+
+    /// Format ▸ Callout: a kind each, as Obsidian names them.
+    @ViewBuilder
+    private var calloutButtons: some View {
+        ForEach(MarkdownCallout.kinds, id: \.id) { kind in
+            Button {
+                focusedTabManager?.activeMarkdownContent?.insertCallout(kind.id)
+            } label: {
+                Label(kind.title, systemImage: kind.symbol)
+            }
+        }
+    }
+
+    /// The colours of Format ▸ Text Color and Highlight Color: a round swatch each, and a row that takes the colour off.
+    @ViewBuilder
+    private func colorButtons(_ kind: MarkdownColorKind) -> some View {
+        Button(kind == .text ? "Default Color" : "No Highlight") {
+            focusedTabManager?.activeMarkdownContent?.applyColor(nil, kind: kind)
+        }
+        Divider()
+        ForEach(MarkdownColorPalette.swatches(for: kind), id: \.hex) { swatch in
+            Button {
+                focusedTabManager?.activeMarkdownContent?.applyColor(swatch.hex, kind: kind)
+            } label: {
+                Label { Text(swatch.name) } icon: { Image(nsImage: Self.swatchImage(swatch.color)) }
+            }
+        }
+    }
+
+    /// A filled circle in the colour: a menu item's icon is drawn as is only when it isn't a template.
+    private static func swatchImage(_ color: NSColor) -> NSImage {
+        let image = NSImage(size: NSSize(width: 12, height: 12), flipped: false) { rect in
+            color.setFill()
+            NSBezierPath(ovalIn: rect.insetBy(dx: 0.5, dy: 0.5)).fill()
+            NSColor.black.withAlphaComponent(0.2).setStroke()
+            NSBezierPath(ovalIn: rect.insetBy(dx: 0.5, dy: 0.5)).stroke()
+            return true
+        }
+        image.isTemplate = false
+        return image
     }
 
     /// A Format item; marks, text styles and lists carry the selection bar's
@@ -886,7 +935,7 @@ struct PageFlowApp: App {
     private var canExportDocument: Bool {
         guard let session = focusedTabManager?.activeSession else { return false }
         switch session.content {
-        case .markdown(let content): return !content.documentManager.text.isEmpty
+        case .markdown(let content): return content.canExport
         case .pdf(let content): return content.pdfManager.hasDocument && content.pdfManager.permissions.copy
         case .epub: return false
         }
@@ -900,10 +949,7 @@ struct PageFlowApp: App {
         let fail: (String) -> Void = { showAlert(message: $0) }
         switch session.content {
         case .markdown(let content):
-            content.reconcileLiveText()
-            let manager = content.documentManager
-            DocumentExporter.export(markdown: manager.text, title: manager.documentTitle, format: format,
-                                    baseURL: manager.documentURL?.deletingLastPathComponent(), from: window, onFailure: fail)
+            content.exportDocument(as: format, from: window)
         case .pdf(let content):
             let manager = content.pdfManager
             guard manager.permissions.copy else { return }

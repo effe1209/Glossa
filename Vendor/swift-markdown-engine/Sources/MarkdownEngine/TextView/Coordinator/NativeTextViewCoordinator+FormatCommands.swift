@@ -67,6 +67,16 @@ extension NativeTextViewCoordinator {
             applySourceFormat(names[alignment] ?? "Align") {
                 MarkdownSourceFormatting.setAlignment(alignment, in: $0, selection: $1)
             }
+        case .callout(let kind):
+            applySourceFormat("Callout") { MarkdownSourceFormatting.insertCallout(kind: kind, in: $0, selection: $1) }
+        case .textColor(let hex):
+            applySourceFormat("Text Color") { MarkdownSourceFormatting.setColor(hex, kind: .text, in: $0, selection: $1) }
+        case .highlightColor(let hex):
+            applySourceFormat("Highlight Color") { MarkdownSourceFormatting.setColor(hex, kind: .highlight, in: $0, selection: $1) }
+        case .inlineMath:
+            applySourceFormat("Inline Math") { MarkdownSourceFormatting.toggleInlineMath(in: $0, selection: $1) }
+        case .displayMath:
+            applySourceFormat("Display Math") { MarkdownSourceFormatting.toggleDisplayMath(in: $0, selection: $1) }
         case .clearFormatting:
             applySourceFormat("Clear Formatting") { MarkdownSourceFormatting.clearInlineFormatting(in: $0, selection: $1) }
         case .moveLines(let up):

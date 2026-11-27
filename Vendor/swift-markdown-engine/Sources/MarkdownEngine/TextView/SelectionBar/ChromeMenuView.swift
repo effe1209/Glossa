@@ -7,7 +7,7 @@ import AppKit
 /// closes on a choice, Escape or a click outside. It does not animate.
 final class ChromeMenuView: NSView {
     struct Row {
-        enum Leading { case glyph(String), symbol(String), none }
+        enum Leading { case glyph(String), symbol(String), swatch(NSColor?), none }
         var isDanger = false
         let title: String
         let leading: Leading
@@ -20,6 +20,16 @@ final class ChromeMenuView: NSView {
             self.title = title
             leading = .glyph(glyph)
             self.shortcut = shortcut
+            self.checked = checked
+            isSeparator = false
+            self.action = action
+        }
+
+        /// A row led by a round colour swatch (nil draws an empty ring: "no colour").
+        init(title: String, swatch: NSColor?, checked: Bool, action: @escaping () -> Void) {
+            self.title = title
+            leading = .swatch(swatch)
+            shortcut = nil
             self.checked = checked
             isSeparator = false
             self.action = action
@@ -165,6 +175,19 @@ final class ChromeMenuView: NSView {
                 x += 16 + 8
             case .symbol(let name):
                 SelectionBarButton.drawSymbol(name, size: 16, in: NSRect(x: x, y: frame.midY - 8, width: 16, height: 16), color: ChromePalette.text)
+                x += 16 + 8
+            case .swatch(let color):
+                let dot = NSRect(x: x + 1, y: frame.midY - 7, width: 14, height: 14)
+                if let color {
+                    color.setFill()
+                    NSBezierPath(ovalIn: dot).fill()
+                    NSColor.black.withAlphaComponent(0.18).setStroke()
+                } else {
+                    ChromePalette.text.withAlphaComponent(0.55).setStroke()
+                }
+                let ring = NSBezierPath(ovalIn: dot.insetBy(dx: 0.5, dy: 0.5))
+                ring.lineWidth = 1
+                ring.stroke()
                 x += 16 + 8
             case .none:
                 break

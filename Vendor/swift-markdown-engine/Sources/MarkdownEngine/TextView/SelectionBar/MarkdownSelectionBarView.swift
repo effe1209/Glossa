@@ -8,7 +8,7 @@ import AppKit
 /// border, 4 pt padding, 24 pt controls 2 apart.
 final class MarkdownSelectionBarView: NSView {
     enum Item: Hashable {
-        case comment, textStyle, bold, italic, underline, strikethrough, code, highlight, list, link
+        case comment, textStyle, bold, italic, underline, strikethrough, code, highlight, inlineMath, color, list, link
         case alignLeft, alignCenter, alignRight, crop, imageMore
     }
 
@@ -49,6 +49,8 @@ final class MarkdownSelectionBarView: NSView {
             (.strikethrough, .symbol("strikethrough"), "Strikethrough", false),
             (.code, .symbol("chevron.left.forwardslash.chevron.right"), "Code", false),
             (.highlight, .symbol("highlighter"), "Highlight", false),
+            (.inlineMath, .symbol("function"), "Inline math", false),
+            (.color, .symbol("paintpalette"), "Text and highlight color", true),
             (.list, .symbol("list.bullet"), "List", true),
             (.link, .symbol("link"), "Link", false),
         ]
@@ -148,7 +150,8 @@ final class MarkdownSelectionBarView: NSView {
             wanted = comments + (showsComments ? [nil] : []) + [.bold, .italic, .underline, .strikethrough, .code, .highlight, nil, .link]
         } else {
             wanted = comments + (showsComments ? [nil] : [])
-                + [.textStyle, nil, .bold, .italic, .underline, .strikethrough, .code, .highlight, nil, .list, nil, .link]
+                + [.textStyle, nil, .bold, .italic, .underline, .strikethrough, .code, .highlight, .inlineMath, .color, nil, .list, nil,
+                   .alignLeft, .alignCenter, .alignRight, nil, .link]
         }
         guard wanted != arrangement else { return }
         arrangement = wanted

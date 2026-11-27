@@ -86,6 +86,15 @@ public struct MarkdownEditorTheme: Sendable, Equatable {
     /// Behind `==highlighted==` text: the reference editor's #fab219 at 33 % (#fde6b3 light, #5a4210 dark).
     public var highlight: NSColor = MarkdownEditorTheme.referenceHighlight
 
+    // MARK: Quotes, callouts and code
+
+    /// The bar beside a `>` quote: a vivid blue, so a quote reads at a glance.
+    public var quoteBar: NSColor = MarkdownEditorTheme.referenceQuoteBar
+    /// A quote's text: darker than muted text, so it stays easy to read beside the bar.
+    public var quoteText: NSColor = NSColor.labelColor.withAlphaComponent(0.78)
+    /// Text of an `inline code` span: a vivid red.
+    public var inlineCodeText: NSColor = MarkdownEditorTheme.referenceInlineCode
+
     // MARK: Init
 
     public init(
@@ -126,6 +135,38 @@ public struct MarkdownEditorTheme: Sendable, Equatable {
     public static let referenceTableHeaderText = reference(light: 0x52514E, dark: (0xC3C2B7, 1))
     public static let referenceTableBorder = reference(light: 0xE8E5DC, dark: (0xFFFFFF, 0.10))
     public static let referenceHighlight = reference(light: 0xFDE6B3, dark: (0x5A4210, 1))
+    public static let referenceQuoteBar = reference(light: 0x2F80ED, dark: (0x5AA0FF, 1))
+    public static let referenceInlineCode = reference(light: 0xE5173F, dark: (0xFF6B7D, 1))
+
+    /// The colour of an Obsidian callout (`> [!note]`) of the given kind: its bar and its title.
+    /// Kinds that share a look (`warning`, `caution`) share the one colour object.
+    public static func calloutColor(for kind: String) -> NSColor {
+        let group: String
+        switch kind.lowercased() {
+        case "info", "abstract", "summary", "tldr", "todo": group = "info"
+        case "tip", "hint", "important": group = "tip"
+        case "success", "check", "done": group = "success"
+        case "question", "help", "faq": group = "question"
+        case "warning", "caution", "attention": group = "warning"
+        case "failure", "fail", "missing", "danger", "error", "bug": group = "danger"
+        case "example": group = "example"
+        case "quote", "cite": group = "quote"
+        default: group = "note"   // note, and any kind not listed
+        }
+        return calloutColors[group] ?? calloutColors["note"]!
+    }
+
+    private static let calloutColors: [String: NSColor] = [
+        "note": reference(light: 0x2F80ED, dark: (0x5AA0FF, 1)),
+        "info": reference(light: 0x00A0B8, dark: (0x2BC4DB, 1)),
+        "tip": reference(light: 0x00A58C, dark: (0x2BD1B3, 1)),
+        "success": reference(light: 0x08A845, dark: (0x3DD068, 1)),
+        "question": reference(light: 0xD9A400, dark: (0xF2C230, 1)),
+        "warning": reference(light: 0xE8710A, dark: (0xFF9F43, 1)),
+        "danger": reference(light: 0xE93147, dark: (0xFF6B7D, 1)),
+        "example": reference(light: 0x7852EE, dark: (0xA48BFF, 1)),
+        "quote": reference(light: 0x7A7A7A, dark: (0xA8A8A8, 1)),
+    ]
 
     /// A dynamic color: an opaque sRGB `light` value, and a `dark` value with alpha.
     public static func reference(light: UInt32, dark: (rgb: UInt32, alpha: CGFloat)) -> NSColor {

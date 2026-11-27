@@ -180,6 +180,13 @@ final class MarkdownSelectionBarController {
                 buttons[item]?.setAccessibilityValue(NSNumber(value: alignment == value))
             }
             buttons[.crop]?.isPressed = hasCrop
+        } else {
+            // Text: the paragraph's alignment, as a radio group.
+            for (item, value) in [(MarkdownSelectionBarView.Item.alignLeft, MarkdownTextAlignment.left),
+                                  (.alignCenter, .center), (.alignRight, .right)] {
+                buttons[item]?.isPressed = state.alignment == value
+                buttons[item]?.setAccessibilityValue(NSNumber(value: state.alignment == value))
+            }
         }
         buttons[.bold]?.isPressed = state.bold
         buttons[.italic]?.isPressed = state.italic
@@ -351,6 +358,12 @@ final class MarkdownSelectionBarController {
         }
     }
 
+    /// An image aligns through its token; text aligns its paragraph (a `<div align>` wrapper).
+    private func alignSelection(_ alignment: MarkdownTextAlignment, image: ImageAltTokens.Alignment,
+                                in coordinator: NativeTextViewCoordinator) {
+        if case .image = state.context { coordinator.setImageAlignment(image) } else { coordinator.apply(.align(alignment)) }
+    }
+
     private func perform(_ item: MarkdownSelectionBarView.Item, from button: SelectionBarButton) {
         guard let coordinator else { return }
         tooltip.cancel()
@@ -359,9 +372,9 @@ final class MarkdownSelectionBarController {
             hide()
             MainActor.assumeIsolated { coordinator.comments?.beginComment() }
             return
-        case .alignLeft: coordinator.setImageAlignment(.left)
-        case .alignCenter: coordinator.setImageAlignment(.center)
-        case .alignRight: coordinator.setImageAlignment(.right)
+        case .alignLeft: alignSelection(.left, image: .left, in: coordinator)
+        case .alignCenter: alignSelection(.center, image: .center, in: coordinator)
+        case .alignRight: alignSelection(.right, image: .right, in: coordinator)
         case .crop: coordinator.imageControls?.beginCrop()
         case .imageMore: coordinator.imageControls?.showMenu(from: button)
         case .bold: coordinator.applyInlineStyle(.bold)
@@ -370,6 +383,8 @@ final class MarkdownSelectionBarController {
         case .strikethrough: coordinator.apply(.strikethrough)
         case .code: coordinator.apply(.code)
         case .highlight: coordinator.apply(.highlight)
+        case .inlineMath: coordinator.apply(.inlineMath)
+        case .color: showColorMenu(from: button); return
         case .link: showLinkEditor()
         case .textStyle: showTextStyleMenu(from: button)
         case .list: showListMenu(from: button)
@@ -490,6 +505,26 @@ final class MarkdownSelectionBarController {
         openMenu(rows, from: button)
     }
 
+    /// Text colours, then highlight colours: a round swatch each, the current one checked, and a row
+    /// that takes the colour off.
+    private func showColorMenu(from button: SelectionBarButton) {
+        guard let coordinator else { return }
+        func rows(_ kind: MarkdownColorKind, current: String?, clear: String, format: @escaping (String?) -> MarkdownFormat) -> [ChromeMenuView.Row] {
+            var rows: [ChromeMenuView.Row] = [.init(title: clear, swatch: nil, checked: current == nil) { [weak coordinator] in
+                coordinator?.apply(format(nil))
+            }]
+            for swatch in MarkdownColorPalette.swatches(for: kind) {
+                rows.append(.init(title: swatch.name, swatch: swatch.color, checked: current?.uppercased() == swatch.hex) { [weak coordinator] in
+                    coordinator?.apply(format(swatch.hex))
+                })
+            }
+            return rows
+        }
+        let text = rows(.text, current: state.textColor, clear: "Default text color") { .textColor($0) }
+        let highlight = rows(.highlight, current: state.highlightColor, clear: "No highlight") { .highlightColor($0) }
+        openMenu(text + [.separator] + highlight, from: button)
+    }
+
     /// "More formatting": the folded controls, each with its chord.
     private func showMoreMenu(from button: SelectionBarButton) {
         let names: [MarkdownSelectionBarView.Item: (String, String, MarkdownEditorKeyCommand?)] = [
@@ -498,7 +533,7 @@ final class MarkdownSelectionBarController {
             .imageMore: ("More actions", "ellipsis", nil),
             .textStyle: ("Text style", "textformat", nil), .bold: ("Bold", "bold", .bold), .italic: ("Italic", "italic", .italic),
             .underline: ("Underline", "underline", .underline), .strikethrough: ("Strikethrough", "strikethrough", .strikethrough),
-            .code: ("Code", "chevron.left.forwardslash.chevron.right", .inlineCode), .highlight: ("Highlight", "highlighter", .highlight),
+            .code: ("Code", "chevron.left.forwardslash.chevron.right", .inlineCode), .highlight: ("Highlight", "highlighter", .highlight), .inlineMath: ("Inline math", "function", .inlineMath), .color: ("Text and highlight color", "paintpalette", nil),
             .list: ("List", "list.bullet", nil), .link: ("Link", "link", .link),
         ]
         let rows = bar.folded.compactMap { item -> ChromeMenuView.Row? in

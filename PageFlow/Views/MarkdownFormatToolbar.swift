@@ -12,6 +12,7 @@
 //
 
 import SwiftUI
+import MarkdownEngine
 
 @MainActor
 struct MarkdownFormatToolbar: View {
@@ -19,7 +20,6 @@ struct MarkdownFormatToolbar: View {
     /// Source beside an uneditable preview.
     var isSplitView = false
     var onToggleSplit: () -> Void = {}
-    var onOpenFilePicker: () -> Void
     /// The active tab's sidebar state (`TabSession.uiState.showingOutline` via
     /// `TabManager` — the same canonical slot the PDF toolbar binds).
     @Binding var showingOutline: Bool
@@ -31,7 +31,7 @@ struct MarkdownFormatToolbar: View {
 
     var body: some View {
         GlassToolbarShell {
-            GlassToolbarButton(icon: "doc", help: "Open a document", action: onOpenFilePicker, label: "Open")
+            exportMenu
             Divider().frame(height: 16)
             ZoomToolbarGroup(
                 canZoomOut: content.canZoomOut,
@@ -65,17 +65,43 @@ struct MarkdownFormatToolbar: View {
                     Button(command.title) { content.requestFormat(command) }
                         .disabled(!content.isFormatEnabled(command))
                 }
+                Menu("Callout") {
+                    ForEach(MarkdownCallout.kinds, id: \.id) { kind in
+                        Button { content.insertCallout(kind.id) } label: { Label(kind.title, systemImage: kind.symbol) }
+                    }
+                }
             } label: {
-                GlassToolbarLabel(icon: "plus", interactive: true)
+                GlassToolbarLabel(icon: "plus", interactive: true, magnifies: false)
             }
             .menuStyle(.borderlessButton)
             .pageFlowClickCursor()
             .menuIndicator(.hidden)
             .fixedSize()
+            .proximityMagnified()
             // Follows the "Show button tooltips" setting like the other buttons.
             .toolbarTooltip("Insert", enabled: settingsManager.showTooltips)
             .accessibilityLabel("Insert")
         }
+    }
+
+    /// Export leads the toolbar: PDF, HTML or a Word document, the same as File ▸ Export As.
+    /// Opening and creating documents are in the File menu and the tab bar.
+    private var exportMenu: some View {
+        Menu {
+            ForEach(DocumentExporter.Format.allCases, id: \.self) { format in
+                Button(format.menuTitle) { content.exportDocument(as: format) }
+            }
+        } label: {
+            GlassToolbarLabel(icon: "square.and.arrow.up", interactive: content.canExport, magnifies: false)
+        }
+        .menuStyle(.borderlessButton)
+        .pageFlowClickCursor()
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .proximityMagnified()
+        .disabled(!content.canExport)
+        .toolbarTooltip("Export as PDF, HTML or Word", enabled: settingsManager.showTooltips)
+        .accessibilityLabel("Export")
     }
 
     /// the reference editor's Comments button (doc 25 §1.4): "Show comments" while they

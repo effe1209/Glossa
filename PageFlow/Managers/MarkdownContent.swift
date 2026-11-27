@@ -252,7 +252,7 @@ final class MarkdownContent {
         case .numberedList: return state.listChecked == .numbered
         case .checklist: return state.listChecked == .checklist
         case .quote, .codeBlock, .divider, .table, .alignLeft, .alignCenter, .alignRight, .alignJustify,
-             .clearFormatting, .moveLineUp, .moveLineDown: return false
+             .inlineMath, .displayMath, .clearFormatting, .moveLineUp, .moveLineDown: return false
         }
     }
 
@@ -275,6 +275,16 @@ final class MarkdownContent {
     /// edit); a no-op while no editor is mounted.
     func requestFormat(_ command: MarkdownFormatCommand) {
         editorController.apply(command.engineFormat)
+    }
+
+    /// Makes the selected lines a callout of `kind` (`tip`, `warning`…), or changes the kind of the one they are in.
+    func insertCallout(_ kind: String) {
+        editorController.apply(.callout(kind))
+    }
+
+    /// Colours the selection's text, or the background behind it; nil takes the colour off.
+    func applyColor(_ hex: String?, kind: MarkdownColorKind) {
+        editorController.apply(kind == .text ? .textColor(hex) : .highlightColor(hex))
     }
 
     /// Scrolls the mounted editor to an outline heading (sidebar click) through
@@ -954,6 +964,8 @@ private extension MarkdownFormatCommand {
         case .alignCenter: return .align(.center)
         case .alignRight: return .align(.right)
         case .alignJustify: return .align(.justify)
+        case .inlineMath: return .inlineMath
+        case .displayMath: return .displayMath
         case .clearFormatting: return .clearFormatting
         case .moveLineUp: return .moveLines(up: true)
         case .moveLineDown: return .moveLines(up: false)

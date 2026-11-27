@@ -43,7 +43,10 @@ It is meant for people who work from documents: you read a paper, mark the passa
 
 - **Live preview**: notes render as you type; the markup shows only where you are editing.
 - **Split view**: source on one side, an uneditable preview on the other.
-- **Tables, math, diagrams, code**: editable tables, `$…$` and `$$…$$` LaTeX, Mermaid diagrams and syntax colouring.
+- **Tables, math, diagrams, code**: editable tables, `$…$` and `$$…$$` LaTeX, Mermaid diagrams and syntax colouring. Inline code is red, blocks are coloured by language, and a block with no language gets simple pseudo-code colours.
+- **Quotes and callouts**: `>` quotes and Obsidian callouts (`> [!tip] Title`) have coloured bars. Make a callout from Format ▸ Callout, the toolbar's Insert ▾ menu or the `/` menu; lists inside a quote carry on when you press Return.
+- **`/` commands**: type `/` at the start of a line to search headings, lists, quotes, callouts, code blocks, tables, dividers and formulas by name, then press Return.
+- **Text colour and highlight**: colour the selected text or put a marker colour behind it, from the selection bar or Format ▸ Text Color and Highlight Color. They are saved as plain HTML (`<span style="color: …">`, `<mark style="background: …">`), so other Markdown readers show them too.
 - **Comments in the file**: threads in the margin, saved in a hidden block at the end of the `.md`.
 - **Wiki-links**: `[[Note]]`, `[[Note|Alias]]` and `[[Note#Heading]]` open the note, PDF or book they name.
 - **Plain files**: `.md` and `.markdown` anywhere on your Mac; pasted images go to an `attachments` folder beside the note.
@@ -67,7 +70,8 @@ It is meant for people who work from documents: you read a paper, mark the passa
 
 ### Export
 
-- **Markdown notes and PDFs**: File → Export As, to PDF, HTML or a Word document (.docx). A PDF is exported from its extracted text, and only when the PDF allows copying.
+- **Markdown notes and PDFs**: File → Export As, or the Export button on the Markdown toolbar, to PDF, HTML or a Word document (.docx). A PDF made from a PDF is exported from its extracted text, and only when the PDF allows copying.
+- **PDF look and scale**: a note's PDF is laid out in the style of Notion and Obsidian (callouts, quotes, coloured code, tables, typeset formulas), and the save panel lets you choose the scale of the text, from 75% to 150%. The Word document keeps formulas as their source text.
 - **EPUB highlights**: Export Highlights as Markdown, to a file or a new tab.
 
 ## Workflow: PDF and Markdown together
@@ -129,7 +133,8 @@ The sandboxed build also carries the `com.apple.security.network.client` entitle
 | Link / Heading 1–6 / Normal text | `⌘K` / `⌥⌘1`–`⌥⌘6` / `⌥⌘7` |
 | Bulleted / Numbered list / Checklist | `⇧⌘8` / `⇧⌘7` / `⇧⌘L` |
 | Quote / Code block / Table | `⇧⌘9` / `⌥⌘C` / `⌥⌘T` |
-| Align left / Center / Align right / Justify (Markdown) | `⌘L` / `⌘E` / `⌘R` / `⌘J` |
+| Align left / Center / Align right / Justify (Markdown) | `⌘L` / `⇧⌘\` / `⌘R` / `⌘J` |
+| Inline math `$…$` / Display math `$$…$$` (Markdown) | `⌘E` / `⇧⌘E` |
 | Move line up / down | `⌃⌘↑` / `⌃⌘↓` |
 | Check or uncheck item (Markdown) | `⌘↩` |
 | Highlight / Add comment or note (PDF, EPUB, Markdown) | `⇧⌘H` / `⇧⌘K` |

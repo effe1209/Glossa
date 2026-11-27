@@ -147,6 +147,12 @@ final class NativeSemanticSelectionBar {
         case .strikethrough: format = .strikethrough
         case .highlight: format = .highlight
         case .code: format = .code
+        case .inlineMath: format = .inlineMath
+        case .color:
+            openMenu(MarkdownColorPalette.text.map { swatch in
+                .init(title: swatch.name, swatch: swatch.color, checked: false) { }
+            }, from: button)
+            return
         case .alignLeft: _ = owner.editSelectedImage { $0.alignment = .left }; update(); return
         case .alignCenter: _ = owner.editSelectedImage { $0.alignment = .center }; update(); return
         case .alignRight: _ = owner.editSelectedImage { $0.alignment = .right }; update(); return

@@ -271,6 +271,10 @@ final class NativeTextView: NSTextView {
             coordinator.normalizeCommittedListCaret(in: self)
             coordinator.normalizeCommittedEmphasisCaret(in: self)
         }
+        // A "/" typed at the start of a line, or after a space, opens the command menu.
+        if !committing, (insertString as? String) == "/", let coordinator = delegate as? NativeTextViewCoordinator {
+            MainActor.assumeIsolated { coordinator.slashMenuController().slashTyped() }
+        }
     }
 
     override func unmarkText() {
