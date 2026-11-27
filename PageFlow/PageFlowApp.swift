@@ -129,7 +129,7 @@ struct PageFlowApp: App {
                 // There is no help book: the system's item only says so.
                 CommandGroup(replacing: .help) {
                     Button("Glossa Help") {
-                        if let site = URL(string: "https://pageflow.pinchen.me") { NSWorkspace.shared.open(site) }
+                        if let site = URL(string: "https://github.com/effe1209/Glossa") { NSWorkspace.shared.open(site) }
                     }
                 }
             }

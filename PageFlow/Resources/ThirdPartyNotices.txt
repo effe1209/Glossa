@@ -1,13 +1,14 @@
 Glossa - Third-Party Notices
 
-License and copyright notices for the third-party components used by PageFlow.
+License and copyright notices for the third-party components used by Glossa.
 
 ========================================================================
 MarkdownEngine (vendored swift-markdown-engine)
 ========================================================================
 Source: https://github.com/nodes-app/swift-markdown-engine
 Vendored base: faa7b04701ee25ccaa6858b8d57c3c1764775d4f
-PageFlow modifications are maintained in Vendor/swift-markdown-engine.
+Modifications made by PageFlow, and later by Glossa (which is derived from PageFlow),
+are maintained in Vendor/swift-markdown-engine.
 License: Apache License 2.0
 
 LICENSE

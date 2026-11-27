@@ -2,6 +2,19 @@
 
 Documento tecnico di migrazione. **Descrive un lavoro futuro**: nulla di quanto sotto è implementato, salvo la parte «Cosa è già stato fatto». L'identificatore resta `com.raccoontechnologies.PageFlow`; non si cambiano firma, entitlements, percorsi di Application Support né dati esistenti.
 
+## Decisioni prese (28 novembre 2026)
+
+1. **Identificatore:** `io.github.effe1209.Glossa`, definitivo.
+2. **Build di riferimento:** `Release-Direct`, **non sandboxed**, firmata ad hoc. Un file `Local.xcconfig` non versionato permette di usare il proprio certificato gratuito `Apple Development` (Personal Team). Nessuna dipendenza da certificati o Team ID dell'autore originale (`V43797R8Q6` va tolto dal progetto). Nessuna pretesa di notarizzazione.
+3. **Migrazione sempre esplicita**, con una finestra a tre scelte: *Importa*, *Non ora*, *Non importare mai*. «Importa» copia le preferenze consentite, le palette, i documenti recenti e i dati compatibili. `sessionRestore.v1` e `Recovery` solo con richieste separate, mai in automatico. Si copia, non si sposta e non si cancella nulla. I segnalibri con scope di sicurezza si verificano uno per uno.
+4. **Application Support:** nuova cartella `Glossa`, copiando i dati necessari da `PageFlow`.
+5. **Formati dei documenti:** si continuano a **leggere e scrivere** `<!-- pageflow-comments` (note Markdown) e `PageFlowType`/`pageflow-comment` (annotazioni PDF). Sono identificatori di formato, non branding. I documenti esistenti non si modificano.
+6. **Intestazioni `// PageFlow` → `// Glossa`** nei sorgenti mantenuti dal progetto, in una PR separata. Il codice vendorizzato e i copyright originali non si toccano indiscriminatamente.
+7. **Variabili d'ambiente:** `GLOSSA_*` come standard, `PAGEFLOW_*` come alias temporaneo. Se sono definite entrambe, vince `GLOSSA_*`.
+8. **Classe PDF:** da `Owner` a `Default`: Glossa è un lettore PDF e non si dichiara proprietario del formato.
+
+**Correzione allo stato descritto sotto.** Le build fatte con `CODE_SIGNING_ALLOWED=NO` (anche con lo scheme sandboxed) non incorporano gli entitlements e non sono sandboxed: tutti i dati stanno nei percorsi non sandboxed (`~/Library/Preferences/com.raccoontechnologies.PageFlow.plist`, `~/Library/Application Support/PageFlow`). La migrazione parte da lì.
+
 Principi, in ordine di importanza:
 
 1. **Non si muove e non si cancella nulla di PageFlow.** Si legge, si copia, si lascia dov'è.
@@ -56,7 +69,7 @@ Dominio preferenze: `~/Library/Preferences/com.raccoontechnologies.PageFlow.plis
 
 ## 1. Nuovo identificatore
 
-**Scelta.** Un identificatore DNS inverso su un dominio che controlli (`<dominio>.Glossa`), deciso una volta sola: dopo la pubblicazione non si cambia senza ripetere questa migrazione. Per ora il placeholder è `<NUOVO-ID>`.
+**Scelta.** Un identificatore DNS inverso su un dominio che controlli (`<dominio>.Glossa`), deciso una volta sola: dopo la pubblicazione non si cambia senza ripetere questa migrazione. È deciso: `io.github.effe1209.Glossa`.
 
 **Cosa cambia con esso**
 - `PRODUCT_BUNDLE_IDENTIFIER` nelle tre configurazioni del target (`project.pbxproj`). `Info.plist` lo legge da lì.
@@ -149,20 +162,18 @@ Altre salvaguardie:
 - registro dettagliato con `os_log` (nessun dato personale nel testo);
 - le copie di riserva già previste per i colori (`glossa.markup.layer.*.backup`) valgono anche dopo l'importazione.
 
-## Decisioni ancora aperte
+## Piano di realizzazione, per PR piccole e indipendenti
 
-1. Il nuovo identificatore e la squadra di firma.
-2. Se la build di distribuzione resta senza sandbox (importazione diretta) o passa al sandbox (riautorizzazioni).
-3. Se importare di default `recentFiles` e `sessionRestore.v1` o solo su richiesta.
-4. Il nome della cartella di Application Support nuova.
-5. Se la classe del PDF scende da `Owner` a `Default`.
+Prima di ogni PR: build Debug, Release e Release-Direct e tutti i pacchetti di test. Al termine di ogni PR ci si ferma per la revisione.
 
-## Piano di realizzazione (non eseguito)
+1. **PR 1** — riferimenti visibili, Help e documentazione (nessun cambio di identificatore).
+2. **PR 2** — firma gratuita: tolto il Team ID originale, configurazione ad hoc condivisa e `Local.xcconfig` non versionato.
+3. **PR 3** — preparazione della migrazione (lettore della sorgente in sola lettura, elenco consentito, anteprima a secco, marcatore, test con dati simulati, hash della sorgente prima e dopo, rollback), senza cambiare l'identificatore.
+4. **PR 4** — cambio dell'identificatore e attivazione della migrazione (finestra a tre scelte), invito per il lettore PDF predefinito e classe PDF `Default`.
+5. **PR 5** — copia di Application Support (`Attachments`, `EPUB Annotations`; `Recovery` solo su richiesta) in `Glossa/`.
+6. **PR 6** — identificatori interni (log, notifiche, code, chiavi di attributo) e variabili `GLOSSA_*` con alias `PAGEFLOW_*`.
+7. **PR 7** — rinomina di classi e componenti Swift (`pageFlow*`, `PageFlowApp`, `PageFlowGlass*`).
+8. **PR 8** — rinomina del progetto Xcode, target, schemi e cartella (in due passi: schemi/target/progetto, poi cartella dei sorgenti con i link dei test).
+9. **PR separata** — intestazioni `// PageFlow` → `// Glossa` nei sorgenti del progetto (non nel codice vendorizzato).
 
-1. **Fase A** — nuovo identificatore, senza importazione; verificare i permessi e Launch Services.
-2. **Fase B** — importazione delle preferenze (§2), con anteprima a secco e foglio di conferma.
-3. **Fase C** — copia di Application Support (§3).
-4. **Fase D** — file recenti, sessione e cartelle (§4–5).
-5. **Fase E** — associazioni (§6) e documentazione per l'utente.
-
-Struttura prevista: tipi puri e testabili con origine e destinazione iniettate (`LegacyImportPlan` con l'elenco consentito, `DefaultsImporter` con una sorgente simulata, `ApplicationSupportCopier` con una cartella radice temporanea), come già fatto per `MarkupPalette`/`PaletteStore`. Test minimi: l'elenco consentito, la destinazione che vince, l'idempotenza, la sorgente che resta identica byte per byte, l'interruzione a metà e la ripresa, i percorsi senza segnalibro, e l'assenza di scritture nelle chiavi di PageFlow.
+Struttura prevista per la migrazione: tipi puri e testabili con origine e destinazione iniettate (`LegacyImportPlan` con l'elenco consentito, `DefaultsImporter` con una sorgente simulata, `ApplicationSupportCopier` con una cartella radice temporanea), come già fatto per `MarkupPalette`/`PaletteStore`. Test minimi: l'elenco consentito, la destinazione che vince, l'idempotenza, la sorgente identica byte per byte, l'interruzione a metà e la ripresa, i percorsi senza segnalibro, e l'assenza di scritture nelle chiavi di PageFlow.

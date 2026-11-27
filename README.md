@@ -101,11 +101,14 @@ xcodebuild -project PageFlow.xcodeproj -scheme "PageFlow Direct" -configuration 
 
 The Xcode project and its schemes keep their original `PageFlow` names; the app they build is **Glossa.app**. The `PageFlow` scheme builds the sandboxed configuration and `PageFlow Direct` the non-sandboxed one. Xcode resolves the Swift Package Manager dependencies on the first build.
 
-The `Tests` folder holds two Swift packages. Run each with `swift test`:
+The `Tests` folder holds five Swift packages. Run each with `swift test`:
 
 ```bash
 cd Tests/TabWidthLayoutTests && swift test
 cd Tests/MarkupPaletteTests && swift test
+cd Tests/MarkdownFormattingTests && swift test
+cd Tests/PDFZoomFitTests && swift test
+cd Tests/PDFCitationTests && swift test
 ```
 
 ## Privacy
@@ -115,7 +118,7 @@ Glossa has no analytics, no telemetry, no account and no updater, so new version
 Glossa does not have a networking layer of its own: a review of the app's source and its bundled and third-party dependencies found no `URLSession`, `Network.framework` or socket code. That is a source review, not a network capture, and a few things can still reach the network:
 
 - **Remote images in the Markdown split view.** The preview is rendered with WebKit, so an image that a note references by `http(s)` URL is loaded from that address when the preview is open.
-- **Links and Help.** Links you open, and the Help menu item (which opens a website), are handed to your default browser.
+- **Links and Help.** Links you open, and the Help menu item (which opens this project's page on GitHub), are handed to your default browser.
 - **macOS services.** Anything macOS itself does on an app's behalf is outside Glossa's control.
 
 The sandboxed build also carries the `com.apple.security.network.client` entitlement.
@@ -166,7 +169,7 @@ For the history before Glossa, see the [PageFlow repository](https://github.com/
 
 ## Origin and attribution
 
-Glossa is derived from [PageFlow](https://github.com/pinchen147/PageFlow) by Pin Chen, which is licensed under the Apache License 2.0, and it keeps the original project's Git history. The bundle identifier (`com.raccoontechnologies.PageFlow`) and the Xcode project and scheme names are unchanged from PageFlow. The plan for separating them is in [`docs/GLOSSA-IDENTITY-SEPARATION.md`](docs/GLOSSA-IDENTITY-SEPARATION.md).
+Glossa is derived from [PageFlow](https://github.com/pinchen147/PageFlow) by Pin Chen, which is licensed under the Apache License 2.0, and it keeps the original project's Git history. The bundle identifier (`com.raccoontechnologies.PageFlow`) and the Xcode project and scheme names are still those of PageFlow for now. The decided plan for separating them, step by step, is in [`docs/GLOSSA-IDENTITY-SEPARATION.md`](docs/GLOSSA-IDENTITY-SEPARATION.md). Glossa will keep reading and writing the file-format markers that PageFlow introduced (`pageflow-comments` in notes, `PageFlowType` in PDFs), because documents made with either app must open in both.
 
 Glossa also builds on open-source components, listed with their licenses in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
 

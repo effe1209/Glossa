@@ -11,7 +11,7 @@ This document records their origins; the resource carries the full notices.
 
 | Component | Version / revision | License text included in the app resource |
 |---|---|---|
-| [MarkdownEngine](https://github.com/nodes-app/swift-markdown-engine) | Vendored base `faa7b04701ee25ccaa6858b8d57c3c1764775d4f`, with PageFlow changes | Full `Vendor/swift-markdown-engine/LICENSE` (Apache-2.0), including its copyright statement. The vendored snapshot has no separate `NOTICE` file. |
+| [MarkdownEngine](https://github.com/nodes-app/swift-markdown-engine) | Vendored base `faa7b04701ee25ccaa6858b8d57c3c1764775d4f`, with changes made by PageFlow and later by Glossa, which is derived from it | Full `Vendor/swift-markdown-engine/LICENSE` (Apache-2.0), including its copyright statement. The vendored snapshot has no separate `NOTICE` file. |
 | [BeautifulMermaid](https://github.com/lukilabs/beautiful-mermaid-swift/tree/6a23a29e91af8f5b3e9fc09945332ca193bd69ec) | 1.0.4 / `6a23a29e91af8f5b3e9fc09945332ca193bd69ec` | Full MIT `LICENSE`, Copyright (c) 2026 Craft Docs. |
 | [ElkSwift](https://github.com/lukilabs/elk-swift/tree/32f8042e3509a4819f00ff9cd46e829ec2b26da0) | 1.0.2 / `32f8042e3509a4819f00ff9cd46e829ec2b26da0` | Full EPL-2.0 `LICENSE`, upstream README acknowledgments, source-file copyright notices, and the corresponding source URL. |
 | [SwiftMath](https://github.com/mgriebling/SwiftMath/tree/fa8244ed032f4a1ade4cb0571bf87d2f1a9fd2d7) | 1.7.3 / `fa8244ed032f4a1ade4cb0571bf87d2f1a9fd2d7` | Full MIT `LICENSE`, Copyright (c) 2023 Computer Inspirations. Font notices are retained separately as described below. |
@@ -46,5 +46,5 @@ in the built application when validating a release. Package-root license files
 are not assumed to become bundle resources automatically.
 
 When a dependency pin or the vendored license/notice files change, copy the exact
-updated texts into the resource and update this inventory. The PageFlow app menu
+updated texts into the resource and update this inventory. The app menu
 exposes the bundled resource through **Third-Party Notices…**.

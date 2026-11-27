@@ -289,7 +289,7 @@ final class MarkdownContent {
 
     /// Scrolls the mounted editor to an outline heading (sidebar click) through
     /// the find reveal+scroll bus leg's navigate-only mode (empty `allRanges` —
-    /// an engine contract, see PAGEFLOW-FORK.md): reveal + scroll, no highlight.
+    /// an engine contract): reveal + scroll, no highlight.
     /// Ranges are computed over the DISPLAY text (what the engine scrolls),
     /// same contract as `searchManager`. Records the departure point on the
     /// navigation trail, so ⌘[ returns here (PDF outline-click behavior).
@@ -918,7 +918,7 @@ extension MarkdownEditorBus {
     /// Posts the scoped reveal+scroll request in the ONE userInfo shape
     /// `handleFindScrollToRange` reads. Empty `allRanges` = navigate-only
     /// (outline clicks): reveal + scroll without painting highlights — an
-    /// engine contract (PAGEFLOW-FORK.md). A no-op when the bus has no leg.
+    /// engine contract. A no-op when the bus has no leg.
     func postFindScroll(documentId: String, range: NSRange, currentIndex: Int, allRanges: [NSRange],
                         allSourceSegments: [[NSRange]]? = nil, paintsOnly: Bool = false,
                         navigation: MarkdownFindNavigation? = nil, expectedSource: String? = nil) {
