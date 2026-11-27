@@ -1,80 +1,120 @@
 <div align="center">
 
-<img src="assets/icon.png" alt="PageFlow Icon" width="128">
+<img src="assets/app-icon-preview.png" alt="Glossa icon" width="128" height="128">
 
-# PageFlow
+# Glossa
 
-**Read PDFs and books. Write Markdown. One quiet, native Mac app.**
+**Read PDFs and books. Annotate. Write Markdown. One quiet, native Mac app.**
 
-[![GitHub stars](https://img.shields.io/github/stars/pinchen147/PageFlow?style=flat-square&color=1d1d1f&labelColor=6e6e73)](https://github.com/pinchen147/PageFlow/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/effe1209/Glossa?style=flat-square&color=1d1d1f&labelColor=6e6e73)](https://github.com/effe1209/Glossa)
+[![Latest release](https://img.shields.io/github/v/release/effe1209/Glossa?style=flat-square&color=1d1d1f&labelColor=6e6e73&include_prereleases)](https://github.com/effe1209/Glossa/releases)
 [![License](https://img.shields.io/badge/License-Apache_2.0-1d1d1f?style=flat-square&labelColor=6e6e73)](LICENSE)
 [![macOS](https://img.shields.io/badge/macOS-15%2B-1d1d1f?style=flat-square&labelColor=6e6e73)](https://www.apple.com/macos/)
-
-<img src="assets/screenshot.png" alt="A Markdown note in PageFlow 2.0: live preview with a checklist, a formula, a table, a diagram and a margin comment" width="720">
-
-<sub>Screenshot from PageFlow 2.0.</sub>
 
 </div>
 
 ---
 
-PageFlow 3.0 reads PDFs and EPUB books and edits Markdown notes, all in the same tabs and windows.
-It is written in SwiftUI and AppKit: PDFKit for PDFs, TextKit 2 for Markdown and TextKit 1 for EPUB.
-There is no Electron and no web view. Every tool stays out of sight until you reach for it.
+Glossa is a native macOS app for reading and annotating PDFs and EPUB books and for writing Markdown notes, all in the same tabs and windows. It is built with SwiftUI and AppKit, using PDFKit for PDFs, TextKit 2 for Markdown and TextKit 1 for EPUB. Every tool stays out of sight until you reach for it.
 
-## New in 3.0
+It is meant for people who work from documents: you read a paper, mark the passages that matter, and write your notes next to it without switching apps.
 
-- **EPUB reader** — open `.epub` books beside your PDFs and notes. Pages use PDF's layouts (Single Page, Single Page Continuous, Two Pages, Two Pages Continuous), and Reflow to Fit sizes the pages to the window. Choose System, Light, Sepia or Dark pages, set the font, size, line height, margins, justification, hyphenation and paragraph spacing, and use Contents, Bookmarks, whole-book Find with a results list, and the page rail. The page chip shows how far through you are, and Go to Page accepts a book's print page numbers. Print (⌘P) lays the whole book out for your paper in black on white with your highlights, and Save As (⇧⌘S) copies it, highlights and notes included. Your place is kept for each book.
-- **Read aloud in books** — the Mac's voices read from the selection or the top of the page, offline, highlighting the sentence and word and turning pages as they go. A book with its own narration (EPUB 3 media overlays) plays that recording through the same controls.
-- **More kinds of book** — real tables, typeset MathML formulas, right-to-left books, ruby readings and vertical Chinese and Japanese text. Fixed-layout books show their placed pages, in spreads where the book asks for them, and a page PageFlow can't place reflows with a notice. Double-click a figure, or use the context menu on a table, to see it large.
-- **Highlights and notes in books** — select across pages and chapters, then highlight (⇧⌘H) in PDF's colours, underline (⌘U), or add a note (⇧⌘K). Notes open in a Notes panel beside the pages, and the sidebar lists every highlight. Export them as Markdown to a file or a new tab. Highlights and bookmarks stay with the book when you move the file, and Undo covers them.
-- **Footnotes and pictures in books** — a footnote opens in a pop-up at its marker instead of sending you to the end of the chapter, and leaves the page when a marker points to it. SVG images and drawings show as pictures. A DRM-protected book reports that it can't be opened.
-- **Insert pages into a PDF** — Insert Blank Page (⌥⌘N) adds a page after the current one, and Insert Pages from File (⇧⌥⌘N) adds every page of another PDF. A password-protected PDF asks for its password first. Copy Page in one PDF and Paste Page in another; each insertion is one Undo step.
-- **Wiki-links in Markdown** — `[[Note]]`, `[[Note|Alias]]`, `[[Note#Heading]]` and `[[#Heading]]` open the note, PDF or book they name, including from table cells. PageFlow searches the note's folder and its vault the way Obsidian does. Links to missing notes are drawn dimmed.
-- **One app across PDF, Markdown and EPUB** — the same zoom steps and Zoom to Fit, the same Find highlights, sidebars that stay open after a pick, a comments or notes panel on ⌥⌘E, and one way of reporting a file that can't be opened.
-- **Navigation rails** — PDF pages, Markdown headings and EPUB pages have rails along the edge. Hover over a mark to preview it and click to jump there. Rails slide in from the edge; Settings → General → Navigation can turn them off or show them only when the pointer is at the edge.
+> **Glossa is derived from [PageFlow](https://github.com/pinchen147/PageFlow)**, created by Pin Chen and released under the Apache License 2.0. Glossa keeps PageFlow's history and continues it as an independent project. See [Origin and attribution](#origin-and-attribution).
 
-## Markdown
+## Features
 
-- **Live preview** — notes render as you type; the markup shows only where you are editing.
-- **Collapsible sections** — fold a heading with its chevron or ⌥⌘↩. The quiet hidden-content row can be switched off in Settings; folding leaves the Markdown file unchanged.
-- **Tables you edit as tables** — click a cell and type, Tab to move on (Tab past the last cell adds a row), right-click to insert, delete, move, sort or align. Select a range of cells to copy, paste, clear or format them.
-- **Math, diagrams, code** — `$…$` and `$$…$$` LaTeX, Mermaid flowchart, sequence, class, state, ER and XY charts, and syntax colouring for about 190 languages.
-- **Images you can edit** — select an image to change its description, size, alignment or crop, or attach a margin comment. Crops preserve the original file.
-- **Move whole blocks** — hover to reveal grips for paragraphs, headings, quotes, list groups, tables, images, code, formulas and diagrams. A collapsed heading carries its entire hidden section and nested fold choices; an expanded heading moves only its heading text. Drops, copies, Undo and Redo preserve those choices.
-- **Comments in the file** — select text and press ⇧⌘K. Threads sit in the margin, can be replied to and resolved, and are saved in a hidden block at the end of the `.md`, so they travel with it.
-- **Plain files** — `.md` and `.markdown` anywhere on your Mac; line endings kept. `[next](other.md)` and `[[other]]` open the linked note, PDF or book, `[see](#heading)` jumps within the note, a pasted screenshot lands in an `attachments` folder beside the note.
-- **Outline, Find and Replace, zoom, print** — a heading outline with Back and Forward, Find and Replace (⌥⌘F), PDF-style zoom, and printing that keeps math, tables and diagrams.
-- **Dark notes** — notes follow your Mac's appearance, or pin them to light or dark. PDF pages are never recoloured.
+### PDF reader
 
-## PDF
+- **Layouts**: single page, continuous and two-page layouts, plus password-protected PDFs. A PDF's own copy, print and edit restrictions are respected.
+- **Annotations**: highlight (⇧⌘H), underline (⌘U) and comment (⇧⌘K). Annotations are written into the PDF; comments render LaTeX.
+- **Bookmarks**: toggle with ⌘D. Bookmarks are stored in the PDF's outline, under a "Glossa Bookmarks" entry, as well as on your Mac. Bookmarks from earlier versions are still read.
+- **Pages**: rotate, copy, cut, paste, delete, duplicate, reorder and insert pages from the thumbnail sidebar or the Edit menu, all undoable. Insert a blank page (⌥⌘N) or every page of another PDF (⇧⌥⌘N).
+- **PDF to Markdown**: copy a page (⇧⌘M), an outline section or the whole document (⌥⇧⌘M) as Markdown.
 
-- **Annotations** — highlight (⇧⌘H), underline (⌘U) and comment (⇧⌘K) in colours you choose; comments render LaTeX. Annotations are written into the PDF.
-- **Bookmarks** — ⌘D; stored on your Mac.
-- **Pages** — rotate, copy, cut, paste, delete, duplicate, reorder and insert pages from the thumbnail sidebar or the Edit menu, all undoable. Copied pages paste into any PDF.
-- **PDF to Markdown** — copy a page (⇧⌘M), an outline section or the whole document (⌥⇧⌘M) as Markdown.
-- **Reading** — single, continuous and two-page layouts, password-protected PDFs, and a PDF's own copy, print and edit restrictions respected.
+### EPUB reader
 
-## Everywhere
+- Pages use the same layouts as PDF, with Reflow to Fit, System, Light, Sepia and Dark pages, and settings for font, size, line height, margins, justification, hyphenation and paragraph spacing.
+- Contents, bookmarks, whole-book Find, a page rail, and Go to Page that accepts a book's print page numbers.
+- Highlights, underlines and notes, listed in the sidebar and exportable as Markdown.
+- Read aloud with the Mac's voices, offline.
+- Footnote pop-ups, MathML formulas, right-to-left text, ruby and vertical Chinese and Japanese text. DRM-protected books are reported as unopenable.
 
-- **Deck tabs and a folding toolbar** — the current tab stays full width and the rest tuck beside it; the toolbar rests as a small glass sphere until you point at it.
-- **Windows** — tear tabs off into windows and merge them back, Search Tabs across every window (⇧⌘A), undo kept per tab, and your PDFs, books and notes reopened on relaunch, each where you left off.
-- **Rebindable shortcuts** — Settings → Shortcuts, searchable by name or by keys.
-- **Draft recovery and safe saves** — unsaved notes can be recovered after an unexpected stop. Close and Quit wait for accepted saves, with Cancel available during slow storage waits.
-- **Private** — no analytics, no telemetry, no account, and no network requests of its own. There is no updater: get new versions from the download page.
-- **Liquid Glass** on macOS 26, a frosted look on macOS 15.
+### Markdown editor
+
+- **Live preview**: notes render as you type; the markup shows only where you are editing.
+- **Split view**: source on one side, an uneditable preview on the other.
+- **Tables, math, diagrams, code**: editable tables, `$…$` and `$$…$$` LaTeX, Mermaid diagrams and syntax colouring.
+- **Comments in the file**: threads in the margin, saved in a hidden block at the end of the `.md`.
+- **Wiki-links**: `[[Note]]`, `[[Note|Alias]]` and `[[Note#Heading]]` open the note, PDF or book they name.
+- **Plain files**: `.md` and `.markdown` anywhere on your Mac; pasted images go to an `attachments` folder beside the note.
+- **Outline, Find and Replace, zoom, print, page width**: a heading outline, Find and Replace (⌥⌘F), and an adjustable page width in Settings → Notes.
+
+### Markup tools and palettes
+
+- Highlight, underline and comment colours are presets you edit in Settings → Annotations: add, rename, recolour and remove them, or reset to the Glossa defaults (yellow, green, blue and pink for highlights and underlines).
+- Your changes are kept in a versioned layer on top of the built-in defaults, so a future update to the defaults does not overwrite your choices. Resetting keeps a backup that can be restored.
+- Changing a palette never recolours annotations you have already made.
+- Colour presets saved by earlier versions are migrated without being deleted.
+- Underline colours that would be hard to read on the page are adjusted for contrast.
+
+### Tabs, navigation and windows
+
+- **Tabs**: an adaptive tab strip that uses the width available, a tab size you set in Settings → General, and a Deck layout where the current tab stays full width and the rest tuck beside it.
+- **Windows**: tear tabs off into windows and merge them back, Search Tabs across every window (⇧⌘A), undo kept per tab, and your documents reopened on relaunch, each where you left off.
+- **Navigation rails**: PDF pages, Markdown headings and EPUB pages have rails along the edge: hover to preview, click to jump. They can be turned off or shown only at the edge in Settings → General → Navigation.
+- **Toolbar**: a folding glass toolbar with an adjustable size.
+- **Rebindable shortcuts**: Settings → Shortcuts, searchable by name or by keys.
+
+### Export
+
+- **Markdown notes and PDFs**: File → Export As, to PDF, HTML or a Word document (.docx). A PDF is exported from its extracted text, and only when the PDF allows copying.
+- **EPUB highlights**: Export Highlights as Markdown, to a file or a new tab.
+
+## Workflow: PDF and Markdown together
+
+1. Open a paper as a PDF and a note as Markdown in two tabs, or tear one off into its own window.
+2. Highlight and underline in the PDF using your palette, add comments, and bookmark pages with ⌘D.
+3. Copy a page or the whole document as Markdown (⇧⌘M, ⌥⇧⌘M) into your note, or link to the PDF with a wiki-link.
+4. Write with live preview or in split view, then export the note as PDF, HTML or Word when it is ready to share.
+
+## Screenshots
+
+There are no screenshots of Glossa in the repository yet. The image that came with the original project showed PageFlow 2.0, so it is no longer used here. Screenshots will be added once they are taken from Glossa itself.
 
 ## Install
 
-Download a signed installer from [PageFlow releases](https://github.com/pinchen147/PageFlow/releases), or build from source with Xcode.
+Glossa is not distributed as a prebuilt download yet. The [releases page](https://github.com/effe1209/Glossa/releases) is where installers will be published; until a release appears there, build it from source (below).
+
+**Requirements:** macOS 15 (Sequoia) or later, and Xcode to build it. Glossa has a Liquid Glass look on macOS 26 and a frosted look on macOS 15.
+
+## Build from source
 
 ```bash
-git clone https://github.com/pinchen147/PageFlow.git
-cd PageFlow
+git clone https://github.com/effe1209/Glossa.git
+cd Glossa
 xcodebuild -project PageFlow.xcodeproj -scheme "PageFlow Direct" -configuration Release-Direct CODE_SIGNING_ALLOWED=NO build
 ```
 
-Requires macOS 15 (Sequoia) or later, on Apple Silicon or Intel.
+The Xcode project and its schemes keep their original `PageFlow` names; the app they build is **Glossa.app**. The `PageFlow` scheme builds the sandboxed configuration and `PageFlow Direct` the non-sandboxed one. Xcode resolves the Swift Package Manager dependencies on the first build.
+
+The `Tests` folder holds two Swift packages. Run each with `swift test`:
+
+```bash
+cd Tests/TabWidthLayoutTests && swift test
+cd Tests/MarkupPaletteTests && swift test
+```
+
+## Privacy
+
+Glossa has no analytics, no telemetry, no account and no updater, so new versions come from the releases page. Your documents stay where you saved them: annotations are written into the PDF, comments into the Markdown file, and settings are kept on your Mac.
+
+Glossa does not have a networking layer of its own: a review of the app's source and its bundled and third-party dependencies found no `URLSession`, `Network.framework` or socket code. That is a source review, not a network capture, and a few things can still reach the network:
+
+- **Remote images in the Markdown split view.** The preview is rendered with WebKit, so an image that a note references by `http(s)` URL is loaded from that address when the preview is open.
+- **Links and Help.** Links you open, and the Help menu item (which opens a website), are handed to your default browser.
+- **macOS services.** Anything macOS itself does on an app's behalf is outside Glossa's control.
+
+The sandboxed build also carries the `com.apple.security.network.client` entitlement.
 
 ## Keyboard shortcuts
 
@@ -105,12 +145,26 @@ Requires macOS 15 (Sequoia) or later, on Apple Silicon or Intel.
 | Search Tabs / Next tab / Previous tab / Tab 1–9 | `⇧⌘A` / `⇧⌘]` / `⇧⌘[` / `⌘1`–`⌘9` |
 | Reopen closed tab / Previously used tab, forward and back (hold ⌃ to go further) | `⇧⌘T` / `⌃⇥` / `⌃⇧⇥` |
 
-The shortcuts shown are defaults. Saved choices, including None, are retained. You can change bindings in Settings → Shortcuts.
+These are the defaults. You can change any binding in Settings → Shortcuts.
 
 ## Changelog
 
-The 3.0 changes are described [above](#new-in-30). Earlier release notes are at [pageflow.pinchen.me/changelog](https://pageflow.pinchen.me/changelog).
+Glossa's release notes will be published on the [releases page](https://github.com/effe1209/Glossa/releases). Changes merged so far, in [pull request #1](https://github.com/effe1209/Glossa/pull/1):
+
+- Product renamed to Glossa, with a new app icon and new PDF and Markdown document icons.
+- Versioned markup palettes with customisable highlight and underline colours.
+- Adaptive tab widths and a tab size setting, sticky markup tools, undo and redo in the toolbar.
+- Markdown split view, an adjustable page width, and Export As PDF, HTML or Word.
+- Bookmarks stored in the PDF's outline.
+
+For the history before Glossa, see the [PageFlow repository](https://github.com/pinchen147/PageFlow) and its [release notes](https://pageflow.pinchen.me/changelog).
+
+## Origin and attribution
+
+Glossa is derived from [PageFlow](https://github.com/pinchen147/PageFlow) by Pin Chen, which is licensed under the Apache License 2.0, and it keeps the original project's Git history. The bundle identifier (`com.raccoontechnologies.PageFlow`) and the Xcode project and scheme names are unchanged from PageFlow. The plan for separating them is in [`docs/GLOSSA-IDENTITY-SEPARATION.md`](docs/GLOSSA-IDENTITY-SEPARATION.md).
+
+Glossa also builds on open-source components, listed with their licenses in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
 
 ## License
 
-[Apache 2.0](LICENSE)
+Glossa is released under the [Apache License 2.0](LICENSE), Copyright 2025 Pin Chen for the original PageFlow. The original copyright and license notices are kept as they are.

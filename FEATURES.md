@@ -19,7 +19,7 @@ Elenco ricavato dal README e dalla struttura del progetto, senza aver letto tutt
 - [ ] Riempimento automatico dei moduli
 - [ ] Elenco riepilogativo di tutte le annotazioni, con filtro e ricerca
 - [ ] Esportazione delle annotazioni in Markdown (oggi solo per EPUB)
-- [x] Segnalibri salvati nel file PDF (nell'indice, voce "PageFlow Bookmarks"), non solo sul Mac
+- [x] Segnalibri salvati nel file PDF (nell'indice, voce "Glossa Bookmarks"), non solo sul Mac
 - [ ] Modalità lettura notturna con ricolorazione delle pagine
 - [ ] Modalità presentazione
 - [ ] Supporto agli stylus
