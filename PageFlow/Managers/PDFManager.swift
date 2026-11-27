@@ -22,6 +22,22 @@ enum InteractionMode {
 struct FitRequest: Equatable {
     /// Scroll to the top of the page after fitting.
     var scrollToTop: Bool
+    /// What to fit. Nil takes the fit the display mode implies: the width of stacked
+    /// pages, the whole of a single page or spread.
+    var mode: PDFZoomFit.Mode? = nil
+}
+
+/// A fit the reader chose: Fit Page or Fit Width, measured on one page. It stays
+/// in force, refitting as the window or layout changes, until the reader zooms.
+/// The reference is the page the command was given on and not the one in view, so
+/// the scale holds still as the reader scrolls between pages of different sizes.
+struct ActiveZoomFit: Equatable {
+    var mode: PDFZoomFit.Mode
+    var referencePage: PDFPage?
+
+    static func == (lhs: ActiveZoomFit, rhs: ActiveZoomFit) -> Bool {
+        lhs.mode == rhs.mode && lhs.referencePage === rhs.referencePage
+    }
 }
 
 enum DocumentLoadResult {
@@ -76,6 +92,7 @@ final class PDFManager {
                 suppressesNavigationRail = false
                 navigationRailFitsViewport = false
                 navigationRailPageRects = []
+                zoomFit = nil
             }
         }
     }
@@ -89,6 +106,9 @@ final class PDFManager {
     var currentPageIndex: Int = 0 { didSet { if !isIngestingPageChange { viewIntentRevision &+= 1 } } }
     var scaleFactor: CGFloat = 1.0 { didSet { viewIntentRevision &+= 1 } }
     var isAutoScaling: Bool = false { didSet { viewIntentRevision &+= 1 } }
+    /// The Fit Page or Fit Width the reader chose, while it holds; nil once they zoom
+    /// or hand sizing to Auto-Scale. In-session only: a restored scale is a plain scale.
+    private(set) var zoomFit: ActiveZoomFit?
     /// One-shot fit request consumed by the projector; nil when no fit is pending.
     var pendingFit: FitRequest? { didSet { viewIntentRevision &+= 1 } }
     /// One-shot exact-scroll restore (page + point) consumed by the projector to
@@ -684,18 +704,39 @@ final class PDFManager {
         suppressesNavigationRail = false
         isAutoScaling = false
         pendingFit = nil
+        // Native zoom input arrives here on every tick: publish only a change.
+        if zoomFit != nil { zoomFit = nil }
     }
 
     func setAutoScaling(_ enabled: Bool) {
         suppressesNavigationRail = enabled
         isAutoScaling = enabled
         pendingFit = nil
+        if zoomFit != nil { zoomFit = nil }
     }
 
-    /// Zoom to Fit: hands sizing to Auto-Scale, so the page stays fitted as
-    /// the window resizes until the reader zooms (the EPUB fit model).
+    // MARK: Fit Page / Fit Width
+
+    /// The fit now in force, if the reader chose one.
+    var activeFitMode: PDFZoomFit.Mode? { isAutoScaling ? nil : zoomFit?.mode }
+
+    /// Already in that fit, the command has nothing to do.
+    func canFit(_ mode: PDFZoomFit.Mode) -> Bool { hasDocument && activeFitMode != mode }
+
+    /// Fits the page in view to the window, and keeps it fitted as the window or the
+    /// layout changes, until the reader zooms. A fit is measured on the page's own
+    /// size, so a slide and an A4 page each fill the window their own way.
+    func fit(_ mode: PDFZoomFit.Mode) {
+        guard hasDocument else { return }
+        suppressesNavigationRail = true
+        isAutoScaling = false
+        zoomFit = ActiveZoomFit(mode: mode, referencePage: currentPage)
+        pendingFit = FitRequest(scrollToTop: false, mode: mode)
+    }
+
+    /// Zoom to Fit fits the page's width, as the toolbar's arrows do; Fit Page is its own command.
     func zoomToFit() {
-        setAutoScaling(true)
+        fit(.width)
     }
 
     func requestFitOnce() {
@@ -758,6 +799,10 @@ final class PDFManager {
         isDirty = true
         pageVersion += 1
         markThumbnailDirty(at: index)
+        // A fit measured on this page is a different shape now.
+        if let fit = zoomFit, !isAutoScaling, fit.referencePage === page {
+            pendingFit = FitRequest(scrollToTop: false, mode: fit.mode)
+        }
 
         if let undoManager = getUndoManager(for: "Rotate Page") {
             undoManager.registerUndo(withTarget: self) { target in

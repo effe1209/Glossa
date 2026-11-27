@@ -370,6 +370,7 @@ struct PDFViewWrapper: NSViewRepresentable {
         pdfView.onRequestFocus = nil
         pdfView.onReaderScroll = nil
         pdfView.onLayoutGeometryChange = nil
+        pdfView.onViewportSizeChange = nil
 
         // The live view is gone; persistence must fall back to manager state.
         // Guarded by owner: after a cross-window tab move the destination's
@@ -392,22 +393,20 @@ struct PDFViewWrapper: NSViewRepresentable {
         abs(a - b) / max(abs(b), 0.0001) > 0.005
     }
 
-    /// Gathers live geometry from the view and delegates to the pure `FitEngine`.
-    /// The view-touching part (reading bounds + page media box) stays here; the
-    /// formula itself lives in `FitEngine` so it can be unit-tested in isolation.
-    private static func calculateFitScale(for pdfView: PDFView, page: PDFPage) -> CGFloat {
-        let viewBounds = pdfView.bounds
-        let pageBounds = page.bounds(for: .mediaBox)
-        let inputs = FitEngine.FitInputs(
-            viewWidth: viewBounds.width,
-            viewHeight: viewBounds.height,
-            pageWidth: pageBounds.width,
-            pageHeight: pageBounds.height,
+    /// Gathers live geometry from the view and delegates to the pure `PDFZoomFit`. The page
+    /// is measured as PDFKit draws it: the view's display box (not always the media box),
+    /// turned by the page's rotation. Nil while the view has no usable size yet.
+    static func fitScale(_ mode: PDFZoomFit.Mode, for pdfView: PDFView, page: PDFPage) -> CGFloat? {
+        let size = PDFZoomFit.effectiveSize(boxSize: page.bounds(for: pdfView.displayBox).size, rotation: page.rotation)
+        let layout = PDFZoomFit.Layout(
+            viewportSize: pdfView.bounds.size,
             displayMode: pdfView.displayMode,
             padding: DesignTokens.pdfViewPadding,
             twoPageGap: DesignTokens.pdfTwoPageGap
         )
-        return FitEngine.scale(for: inputs)
+        return PDFZoomFit.scale(mode: mode, pageSize: size, layout: layout).map {
+            PDFZoomFit.clamped($0, minimum: DesignTokens.pdfMinScale, maximum: DesignTokens.pdfMaxScale)
+        }
     }
 
     // MARK: - Coordinator
@@ -418,6 +417,8 @@ struct PDFViewWrapper: NSViewRepresentable {
         let commentManager: CommentManager
         var isActive: Bool = true
         private var scrollMonitor: Any?
+        /// Where the trackpad gesture in progress began; see `scrollTargetsPDF`.
+        private var scrollGestureTargetsPDF = false
         /// True only while `project(_:documentDidChange:)` is writing the live view,
         /// so a PDFKit notification posted synchronously by our own write defers its
         /// ingest instead of mutating @Observable state during a SwiftUI view update.
@@ -557,10 +558,27 @@ struct PDFViewWrapper: NSViewRepresentable {
                 return event
             }
             let handled = processControlScroll(event: event, pdfView: pdfView)
-            if !handled, event.scrollingDeltaY != 0 || event.scrollingDeltaX != 0, pdfView.frontmostEventPoint(event) != nil {
+            if !handled, event.scrollingDeltaY != 0 || event.scrollingDeltaX != 0, scrollTargetsPDF(event, in: pdfView) {
                 readerScrolled(in: pdfView)
             }
             return handled ? nil : event
+        }
+
+        /// Whether the pointer's scroll is over the PDF and not an overlay on it. That is a
+        /// native hit test through the whole SwiftUI hierarchy, which a trackpad gesture
+        /// would pay on every event (well over a hundred a second, momentum included,
+        /// ahead of the view's own scrolling). A gesture keeps its target from where it
+        /// began, as AppKit does, so it is asked once; a plain wheel has no gesture to
+        /// remember and is asked each time.
+        private func scrollTargetsPDF(_ event: NSEvent, in pdfView: StablePDFView) -> Bool {
+            if !event.phase.isEmpty {
+                if event.phase.contains(.began) || event.phase.contains(.mayBegin) {
+                    scrollGestureTargetsPDF = pdfView.frontmostEventPoint(event) != nil
+                }
+                return scrollGestureTargetsPDF
+            }
+            if !event.momentumPhase.isEmpty { return scrollGestureTargetsPDF }
+            return pdfView.frontmostEventPoint(event) != nil
         }
 
         /// The reader moved the view themselves: a restore still waiting, or its re-apply
@@ -585,6 +603,10 @@ struct PDFViewWrapper: NSViewRepresentable {
             pdfView.onLayoutGeometryChange = { [weak self, weak pdfView] in
                 guard let pdfView else { return }
                 self?.scheduleRailFitRefresh(pdfView)
+            }
+            pdfView.onViewportSizeChange = { [weak self, weak pdfView] in
+                guard let pdfView else { return }
+                self?.scheduleFitRefresh(pdfView)
             }
 
             // Setting a document lays out PDFKit's page views. Changing its pages in place does not.
@@ -705,12 +727,39 @@ struct PDFViewWrapper: NSViewRepresentable {
                 let fits = valid && !viewport.isEmpty && !pageRects.isEmpty
                     && scale <= fit
                     && !pageRects.contains { $0.intersects(lane) }
-                if self.pdfManager.navigationRailPageRects != pageRects {
-                    self.pdfManager.navigationRailPageRects = pageRects
+                // Only the pages' columns are published: their vertical position
+                // changes on every scroll tick, and this state is read by the tab
+                // view's body, so publishing it re-rendered the tab mid-gesture.
+                let columns = RailPageGeometry.columns(of: pageRects, in: viewport)
+                if !RailPageGeometry.sameLayout(self.pdfManager.navigationRailPageRects, columns) {
+                    self.pdfManager.navigationRailPageRects = columns
                 }
                 if self.pdfManager.navigationRailFitsViewport != fits {
                     self.pdfManager.navigationRailFitsViewport = fits
                 }
+            }
+        }
+
+        private var fitRefreshScheduled = false
+
+        /// Keeps a fit the reader chose (Fit Page, Fit Width) fitted as the view's size
+        /// changes. Measured on the page the fit was chosen on, not the one in view, so
+        /// scrolling never changes the scale; only a new size does, and writing the same
+        /// scale back is a no-op, so the layout it causes ends the loop.
+        private func scheduleFitRefresh(_ pdfView: StablePDFView) {
+            guard pdfManager.activeFitMode != nil, !fitRefreshScheduled else { return }
+            fitRefreshScheduled = true
+            DispatchQueue.main.async { [weak self, weak pdfView] in
+                guard let self else { return }
+                self.fitRefreshScheduled = false
+                guard let pdfView, self.isLiveView(pdfView), !self.isProjecting,
+                      self.pdfManager.pendingFit == nil,
+                      let fit = self.pdfManager.zoomFit, !self.pdfManager.isAutoScaling,
+                      let page = fit.referencePage ?? pdfView.currentPage,
+                      let scale = PDFViewWrapper.fitScale(fit.mode, for: pdfView, page: page),
+                      PDFViewWrapper.scalesDiffer(scale, pdfView.scaleFactor) else { return }
+                self.pdfManager.ingestFitCompletion(scale: scale)
+                self.applyScale(scale, to: pdfView)
             }
         }
 
@@ -931,12 +980,11 @@ struct PDFViewWrapper: NSViewRepresentable {
                     return
                 }
 
-                let baseScale = PDFViewWrapper.calculateFitScale(for: pdfView, page: currentPage)
-                let fitScale = baseScale + DesignTokens.pdfFitZoomBump
-                if fitScale > 0 {
-                    let clamped = min(max(fitScale, DesignTokens.pdfMinScale), DesignTokens.pdfMaxScale)
-                    self.pdfManager.ingestFitCompletion(scale: clamped) // source of truth first
-                    self.applyScale(clamped, to: pdfView)   // then mirror onto the view
+                let mode = request.mode ?? .implied(by: pdfView.displayMode)
+                let page = self.pdfManager.zoomFit?.referencePage ?? currentPage
+                if let fitScale = PDFViewWrapper.fitScale(mode, for: pdfView, page: page) {
+                    self.pdfManager.ingestFitCompletion(scale: fitScale) // source of truth first
+                    self.applyScale(fitScale, to: pdfView)   // then mirror onto the view
                 }
 
                 self.pdfManager.pendingFit = nil
@@ -1043,13 +1091,13 @@ struct PDFViewWrapper: NSViewRepresentable {
                     // scale here would switch its Auto-Scale off.
                     if !pdfView.autoScales { pdfView.autoScales = true }
                 } else {
-                    let baseScale = PDFViewWrapper.calculateFitScale(for: pdfView, page: currentPage)
-                    let fitScale = baseScale + DesignTokens.pdfFitZoomBump
-                    guard fitScale > 0 else { return }
-
-                    let clamped = min(max(fitScale, DesignTokens.pdfMinScale), DesignTokens.pdfMaxScale)
-                    self.pdfManager.ingestFitCompletion(scale: clamped)
-                    self.applyScale(clamped, to: pdfView)
+                    // A fit the reader chose carries over to the new mode; otherwise the
+                    // mode implies one.
+                    let mode = self.pdfManager.zoomFit?.mode ?? .implied(by: pdfView.displayMode)
+                    let page = self.pdfManager.zoomFit?.referencePage ?? currentPage
+                    guard let fitScale = PDFViewWrapper.fitScale(mode, for: pdfView, page: page) else { return }
+                    self.pdfManager.ingestFitCompletion(scale: fitScale)
+                    self.applyScale(fitScale, to: pdfView)
                 }
 
                 let pageBounds = currentPage.bounds(for: .mediaBox)
