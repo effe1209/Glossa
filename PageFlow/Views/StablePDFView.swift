@@ -219,6 +219,7 @@ final class StablePDFView: PDFView {
     var onUserZoom: ((PDFUserZoomIntent) -> Bool)?
     var onLinkNavigation: ((PDFPage) -> Void)?
     var onCopyPageAsMarkdown: (() -> Void)?
+    var onCopySelectionToNote: ((PDFSelection) -> Void)?
     var onCopyDocumentAsMarkdown: (() -> Void)?
     var onToggleBookmark: (() -> Void)?
     var onRequestFocus: (() -> Void)?

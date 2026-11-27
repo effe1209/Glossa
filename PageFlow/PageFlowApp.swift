@@ -639,6 +639,17 @@ struct PageFlowApp: App {
         .keyboardShortcut(ShortcutModel.commentsPanelMenuShortcut(isMarkdown: focusedTabManager?.activeMarkdownContent != nil))
         .disabled(focusedTabManager?.canToggleComments != true)
 
+        Button((focusedTabManager?.isTabSplit == true || focusedTabManager?.isChoosingSplitPartner == true) ? "Close Side-by-Side View" : "Show Two Tabs Side by Side") {
+            focusedTabManager?.toggleTabSplit()
+        }
+        .keyboardShortcut(for: "toggleTabSplit")
+        .disabled(focusedTabManager?.activeTabID == nil)
+
+        Button("Show Notes That Quote This PDF") {
+            focusedTabManager?.showNotesThatQuoteActivePDF()
+        }
+        .disabled(focusedTabManager?.activePDFManager?.hasDocument != true)
+
         Toggle("Always Show Top Bar", isOn: topBarVisibilityBinding)
         .keyboardShortcut(for: "toggleTopBar")
         .disabled(focusedTabManager == nil)
@@ -788,6 +799,14 @@ struct PageFlowApp: App {
             copyCurrentPageAsMarkdown()
         }
         .keyboardShortcut(for: "copyPageAsMarkdown")
+        .disabled(!pdfPermissions.copy)
+
+        Button("Copy Selection to Note") {
+            guard let manager = focusedTabManager, let pdf = manager.activePDFManager,
+                  let selection = pdf.liveSelectionProvider?() else { return }
+            manager.quoteSelectionInNote(selection, from: pdf)
+        }
+        .keyboardShortcut(for: "copySelectionToNote")
         .disabled(!pdfPermissions.copy)
 
         Button("Copy Document as Markdown") {

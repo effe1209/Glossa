@@ -36,6 +36,9 @@ struct TabItemView: View {
     let isDirty: Bool
     let isHovering: Bool
     var style: Style = .glass
+    /// Drawn without its own surface: one half of a joined tab, whose container
+    /// supplies the single glass pill. The focused half is only tinted.
+    var isJoinedHalf = false
     /// Fixed pill width from the adaptive strip layout; nil keeps the
     /// flexible min/max pill (the Deck's cards size themselves).
     var width: CGFloat? = nil
@@ -43,6 +46,15 @@ struct TabItemView: View {
     var body: some View {
         // Re-render when the tab size setting changes.
         let _ = SettingsManager.shared.tabScale
+        if isJoinedHalf {
+            pill
+                .background(isActive ? Color.accentColor.opacity(0.16) : Color.clear)
+        } else {
+            standalone
+        }
+    }
+
+    private var standalone: some View {
         // Strip pills and the Deck's cards share the sidebar's legible glass,
         // so a tab's adaptive label reads the same however the strip is laid out.
         content

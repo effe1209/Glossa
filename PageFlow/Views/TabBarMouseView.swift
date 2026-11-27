@@ -185,6 +185,13 @@ final class TabBarMouseNSView: NSView, TabBarHandle {
         if findTab(at: point) != nil || newTabButtonFrame.contains(point) {
             return self
         }
+        // The band the tabs span is theirs even between two of them (a joined pair's seam,
+        // the gap while tabs glide to new widths): a press there does nothing, instead of
+        // falling through to the window drag.
+        if let first = tabFrames.values.first {
+            let band = tabFrames.values.reduce(first) { $0.union($1) }
+            if band.contains(point) { return self }
+        }
         return nil
     }
 

@@ -51,6 +51,9 @@ struct MarkdownEditorView: View {
     /// is not displayed is hidden at the AppKit level with its viewport work
     /// paused — the markdown peer of PDFViewWrapper's warm gate.
     var isDisplayed: Bool = true
+    /// The width of the pane this note fills when it shares the window with another tab:
+    /// the text wraps to it at the same size, instead of running past its edge.
+    var paneWidthCap: CGFloat? = nil
     /// Whether this editor should own the keyboard (the active tab); the engine
     /// takes first responder one turn later, PDF-style.
     var isFocused: Bool = false
@@ -184,7 +187,12 @@ struct MarkdownEditorView: View {
         // The editor's own chords, as Settings > Shortcuts binds them (live).
         configuration.keyBindings = ShortcutCatalog.editorKeyBindings()
         if pageLook {
-            configuration.readingWidth = pageMeasureEm * fontSize
+            var measure = pageMeasureEm * fontSize
+            if let cap = paneWidthCap {
+                let visible = cap / max(zoomScale, 0.1) - sideMargin * 2 - 24
+                measure = min(measure, max(visible, 160))
+            }
+            configuration.readingWidth = measure
         }
         #if canImport(MarkdownEngineLatex)
         // Math ink must key off the editor's forced scheme, not the key window —

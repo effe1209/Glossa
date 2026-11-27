@@ -20,6 +20,10 @@ struct FloatingToolbar: View {
     var onOpenFilePicker: () -> Void
     @Binding var showingOutline: Bool
     @Binding var showingComments: Bool
+    /// Notes that quote this PDF: counted on the comments button.
+    var notesCount = 0
+    var isTabSplit = false
+    var onToggleTabSplit: () -> Void = {}
     var onFind: () -> Void
     @State private var settingsManager = SettingsManager.shared
 
@@ -119,11 +123,19 @@ struct FloatingToolbar: View {
             )
             GlassToolbarButton(
                 icon: showingComments ? "bubble.right.fill" : "bubble.right",
-                help: "Show or hide comments",
+                help: notesCount > 0 ? "Show or hide comments and the notes that quote this PDF" : "Show or hide comments",
                 action: { withAnimation(.easeInOut(duration: DesignTokens.animationFast)) { showingComments.toggle() } },
                 disabled: !pdfManager.hasDocument,
                 label: "Comments",
-                isOn: showingComments
+                isOn: showingComments,
+                badge: notesCount
+            )
+            GlassToolbarButton(
+                icon: "rectangle.righthalf.inset.filled",
+                help: isTabSplit ? "Close the second pane" : "Show another tab beside this one",
+                action: onToggleTabSplit,
+                label: "Split View",
+                isOn: isTabSplit
             )
             GlassToolbarButton(
                 icon: isBookmarked ? "bookmark.fill" : "bookmark",

@@ -150,6 +150,11 @@ final class PDFManager {
     @ObservationIgnored private var editRevision: UInt64 = 0
     @ObservationIgnored private var documentEpoch: UInt64 = 0
     @ObservationIgnored private var savingDocumentID: ObjectIdentifier?
+    /// The document's citation identity for the epoch it was computed in.
+    @ObservationIgnored private var citationIDCache: (epoch: UInt64, id: String)?
+    /// A passage a clicked citation marks for a moment; the view shows it.
+    private(set) var citationHighlight: CitationHighlight?
+    @ObservationIgnored private var citationHighlightTask: Task<Void, Never>?
     @ObservationIgnored private var lastAppliedWrite: UInt64 = 0
     var closeRevision: UInt64 { editRevision }
     private var pendingWrites = 0
@@ -443,9 +448,12 @@ final class PDFManager {
         applyInitialViewState(for: pdfDocument, url: url)
         isDirty = false
         markThumbnailStructureDirty()
+        refreshCitationRegistry()
     }
 
     func closeDocument() {
+        citationHighlightTask?.cancel()
+        citationHighlight = nil
         suppressesNavigationRail = false
         markdownExportJob.cancel()
         finishPendingWrites()
@@ -644,6 +652,81 @@ final class PDFManager {
         goToDestination(PDFDestination(page: page, at: CGPoint(x: bounds.minX, y: bounds.maxY)))
     }
 
+    // MARK: - Citations
+
+    /// The live view's height, for placing a jump; not state anything shows.
+    @ObservationIgnored var viewportHeight: CGFloat = 0
+
+    struct CitationHighlight: Equatable {
+        let token = UUID()
+        let selection: PDFSelection
+        let pageIndex: Int
+    }
+
+    /// The identity quotes of this document carry (`PDFDocumentFingerprint`); nil while locked.
+    func citationID() -> String? {
+        guard let document, !document.isLocked else { return nil }
+        if let cache = citationIDCache, cache.epoch == documentEpoch { return cache.id }
+        guard let id = PDFDocumentFingerprint.of(document, fileURL: documentURL) else { return nil }
+        citationIDCache = (documentEpoch, id)
+        return id
+    }
+
+    /// The title a quote names the document by: its own, else the file's name.
+    var citationTitle: String {
+        let own = (document?.documentAttributes?[PDFDocumentAttribute.titleAttribute] as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if let own, !own.isEmpty { return own }
+        return documentURL?.deletingPathExtension().lastPathComponent ?? "PDF"
+    }
+
+    /// An opened document the registry already knows is registered again, so a
+    /// file moved since the last time is found where it is now. Nothing is
+    /// done for a reader who has never quoted a PDF.
+    private func refreshCitationRegistry() {
+        guard PDFDocumentRegistry.shared.count > 0, let url = documentURL, let id = citationID(),
+              PDFDocumentRegistry.shared.record(for: id) != nil else { return }
+        PDFDocumentRegistry.shared.register(id: id, url: url, title: citationTitle)
+    }
+
+    /// Marks a quoted passage on `pageIndex` for a few seconds. The exact `range` the link
+    /// recorded is used when the page still reads as the quote did; otherwise the start of
+    /// the passage (`snippet`) is searched for on that page. False (and nothing marked)
+    /// when neither finds it.
+    @discardableResult
+    func highlightPassage(_ snippet: String, range: NSRange? = nil, onPageIndex pageIndex: Int, for duration: Duration = .seconds(6)) -> Bool {
+        guard let document, pageIndex >= 0, pageIndex < document.pageCount, let page = document.page(at: pageIndex),
+              !snippet.isEmpty else { return false }
+        func flat(_ text: String) -> String {
+            text.lowercased().split(whereSeparator: { $0.isWhitespace }).joined(separator: " ")
+        }
+        var found: PDFSelection?
+        if let range, NSMaxRange(range) <= (page.string as NSString?)?.length ?? 0,
+           let exact = page.selection(for: range), flat(exact.string ?? "").hasPrefix(flat(snippet)) {
+            found = exact
+        }
+        if found == nil {
+            found = document.findString(snippet, withOptions: [.caseInsensitive]).first { $0.pages.contains(page) }
+        }
+        guard let selection = found?.copy() as? PDFSelection else { return false }
+        selection.color = NSColor.systemYellow.withAlphaComponent(0.55)
+        let highlight = CitationHighlight(selection: selection, pageIndex: pageIndex)
+        citationHighlight = highlight
+        // Scroll so the passage sits a third of the way down the view, with the text
+        // before it on screen. This goes through the same jump as any link, whose
+        // settle re-apply would otherwise put the page's top back over a later scroll.
+        let rect = selection.bounds(for: page)
+        let lead = max(viewportHeight, 300) / 3 / max(scaleFactor, 0.1)
+        goToDestination(PDFDestination(page: page, at: CGPoint(x: max(rect.minX - 30, 0), y: rect.maxY + lead)))
+        citationHighlightTask?.cancel()
+        citationHighlightTask = Task { [weak self] in
+            try? await Task.sleep(for: duration)
+            guard !Task.isCancelled, self?.citationHighlight == highlight else { return }
+            self?.citationHighlight = nil
+        }
+        return true
+    }
+
     /// Jump to an explicit destination (a point on a page) — e.g. bringing a
     /// clicked comment into view rather than just its page top. Records history
     /// (so Back returns) only when the page actually changes. `pendingNavigation`
@@ -701,10 +784,12 @@ final class PDFManager {
 
     /// Begins a manual command, including native input accepted by the view.
     func beginManualZoom() {
-        suppressesNavigationRail = false
-        isAutoScaling = false
-        pendingFit = nil
-        // Native zoom input arrives here on every tick: publish only a change.
+        // Native zoom input arrives here on every tick: write only what changes. Each write
+        // is announced, even of the same value, and every announcement re-runs the
+        // projector, which puts the view back to the manager's scale mid-gesture.
+        if suppressesNavigationRail { suppressesNavigationRail = false }
+        if isAutoScaling { isAutoScaling = false }
+        if pendingFit != nil { pendingFit = nil }
         if zoomFit != nil { zoomFit = nil }
     }
 

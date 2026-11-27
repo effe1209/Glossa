@@ -343,6 +343,40 @@ public final class MarkdownEditorController {
         ) ?? false
     }
 
+    /// Inserts `block` (Markdown with no blank lines at its ends) at the caret, or in
+    /// place of the selection, as a block of its own: a blank line is added where the
+    /// neighbouring text needs one. One undo step; the caret ends after the block.
+    /// Returns false when no editor is bound or it is read-only.
+    @discardableResult
+    public func insertBlockAtSelection(_ block: String, actionName: String = "Insert") -> Bool {
+        guard let textView = semanticCoordinator?.textView ?? coordinator?.textView, textView.isEditable else { return false }
+        let source = textView.string as NSString
+        let selection = textView.selectedRange()
+        guard selection.location != NSNotFound, NSMaxRange(selection) <= source.length else { return false }
+        let text = Self.blockInsertion(of: block, into: source as String, replacing: selection)
+        let caret = NSRange(location: selection.location + (text as NSString).length, length: 0)
+        if semanticCoordinator != nil {
+            guard textView.shouldChangeText(in: selection, replacementString: text) else { return false }
+            textView.textStorage?.replaceCharacters(in: selection, with: text)
+            textView.didChangeText()
+            textView.setSelectedRange(caret)
+            return true
+        }
+        return replaceCharacters(in: [selection], with: text, expectedSource: source as String, actionName: actionName)
+            && { textView.setSelectedRange(caret); return true }()
+    }
+
+    /// `block` with the blank lines it needs to stand alone between what comes
+    /// before `selection` and what follows it.
+    public nonisolated static func blockInsertion(of block: String, into source: String, replacing selection: NSRange) -> String {
+        let ns = source as NSString
+        let before = ns.substring(to: selection.location)
+        let after = ns.substring(from: NSMaxRange(selection))
+        let lead = before.isEmpty || before.hasSuffix("\n\n") ? "" : before.hasSuffix("\n") ? "\n" : "\n\n"
+        let trail = after.isEmpty ? "\n" : after.hasPrefix("\n\n") ? "" : after.hasPrefix("\n") ? "\n" : "\n\n"
+        return lead + block + trail
+    }
+
     /// Replaces visible emphasis-projected matches as one canonical source edit.
     /// Ranges are ordered, disjoint UTF-16 offsets in the emphasis-only visible text.
     /// Surviving emphasis stays balanced; inserted text inherits each match's first

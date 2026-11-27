@@ -196,12 +196,26 @@ struct GlassToolbarButton: View {
     var isOn: Bool?
     /// Marks an on tool with a dot under its icon, as an unsaved tab has one.
     var showsOnDot = false
+    /// A small count on the icon's corner; hidden at zero.
+    var badge = 0
 
     @State private var settingsManager = SettingsManager.shared
 
     var body: some View {
         Button(action: action) {
             GlassToolbarLabel(icon: icon, interactive: !disabled)
+                .overlay(alignment: .topTrailing) {
+                    if badge > 0 {
+                        Text(badge > 99 ? "99+" : "\(badge)")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 4)
+                            .frame(minWidth: 14, minHeight: 14)
+                            .background(Capsule().fill(Color.accentColor))
+                            .offset(x: 4, y: -3)
+                            .accessibilityHidden(true)
+                    }
+                }
                 .overlay(alignment: .bottom) {
                     if showsOnDot, isOn == true {
                         Circle()

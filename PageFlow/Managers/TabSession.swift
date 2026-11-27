@@ -24,6 +24,10 @@ struct TabUIState: Sendable {
     var pdfSidebarMode = SidebarMode.outline
     var epubSidebarSection = EPUBReaderSidebar.Section.contents
     var showingComments = false
+    /// What the comments panel shows: the tab's comments, or the notes that quote it.
+    var commentsSection = CommentsSection.comments
+    /// The notes that quote this PDF, as last looked up (the toolbar badge counts them).
+    var citingNotes: [PDFCitingNote] = []
     var showingGoToPage = false
     var isEditingPages = false
     /// Find is the tab's: its bar, with the query and matches on its content.
