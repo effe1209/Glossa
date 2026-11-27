@@ -253,6 +253,9 @@ private struct ActiveFloatingToolbar: View {
                 onOpenFilePicker: { tabManager.openFilePicker() },
                 showingOutline: $tabManager.showingOutline,
                 showingComments: $tabManager.showingComments,
+                notesCount: tabManager.citingNotes(for: runtime.tabID).count,
+                isTabSplit: tabManager.isTabSplit || tabManager.isChoosingSplitPartner,
+                onToggleTabSplit: { tabManager.toggleTabSplit() },
                 onFind: { tabManager.requestFind() }
             )
             .id(runtime.tabID)
@@ -261,6 +264,8 @@ private struct ActiveFloatingToolbar: View {
                 content: runtime.content,
                 isSplitView: tabManager.markdownSplitView,
                 onToggleSplit: { tabManager.markdownSplitView.toggle() },
+                isTabSplit: tabManager.isTabSplit || tabManager.isChoosingSplitPartner,
+                onToggleTabSplit: { tabManager.toggleTabSplit() },
                 showingOutline: $tabManager.showingOutline,
                 canFind: tabManager.canFind,
                 onFind: { tabManager.requestFind() }

@@ -12,6 +12,8 @@ struct TabContainerView: View {
     @Environment(RecentFilesManager.self) private var recentFilesManager
     @Environment(\.colorScheme) private var systemColorScheme
     @State private var settingsManager = SettingsManager.shared
+    /// The size of the area the tabs fill.
+    @State private var canvas: CGSize = .zero
 
     /// Holds this window's `TabManager`, constructed lazily on first use.
     ///
@@ -64,21 +66,59 @@ struct TabContainerView: View {
     /// instant show. `.id(tabID)` keeps each tab's PDFViewWrapper Coordinator
     /// bound to that tab's managers.
     @ViewBuilder
-    private func warmTab(for render: TabRender) -> some View {
+    private func warmTab(for render: TabRender, in size: CGSize) -> some View {
         let isActiveTab = render.id == tabManager.activeTabID
+        let side = tabManager.paneSide(of: render.id)
+        let isDisplayed = tabManager.isTabSplit || tabManager.isChoosingSplitPartner ? side != nil : isActiveTab
+        let inSplit = tabManager.isTabSplit || tabManager.isChoosingSplitPartner
+        let leadingWidth = (size.width * tabManager.splitFraction).rounded()
+        let width: CGFloat = switch side {
+        case .leading: leadingWidth
+        case .trailing: size.width - leadingWidth
+        case nil: size.width
+        }
         TabRenderView(
             render: render,
             isActive: isActiveTab,
-            isDisplayed: isActiveTab,
+            isDisplayed: isDisplayed,
             showingSearch: showingSearch(for: render.id),
             searchFocusRequest: tabManager.searchFocusRequest,
             tabManager: tabManager
         )
         .id(render.id)
-        .opacity(isActiveTab ? 1 : 0)
-        .allowsHitTesting(isActiveTab)
-        .zIndex(isActiveTab ? 1 : 0)
-        .accessibilityHidden(!isActiveTab)
+        // Only a window showing two panes sizes, clips and shifts a tab; with one tab
+        // these leave the view exactly as it always was.
+        .frame(width: inSplit ? width : nil, height: inSplit ? size.height : nil)
+        // A pane draws and takes clicks only inside its own half: the PDF's backdrop
+        // reaches past its frame and, painted above the note, left it black and dead.
+        .clipShape(PaneClip(isOn: inSplit))
+        .offset(x: inSplit && side == .trailing ? leadingWidth : 0)
+        .opacity(isDisplayed ? 1 : 0)
+        .allowsHitTesting(isDisplayed)
+        .zIndex(isDisplayed ? 1 : 0)
+        .accessibilityHidden(!isDisplayed)
+    }
+
+    /// The handle between two panes: drag to give one more room.
+    private func splitHandle(in size: CGSize) -> some View {
+        let x = (size.width * tabManager.splitFraction).rounded()
+        return SplitDividerHandle(
+            totalWidth: size.width,
+            fraction: tabManager.splitFraction,
+            onChange: {
+                tabManager.splitFraction = min(0.75, max(0.25, $0))
+                tabManager.fitSplitPDFPanes(totalWidth: size.width)
+            },
+            onReset: {
+                tabManager.splitFraction = 0.5
+                tabManager.fitSplitPDFPanes(totalWidth: size.width)
+            },
+            onDragState: { tabManager.isResizingSplit = $0 }
+        )
+        .frame(width: SplitDividerHandle.hitWidth, height: size.height)
+        .offset(x: x - SplitDividerHandle.hitWidth / 2)
+        .zIndex(2)
+        .accessibilityLabel("Resize panes")
     }
 
     /// Every warm tab (TabManager.renderedTabs, LRU-capped) in one ZStack, so
@@ -88,11 +128,33 @@ struct TabContainerView: View {
     /// tabs. Per-tab reading position is restored by TabManager.restoreTabState
     /// + DocumentStateStore.
     private var content: some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             ForEach(tabManager.renderedTabs) { render in
-                warmTab(for: render)
+                warmTab(for: render, in: canvas)
             }
+            if tabManager.isChoosingSplitPartner {
+                let leadingWidth = (canvas.width * tabManager.splitFraction).rounded()
+                SplitPartnerChooserView(tabManager: tabManager, topInset: TopChromeView.height(toolbarScale: settingsManager.toolbarScale))
+                    .frame(width: canvas.width - leadingWidth, height: canvas.height)
+                    .offset(x: leadingWidth)
+                    .zIndex(1)
+            }
+            if tabManager.isTabSplit || tabManager.isChoosingSplitPartner { splitHandle(in: canvas) }
         }
+        // The area the panes share. The stack fills whatever it is offered, so the panes
+        // (two halves of it) cannot shrink what is measured and, with it, themselves.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(
+            GeometryReader { proxy in
+                Color.clear.onChange(of: proxy.size, initial: true) { _, size in
+                    canvas = size
+                    tabManager.splitTotalWidth = size.width
+                    tabManager.fitSplitPDFPanes(totalWidth: size.width)
+                }
+            }
+        )
+        // Panes refit as a pair comes on screen.
+        .onChange(of: tabManager.splitPair) { _, _ in tabManager.fitSplitPDFPanes(totalWidth: canvas.width) }
     }
 
     var body: some View {
@@ -216,5 +278,14 @@ private final class WindowRegistrarView: NSView {
 
         WindowRegistry.shared.register(tabManager, window: window)
         isRegistered = true
+    }
+}
+
+/// Clips a pane to its own frame while two panes share the window; with one tab the
+/// clip is far larger than the view, so it changes nothing.
+private struct PaneClip: Shape {
+    let isOn: Bool
+    func path(in rect: CGRect) -> Path {
+        Path(isOn ? rect : rect.insetBy(dx: -20_000, dy: -20_000))
     }
 }

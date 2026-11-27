@@ -29,6 +29,8 @@ struct PDFTabView: View {
     /// The Find bar's width while it shows; the page chip stays clear of it.
     /// The sidebar is sliding in at the pointer, not held open.
     @State private var isPeekingSidebar = false
+    /// The rail's availability as it was when the split divider was picked up.
+    @State private var frozenRailAvailability: Bool?
     @State private var sidebarPeekEnd: Task<Void, Never>?
     @State private var findBarWidth: CGFloat = 0
 
@@ -86,13 +88,25 @@ struct PDFTabView: View {
                     isActive: isActive,
                     isDisplayed: isDisplayed,
                     takesKeyboard: FindOverlay.documentTakesKeyboard(isShown: isActive && isDisplayed, findIsOpen: showingSearch),
-                    onRequestFocus: onRequestFocus
+                    onRequestFocus: onRequestFocus,
+                    quoteHost: tabManager
                 )
             } else {
                 emptyState
             }
         }
         .ignoresSafeArea(.all, edges: .all)
+        .task(id: pdfManager.documentURL) { await tabManager.refreshCitingNotes(for: tabID, pdf: pdfManager) }
+        .onChange(of: tabManager.isResizingSplit) { _, resizing in
+            frozenRailAvailability = resizing ? liveRailAvailability : nil
+            if resizing, isPeekingSidebar {
+                sidebarPeekEnd?.cancel()
+                isPeekingSidebar = false
+            }
+        }
+        .onChange(of: showingComments) { _, shown in
+            if shown { Task { await tabManager.refreshCitingNotes(for: tabID, pdf: pdfManager) } }
+        }
         .overlay {
             if isActive, isDisplayed {
                 PDFNavigationRail(pdfManager: pdfManager, bookmarkManager: bookmarkManager,
@@ -161,6 +175,12 @@ struct PDFTabView: View {
             if isActive, showingComments, pdfManager.hasDocument {
                 CommentsSidebar(
                     commentManager: commentManager,
+                    section: Binding(
+                        get: { tabManager.commentsSection(for: tabID) },
+                        set: { tabManager.setCommentsSection($0, for: tabID) }
+                    ),
+                    notes: tabManager.citingNotes(for: tabID),
+                    onOpenNote: { tabManager.openCitingNote($0) },
                     onClose: { showingComments = false }
                 )
                 .onExitCommand { showingComments = false }
@@ -175,6 +195,10 @@ struct PDFTabView: View {
 
     /// The rail can show: enabled, and the document fits beside it.
     private var railIsAvailable: Bool {
+        frozenRailAvailability ?? liveRailAvailability
+    }
+
+    private var liveRailAvailability: Bool {
         settingsManager.showNavigationRail && !pdfManager.suppressesNavigationRail && pdfManager.navigationRailFitsViewport
     }
 
@@ -223,9 +247,11 @@ struct PDFTabView: View {
         ZStack(alignment: .topLeading) {
             // A thin strip on the left edge: reaching it peeks the sidebar in.
             // Only without a rail, which is the doorway otherwise.
-            if isActive, pdfManager.hasDocument, !showingOutline, !railIsAvailable {
+            if isActive, pdfManager.hasDocument, !showingOutline, !railIsAvailable, !tabManager.isResizingSplit {
                 Color.clear
+                    // Clear of the split divider, which straddles this pane's edge.
                     .frame(width: 28)
+                    .padding(.leading, tabManager.splitSide(of: tabID) == .trailing ? 8 : 0)
                     .frame(maxHeight: .infinity)
                     .padding(.top, topChromeHeight)
                     .contentShape(Rectangle())

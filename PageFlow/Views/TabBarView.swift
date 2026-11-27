@@ -56,11 +56,20 @@ struct TabBarView: View {
         ZStack {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: DesignTokens.tabSpacing) {
-                    if isCompact {
+                    // Two tabs shown side by side are one joined tab; the Deck's overlapping
+                    // cards can't show that, so the strip is the full-width one meanwhile.
+                    if isCompact, tabManager.splitGroups.isEmpty {
                         deck
                     } else {
                         ForEach(tabManager.tabs, id: \.id) { tab in
-                            tabView(for: tab, width: adaptiveLayout.tabWidth)
+                            if let split = tabManager.splitGroup(containing: tab.id), tab.id == split.trailing {
+                                EmptyView()   // drawn inside the joined tab
+                            } else if let split = tabManager.splitGroup(containing: tab.id), tab.id == split.leading,
+                                      let partner = tabManager.tabs.first(where: { $0.id == split.trailing }) {
+                                joinedTabView(leading: tab, trailing: partner, width: adaptiveLayout.tabWidth)
+                            } else {
+                                tabView(for: tab, width: adaptiveLayout.tabWidth)
+                            }
                         }
                     }
                     newTabButton
@@ -166,7 +175,7 @@ struct TabBarView: View {
     /// full-width tabs at their minimum width. Not the current width: tabs
     /// shrink to fit, so that would change with the very space this decides.
     private var neededWidth: CGFloat {
-        let count = tabManager.tabs.count
+        let count = tabManager.tabs.count - tabManager.splitGroups.count
         let tabs = isCompact
             ? TabDeckLayout(count: count, focusedIndex: 0).width
             : TabWidthLayout.minimumContentWidth(count: count)
@@ -177,7 +186,8 @@ struct TabBarView: View {
     /// and the strip's padding leave.
     private var adaptiveLayout: TabWidthLayout {
         let reserved = DesignTokens.tabSpacing + DesignTokens.chromeIconSize + 2 * DesignTokens.spacingXS
-        return TabWidthLayout(count: tabManager.tabs.count, availableWidth: containerWidth - reserved)
+        // A joined pair takes the room of one tab.
+        return TabWidthLayout(count: tabManager.tabs.count - tabManager.splitGroups.count, availableWidth: containerWidth - reserved)
     }
 
     // MARK: - Tab View
@@ -205,6 +215,48 @@ struct TabBarView: View {
         // The controller dedupes per-pixel updates, so this fires at most
         // once per tab boundary crossed — not 60 times per second.
         .animation(.spring(response: 0.28, dampingFraction: 0.86), value: localInsertionIndex)
+    }
+
+    /// The two tabs of a side-by-side window drawn as one tab, each half still its own
+    /// tab to the mouse: a click, hover or close on a half acts on that tab.
+    private func joinedTabView(leading: TabModel, trailing: TabModel, width: CGFloat) -> some View {
+        let shape = RoundedRectangle(cornerRadius: DesignTokens.tabCornerRadius, style: .continuous)
+        func half(_ tab: TabModel) -> some View {
+            TabItemView(
+                tab: tab,
+                contentKind: tabManager.contentKind(for: tab.id),
+                isActive: tab.id == tabManager.activeTabID,
+                isDirty: tabManager.isTabDirty(tab.id),
+                isHovering: hoveredTabID == tab.id,
+                isJoinedHalf: true,
+                width: width / 2
+            )
+        }
+        // One pill: a single surface, outline and shadow around both titles, with only a
+        // hairline between them.
+        return HStack(spacing: 0) {
+            half(leading)
+            Rectangle().fill(Color.primary.opacity(0.15)).frame(width: 1, height: DesignTokens.tabHeight * 0.5)
+            half(trailing)
+        }
+        .clipShape(shape)
+        .pageFlowLiquidGlassSurface(.tab(active: true))
+        .overlay(shape.strokeBorder(Color.accentColor, lineWidth: 1).allowsHitTesting(false))
+        .shadow(color: .black.opacity(DesignTokens.glassElevationShadowOpacity * 0.5), radius: 2, y: -1)
+        .allowsHitTesting(false)
+        .background(
+            GeometryReader { geo in
+                let frame = geo.frame(in: .named(Self.coordinateSpace))
+                let halfWidth = frame.width / 2
+                Color.clear.preference(
+                    key: TabFramePreferenceKey.self,
+                    value: isInteractive ? [
+                        leading.id: CGRect(x: frame.minX, y: frame.minY, width: halfWidth, height: frame.height),
+                        trailing.id: CGRect(x: frame.minX + halfWidth, y: frame.minY, width: halfWidth, height: frame.height)
+                    ] : [:]
+                )
+            }
+        )
     }
 
     // MARK: - Deck

@@ -274,6 +274,11 @@ extension StablePDFView {
         onCopyPageAsMarkdown?()
     }
 
+    @objc func copySelectionToNoteAction() {
+        guard let selection = currentSelection, !(selection.string ?? "").isEmpty else { return }
+        onCopySelectionToNote?(selection)
+    }
+
     @objc func copyDocumentAsMarkdownAction() {
         onCopyDocumentAsMarkdown?()
     }
@@ -312,6 +317,19 @@ extension StablePDFView {
         // Markdown export extracts text, which a copy-protected document forbids.
         guard allowsCopying else { return }
         menu.addItem(.separator())
+
+        // A passage selected becomes a quote in the active note, linked back to this page.
+        if let text = currentSelection?.string, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let quoteShortcut = ShortcutModel.current(for: "copySelectionToNote")
+            let quoteItem = NSMenuItem(
+                title: "Copy to Note as Markdown",
+                action: #selector(copySelectionToNoteAction),
+                keyEquivalent: quoteShortcut.nsKeyEquivalent
+            )
+            quoteItem.keyEquivalentModifierMask = quoteShortcut.nsModifierFlags
+            quoteItem.target = self
+            menu.addItem(quoteItem)
+        }
 
         let copyPageShortcut = ShortcutModel.current(for: "copyPageAsMarkdown")
         let copyPageItem = NSMenuItem(

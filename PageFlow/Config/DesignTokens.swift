@@ -206,6 +206,8 @@ struct DesignTokens {
         return NSColor(srgbRed: gray, green: gray, blue: gray, alpha: alpha)
     }()
     static let commentSidebarWidth: CGFloat = 200
+    /// The PDF's comments and notes panel: wide enough to read a quote.
+    static let pdfCommentsPanelWidth: CGFloat = 340
     static let commentTailSize: CGFloat = 8
     static let commentDefaultRectWidth: CGFloat = 140
     static let commentDefaultRectHeight: CGFloat = 32

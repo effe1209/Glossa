@@ -191,8 +191,12 @@ enum ShortcutCatalog {
                        defaultShortcut: ShortcutModel(key: "k", shift: true), editorCommand: .comment),
 
 
+        // Tabs side by side
+        ShortcutAction(id: "toggleTabSplit", title: "Show Two Tabs Side by Side", category: .tabs, defaultShortcut: ShortcutModel(key: "\\", option: true)),
+
         // PDF to Markdown
         ShortcutAction(id: "copyPageAsMarkdown", title: "Copy Page as Markdown", category: .markdown, defaultShortcut: ShortcutModel(key: "m", shift: true), scope: .pdf),
+        ShortcutAction(id: "copySelectionToNote", title: "Copy Selection to Note", category: .markdown, defaultShortcut: ShortcutModel(key: "m", shift: true, control: true), scope: .pdf),
         ShortcutAction(id: "copyDocumentAsMarkdown", title: "Copy Document as Markdown", category: .markdown, defaultShortcut: ShortcutModel(key: "m", shift: true, option: true), scope: .pdf),
 
         // Tabs

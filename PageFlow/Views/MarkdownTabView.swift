@@ -124,6 +124,7 @@ struct MarkdownTabView: View {
                     fontName: settingsManager.markdownFontFamily,
                     fontSize: settingsManager.markdownFontSize,
                     isDisplayed: isDisplayed,
+                    paneWidthCap: tabManager.splitPaneWidth(for: tabID),
                     isFocused: FindOverlay.documentTakesKeyboard(isShown: isActive && isDisplayed, findIsOpen: showingSearch),
                     onRequestFocus: onRequestFocus,
                     readingPositionRequest: content.pendingReadingPosition,

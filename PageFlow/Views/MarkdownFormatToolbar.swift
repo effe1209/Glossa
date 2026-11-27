@@ -20,6 +20,9 @@ struct MarkdownFormatToolbar: View {
     /// Source beside an uneditable preview.
     var isSplitView = false
     var onToggleSplit: () -> Void = {}
+    /// Another tab beside this one (a PDF to read while writing).
+    var isTabSplit = false
+    var onToggleTabSplit: () -> Void = {}
     /// The active tab's sidebar state (`TabSession.uiState.showingOutline` via
     /// `TabManager` — the same canonical slot the PDF toolbar binds).
     @Binding var showingOutline: Bool
@@ -47,6 +50,9 @@ struct MarkdownFormatToolbar: View {
             SidebarFindToolbarGroup(showingSidebar: $showingOutline, showsSidebarButton: false, canFind: canFind && !isSplitView, onFind: onFind)
             GlassToolbarButton(icon: "rectangle.split.2x1", help: isSplitView ? "Hide the source" : "Show the source beside a preview",
                                action: onToggleSplit, label: "Source and Preview", isOn: isSplitView, showsOnDot: true)
+            GlassToolbarButton(icon: "rectangle.righthalf.inset.filled",
+                               help: isTabSplit ? "Close the second pane" : "Show another tab beside this one",
+                               action: onToggleTabSplit, label: "Split View", isOn: isTabSplit)
             Divider().frame(height: 16)
             // the reference editor's host toolbar: Table, Checklist and Insert ▾; the
             // marks live on the selection bar (doc 24 §6.12).
