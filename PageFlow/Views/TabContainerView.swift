@@ -139,6 +139,9 @@ struct TabContainerView: View {
             }
             .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
             .coordinateSpace(name: "tabPanes")
+            // Panes refit as the window is resized or a pair comes on screen.
+            .onChange(of: proxy.size.width) { _, width in tabManager.fitSplitPDFPanes(totalWidth: width) }
+            .onChange(of: tabManager.splitPair) { _, _ in tabManager.fitSplitPDFPanes(totalWidth: proxy.size.width) }
         }
     }
 

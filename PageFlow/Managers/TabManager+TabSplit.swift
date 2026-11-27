@@ -154,6 +154,9 @@ extension TabManager {
         fitSplitPDFPanes(totalWidth: NSApp.keyWindow?.contentView?.bounds.width ?? 0)
     }
 
+    /// A note pane narrower than this is fitted to its width.
+    static let noteFitThreshold: CGFloat = 820
+
     /// A PDF pane narrower than its page shrinks the page to fit the width, rather than
     /// being cut off; it then stays fitted as the pane is resized.
     func fitSplitPDFPanes(totalWidth: CGFloat) {
@@ -166,6 +169,11 @@ extension TabManager {
             panes = [(anchor, leadingWidth)]
         }
         for (id, width) in panes {
+            // A note narrower than its reading column is scaled to fit, not cut off.
+            if let note = sessions[id]?.content.markdown {
+                if width < Self.noteFitThreshold, !note.isWidthFitted { note.zoomToFit() }
+                continue
+            }
             guard let pdf = sessions[id]?.pdfManager, pdf.hasDocument, !pdf.isAutoScaling, pdf.activeFitMode == nil,
                   let page = pdf.currentPage else { continue }
             let pageWidth = page.bounds(for: .cropBox).width * pdf.scaleFactor
