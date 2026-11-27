@@ -236,7 +236,7 @@ final class MarkdownSelectionBarController {
     private func place(animated: Bool) {
         guard let scrollView, let anchor = anchor() else { return hide() }
         let width = bar.frame.width
-        let height = MarkdownSelectionBarView.height
+        let height = MarkdownSelectionBarView.height * MarkdownSelectionBarView.scale
         let insets = scrollView.contentInsets
         let top = insets.top + MarkdownSelectionBarPlacement.margin
         let bottom = scrollView.bounds.height - insets.bottom

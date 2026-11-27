@@ -7,10 +7,19 @@
 
 import SwiftUI
 
+/// Whether a sidebar is held open, and the action that flips it.
+struct SidebarPin {
+    let isPinned: Bool
+    let toggle: () -> Void
+}
+
 struct SidebarHeaderView: View {
     @Binding var mode: SidebarMode
     @Binding var isEditingPages: Bool
     let onClose: () -> Void
+    /// The sidebar can be held open (pinned) or only peek in while the
+    /// pointer is at the edge; nil for sidebars that are always pinned.
+    var pin: SidebarPin?
 
     var body: some View {
         HStack {
@@ -18,11 +27,26 @@ struct SidebarHeaderView: View {
 
             Spacer()
 
-            if mode == .thumbnails {
+            // Reordering needs the sidebar held open: a peek can't be edited.
+            if mode == .thumbnails, pin?.isPinned ?? true {
                 editPagesButton
             }
 
             modeToggle
+            if let pin {
+                Button {
+                    pin.toggle()
+                } label: {
+                    Image(systemName: pin.isPinned ? "pin.fill" : "pin")
+                        .font(.system(size: 12))
+                        .padding(DesignTokens.spacingXS)
+                        .foregroundStyle(.primary)
+                }
+                .buttonStyle(.plain)
+                .pageFlowClickCursor()
+                .help(pin.isPinned ? "Unpin the sidebar" : "Keep the sidebar open")
+                .accessibilityLabel(pin.isPinned ? "Unpin Sidebar" : "Pin Sidebar")
+            }
             GlassSidebarCloseButton(label: "Close Sidebar") {
                 isEditingPages = false
                 onClose()

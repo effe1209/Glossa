@@ -51,6 +51,8 @@ struct TabBarView: View {
     }
 
     var body: some View {
+        // Re-render when the tab size setting changes.
+        let _ = SettingsManager.shared.tabScale
         ZStack {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: DesignTokens.tabSpacing) {

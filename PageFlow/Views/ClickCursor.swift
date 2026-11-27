@@ -13,6 +13,11 @@ private struct ClickCursor: ViewModifier {
     @Environment(\.isEnabled) private var isEnabled
 
     func body(content: Content) -> some View {
-        content.pointerStyle(isAction ? (isEnabled ? .link : .default) : nil)
+        // With a markup tool on, its icon is the pointer everywhere.
+        if MarkupCursorState.shared.isActive {
+            content
+        } else {
+            content.pointerStyle(isAction ? (isEnabled ? .link : .default) : nil)
+        }
     }
 }

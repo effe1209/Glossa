@@ -295,6 +295,5 @@ struct ChromeGlassIcon: View {
             .foregroundStyle(.primary.opacity(0.78))
             .frame(width: DesignTokens.chromeIconSize, height: DesignTokens.chromeIconSize)
             .pageFlowLiquidGlassSurface(.newTabButton)
-            .shadow(color: .black.opacity(DesignTokens.glassElevationShadowOpacity), radius: 4, y: -2)
     }
 }

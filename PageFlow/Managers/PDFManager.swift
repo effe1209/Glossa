@@ -138,6 +138,19 @@ final class PDFManager {
     var interactionMode: InteractionMode = .select
     var displayMode: PDFDisplayMode = .singlePageContinuous { didSet { viewIntentRevision &+= 1 } }
 
+    /// Whether pages scroll on without a break (single or two-up); off turns
+    /// one page at a time.
+    var isContinuousScroll: Bool {
+        get { displayMode == .singlePageContinuous || displayMode == .twoUpContinuous }
+        set {
+            switch displayMode {
+            case .singlePage, .singlePageContinuous: displayMode = newValue ? .singlePageContinuous : .singlePage
+            case .twoUp, .twoUpContinuous: displayMode = newValue ? .twoUpContinuous : .twoUp
+            @unknown default: break
+            }
+        }
+    }
+
     /// Increments whenever pages are added/removed/reordered - triggers UI refresh
     var pageVersion: Int = 0
     private(set) var pageStructureVersion: Int = 0
@@ -257,7 +270,7 @@ final class PDFManager {
 
     var documentTitle: String {
         guard let document = document else {
-            return "PageFlow"
+            return "Glossa"
         }
 
         if let title = document.documentAttributes?[PDFDocumentAttribute.titleAttribute] as? String,
@@ -898,6 +911,57 @@ final class PDFManager {
         }
     }
 
+    // MARK: - Bookmarks in the file
+
+    /// The top-level outline node the bookmarks are written under, so they
+    /// travel with the PDF and show as bookmarks in other readers too.
+    static let bookmarkOutlineLabel = "Glossa Bookmarks"
+    /// The label earlier builds wrote; still read, and replaced on the next write.
+    static let legacyBookmarkOutlineLabel = "PageFlow Bookmarks"
+    static func isBookmarkOutlineLabel(_ label: String?) -> Bool {
+        label == bookmarkOutlineLabel || label == legacyBookmarkOutlineLabel
+    }
+
+    /// The bookmarks stored in the document, or nil if it carries none (an
+    /// empty list is a document whose bookmarks were all removed).
+    func storedBookmarks() -> [(title: String, pageIndex: Int)]? {
+        guard let document, let root = document.outlineRoot else { return nil }
+        for index in 0..<root.numberOfChildren {
+            guard let node = root.child(at: index), Self.isBookmarkOutlineLabel(node.label) else { continue }
+            return (0..<node.numberOfChildren).compactMap { childIndex in
+                guard let child = node.child(at: childIndex), let page = child.destination?.page else { return nil }
+                let pageIndex = document.index(for: page)
+                guard pageIndex != NSNotFound else { return nil }
+                return (child.label ?? "Page \(pageIndex + 1)", pageIndex)
+            }
+        }
+        return nil
+    }
+
+    /// Writes the bookmarks into the document's outline (replacing what was
+    /// there) and marks the document as changed, so saving keeps them.
+    func storeBookmarks(_ entries: [(title: String, pageIndex: Int)]) {
+        guard let document else { return }
+        let root = document.outlineRoot ?? PDFOutline()
+        if document.outlineRoot == nil { document.outlineRoot = root }
+        for index in (0..<root.numberOfChildren).reversed() {
+            if let node = root.child(at: index), Self.isBookmarkOutlineLabel(node.label) { node.removeFromParent() }
+        }
+        if !entries.isEmpty {
+            let node = PDFOutline()
+            node.label = Self.bookmarkOutlineLabel
+            for (offset, entry) in entries.enumerated() {
+                guard let page = document.page(at: entry.pageIndex) else { continue }
+                let child = PDFOutline()
+                child.label = entry.title
+                child.destination = PDFDestination(page: page, at: CGPoint(x: 0, y: page.bounds(for: .cropBox).maxY))
+                node.insertChild(child, at: offset)
+            }
+            root.insertChild(node, at: root.numberOfChildren)
+        }
+        isDirty = true
+    }
+
     // MARK: - Outline
 
     func outlineItems() -> [OutlineItem] {
@@ -906,7 +970,8 @@ final class PDFManager {
             return cachedOutlineItems
         }
 
-        let items = OutlineItem.buildRoot(from: root)
+        // The bookmarks' own outline node is not part of the contents list.
+        let items = OutlineItem.buildRoot(from: root).filter { !Self.isBookmarkOutlineLabel($0.title) }
         cachedOutlineRoot = root
         cachedOutlineItems = items
         return items

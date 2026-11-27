@@ -16,6 +16,13 @@ struct GeneralSettingsTab: View {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
     }
 
+    private var tabScaleBinding: Binding<Double> {
+        Binding(
+            get: { settingsManager.tabScale },
+            set: { settingsManager.tabScale = SettingsManager.clampedTabScale($0) }
+        )
+    }
+
     private var toolbarScaleBinding: Binding<Double> {
         Binding(
             get: { settingsManager.toolbarScale },
@@ -36,7 +43,7 @@ struct GeneralSettingsTab: View {
                     }
 
                     VStack(alignment: .leading, spacing: DesignTokens.spacingXS) {
-                        Text("PageFlow")
+                        Text("Glossa")
                             .font(.headline)
                         Text("Version \(appVersion)")
                             .font(.subheadline)
@@ -61,9 +68,27 @@ struct GeneralSettingsTab: View {
                         Toggle("Keep this window on top", isOn: .constant(false))
                             .disabled(true)
                     }
-                    Text("Only the frontmost PageFlow window, until it closes.")
+                    Text("Only the frontmost Glossa window, until it closes.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                }
+            }
+
+            Section("Tabs") {
+                Slider(value: tabScaleBinding, in: SettingsManager.tabScaleRange) {
+                    HStack(spacing: DesignTokens.spacingXS) {
+                        Text("Size")
+                        Text("\(Int(round(settings.tabScale * 100)))%")
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                if abs(settings.tabScale - SettingsManager.defaultTabScale) >= 0.001 {
+                    Button("Reset Size") {
+                        settingsManager.resetTabScale()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
             }
 
@@ -95,7 +120,7 @@ struct GeneralSettingsTab: View {
             } header: {
                 Text("Navigation")
             } footer: {
-                Text("Page and section markers with previews. The sidebar stays available from the toolbar and View menu.")
+                Text("Page and section markers with previews. Click the rail to open the sidebar; it is also in the View menu.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

@@ -71,6 +71,8 @@ struct MarkdownTabView: View {
     /// inherited value (one stable view tree — no remount on scheme toggles).
     @Environment(\.colorScheme) private var systemColorScheme
 
+    private var isSplitView: Bool { tabManager.markdownSplitView(for: tabID) }
+
     private var outline: [MarkdownOutlineItem] { content.documentManager.outline }
     private var wordCount: WordCount { content.documentManager.wordCount }
 
@@ -105,7 +107,15 @@ struct MarkdownTabView: View {
             Color(nsColor: .textBackgroundColor)
                 .ignoresSafeArea()
 
-            if !content.isAwaitingOpen {
+            if !content.isAwaitingOpen, isSplitView {
+                MarkdownSplitView(
+                    content: content,
+                    fontSize: CGFloat(settingsManager.markdownFontSize),
+                    topInset: TopChromeView.height(toolbarScale: settingsManager.toolbarScale),
+                    appearanceName: settingsManager.markdownColorScheme.forcedAppearanceName
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if !content.isAwaitingOpen {
                 MarkdownEditorSurface(content: content, tabManager: tabManager, tabID: tabID, editor: MarkdownEditorView(
                     text: textBinding,
                     documentId: content.documentId,
@@ -165,6 +175,7 @@ struct MarkdownTabView: View {
                     sideMargin: settingsManager.markdownSideMargin,
                     centersZoomedOut: settingsManager.markdownCentersZoomedOut,
                     pageLook: settingsManager.markdownPageLook,
+                    pageMeasureEm: CGFloat(settingsManager.markdownPageMeasure),
                     showsHiddenContentRow: settingsManager.markdownShowsHiddenContentRow,
                     forcedAppearanceName: settingsManager.markdownColorScheme.forcedAppearanceName,
                     undoManager: content.undoManager,

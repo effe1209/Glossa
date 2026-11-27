@@ -381,6 +381,26 @@ final class TabManager {
         if wasShowing && !value { clearFind(in: session) }
     }
 
+    func markdownSplitView(for tabID: UUID) -> Bool {
+        sessions[tabID]?.uiState.markdownSplitView ?? false
+    }
+
+    func setMarkdownSplitView(_ value: Bool, for tabID: UUID) {
+        sessions[tabID]?.uiState.markdownSplitView = value
+    }
+
+    /// The active Markdown tab's split view (false for any other content).
+    var markdownSplitView: Bool {
+        get {
+            guard let id = activeTabID, activeMarkdownContent != nil else { return false }
+            return markdownSplitView(for: id)
+        }
+        set {
+            guard let id = activeTabID, activeMarkdownContent != nil else { return }
+            setMarkdownSplitView(newValue, for: id)
+        }
+    }
+
     func setShowingOutline(_ value: Bool, for tabID: UUID) {
         sessions[tabID]?.uiState.showingOutline = value
     }

@@ -16,6 +16,9 @@ import SwiftUI
 @MainActor
 struct MarkdownFormatToolbar: View {
     @Bindable var content: MarkdownContent
+    /// Source beside an uneditable preview.
+    var isSplitView = false
+    var onToggleSplit: () -> Void = {}
     var onOpenFilePicker: () -> Void
     /// The active tab's sidebar state (`TabSession.uiState.showingOutline` via
     /// `TabManager` — the same canonical slot the PDF toolbar binds).
@@ -41,7 +44,9 @@ struct MarkdownFormatToolbar: View {
                            label: "Fit Text to Window", help: "Fit the reading text to the window width",
                            allowsRefitting: true, action: { content.zoomToFit() })
             )
-            SidebarFindToolbarGroup(showingSidebar: $showingOutline, canFind: canFind, onFind: onFind)
+            SidebarFindToolbarGroup(showingSidebar: $showingOutline, showsSidebarButton: false, canFind: canFind && !isSplitView, onFind: onFind)
+            GlassToolbarButton(icon: "rectangle.split.2x1", help: isSplitView ? "Hide the source" : "Show the source beside a preview",
+                               action: onToggleSplit, label: "Source and Preview", isOn: isSplitView, showsOnDot: true)
             Divider().frame(height: 16)
             // the reference editor's host toolbar: Table, Checklist and Insert ▾; the
             // marks live on the selection bar (doc 24 §6.12).

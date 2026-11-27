@@ -27,6 +27,9 @@ struct PDFTabView: View {
 
     @State private var settingsManager = SettingsManager.shared
     /// The Find bar's width while it shows; the page chip stays clear of it.
+    /// The sidebar is sliding in at the pointer, not held open.
+    @State private var isPeekingSidebar = false
+    @State private var sidebarPeekEnd: Task<Void, Never>?
     @State private var findBarWidth: CGFloat = 0
 
     private var showingGoToPage: Bool {
@@ -93,9 +96,12 @@ struct PDFTabView: View {
         .overlay {
             if isActive, isDisplayed {
                 PDFNavigationRail(pdfManager: pdfManager, bookmarkManager: bookmarkManager,
-                    eligible: settingsManager.showNavigationRail && !showingOutline && !pdfManager.suppressesNavigationRail
-                        && pdfManager.navigationRailFitsViewport,
-                    topInset: topChromeHeight, onShowSidebar: { showingOutline = true },
+                    eligible: railIsAvailable,
+                    topInset: topChromeHeight, onShowSidebar: { showSidebarFromRail() },
+                    // The rail is the closed sidebar: reaching it opens the
+                    // sidebar beside it, ready to pin.
+                    onPointerEnteredLane: { beginSidebarPeek(keepingOpen: true) },
+                    isSidebarOpen: showingOutline || isPeekingSidebar,
                     pageRects: pdfManager.navigationRailPageRects)
             }
         }
@@ -167,12 +173,68 @@ struct PDFTabView: View {
         .animation(.easeInOut(duration: DesignTokens.animationFast), value: showingComments)
     }
 
+    /// The rail can show: enabled, and the document fits beside it.
+    private var railIsAvailable: Bool {
+        settingsManager.showNavigationRail && !pdfManager.suppressesNavigationRail && pdfManager.navigationRailFitsViewport
+    }
+
+    /// Slides the sidebar in while the pointer is at the left edge.
+    private func beginSidebarPeek(keepingOpen: Bool = false) {
+        guard !showingOutline else { return }
+        if isPeekingSidebar {
+            // Still on the rail: the peek stays.
+            if keepingOpen { scheduleSidebarPeekEnd(after: .milliseconds(1500)) }
+            return
+        }
+        // A document with no outline opens on its pages, not an empty list.
+        if tabManager.pdfSidebarMode(for: tabID) == .outline, pdfManager.outlineItems().isEmpty {
+            tabManager.setPDFSidebarMode(.thumbnails, for: tabID)
+        }
+        isPeekingSidebar = true
+        scheduleSidebarPeekEnd(after: .milliseconds(900))
+    }
+
+    /// Ends a peek unless the pointer has reached the panel meanwhile.
+    private func scheduleSidebarPeekEnd(after delay: Duration) {
+        sidebarPeekEnd?.cancel()
+        sidebarPeekEnd = Task { @MainActor in
+            try? await Task.sleep(for: delay)
+            guard !Task.isCancelled else { return }
+            isPeekingSidebar = false
+            isEditingPages = false
+        }
+    }
+
+    /// A click on the rail pins the sidebar on the pages: thumbnails, whatever
+    /// it showed before.
+    private func showSidebarFromRail() {
+        tabManager.setPDFSidebarMode(.thumbnails, for: tabID)
+        setSidebarPinned(true)
+    }
+
+    private func setSidebarPinned(_ pinned: Bool) {
+        sidebarPeekEnd?.cancel()
+        isPeekingSidebar = false
+        if !pinned { isEditingPages = false }
+        showingOutline = pinned
+    }
+
     private var outlineSidebarOverlay: some View {
         ZStack(alignment: .topLeading) {
+            // A thin strip on the left edge: reaching it peeks the sidebar in.
+            // Only without a rail, which is the doorway otherwise.
+            if isActive, pdfManager.hasDocument, !showingOutline, !railIsAvailable {
+                Color.clear
+                    .frame(width: 28)
+                    .frame(maxHeight: .infinity)
+                    .padding(.top, topChromeHeight)
+                    .contentShape(Rectangle())
+                    .onHover { inside in if inside { beginSidebarPeek() } }
+            }
             // Same gate as the comments sidebar: the thumbnail grid's AppKit
             // reporters and drag machinery must not stay mounted in inactive
             // warm tabs.
-            if isActive, showingOutline, pdfManager.hasDocument {
+            if isActive, showingOutline || isPeekingSidebar, pdfManager.hasDocument {
                 SidebarView(
                     pdfManager: pdfManager,
                     bookmarkManager: bookmarkManager,
@@ -182,19 +244,25 @@ struct PDFTabView: View {
                         set: { tabManager.setPDFSidebarMode($0, for: tabID) }
                     ),
                     items: pdfManager.outlineItems(),
-                    onClose: { showingOutline = false }
+                    onClose: { setSidebarPinned(false) },
+                    pin: SidebarPin(isPinned: showingOutline, toggle: { setSidebarPinned(!showingOutline) })
                 )
+                .onHover { inside in
+                    guard isPeekingSidebar else { return }
+                    if inside { sidebarPeekEnd?.cancel() } else { scheduleSidebarPeekEnd(after: .milliseconds(350)) }
+                }
                 .onExitCommand {
                     isEditingPages = false
-                    showingOutline = false
+                    setSidebarPinned(false)
                 }
                 .padding(.top, topChromeHeight + DesignTokens.spacingXS)
                 .padding(.bottom, DesignTokens.spacingMD)
-                .padding(.leading, DesignTokens.spacingXS)
+                // Beside the rail's lane, which stays where it is.
+                .padding(.leading, railIsAvailable ? NavigationRailView.laneWidth + DesignTokens.spacingXS : DesignTokens.spacingXS)
                 .pageFlowPanelTransition(edge: .leading)
             }
         }
-        .animation(.easeInOut(duration: DesignTokens.animationFast), value: showingOutline)
+        .animation(.easeInOut(duration: DesignTokens.animationFast), value: showingOutline || isPeekingSidebar)
     }
 
     /// The PDF Find backend as a `FindDriving`. A fresh value each `body` (no

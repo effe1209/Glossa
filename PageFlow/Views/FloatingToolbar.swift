@@ -34,8 +34,6 @@ struct FloatingToolbar: View {
 
     var body: some View {
         GlassToolbarShell {
-            GlassToolbarButton(icon: "doc", help: "Open a document", action: onOpenFilePicker, label: "Open")
-            Divider().frame(height: 16)
             GlassToolbarButton(
                 icon: pdfManager.interactionMode == .pan ? "cursorarrow" : "hand.raised",
                 help: "Switch between pan and text selection",
@@ -54,11 +52,15 @@ struct FloatingToolbar: View {
                 fit: .init(isFitted: pdfManager.isAutoScaling, isAvailable: pdfManager.hasDocument,
                            action: { pdfManager.zoomToFit() })
             )
-            SidebarFindToolbarGroup(
-                showingSidebar: $showingOutline,
-                canToggleSidebar: pdfManager.hasDocument,
-                canFind: pdfManager.hasDocument,
-                onFind: onFind
+            GlassToolbarButton(icon: "magnifyingglass", help: "Find", action: onFind,
+                               disabled: !pdfManager.hasDocument, label: "Find")
+            GlassToolbarButton(
+                // Shows the mode you are in: stacked pages flowing on, or one page.
+                icon: pdfManager.isContinuousScroll ? "rectangle.split.1x2" : "rectangle.portrait",
+                help: pdfManager.isContinuousScroll ? "Continuous scrolling. Click for one page at a time" : "One page at a time. Click for continuous scrolling",
+                action: { pdfManager.isContinuousScroll.toggle() },
+                disabled: !pdfManager.hasDocument,
+                label: pdfManager.isContinuousScroll ? "Continuous Scrolling" : "Single Page"
             )
             GlassToolbarButton(
                 icon: "rotate.right",
@@ -86,13 +88,20 @@ struct FloatingToolbar: View {
                 isOn: annotationManager.stickyMarkup == .highlight,
                 showsOnDot: true
             )
-            AnnotationColorMenu(
-                isUnderlineColor: { $0.color.isEqual(to: annotationManager.underlineColor) },
-                isHighlightColor: { $0.color.isEqual(to: annotationManager.highlightColor) },
-                chooseUnderline: { annotationManager.underlineColor = $0.color },
-                chooseHighlight: { annotationManager.highlightColor = $0.color },
-                isAvailable: pdfManager.hasDocument
-            )
+            // The colours of the tool in use, shown while it is on.
+            if let tool = annotationManager.stickyMarkup {
+                MarkupColorSwatches(
+                    presets: tool == .highlight ? settingsManager.highlightPresets : settingsManager.underlinePresets,
+                    isChosen: { preset in
+                        preset.color.isEqual(to: tool == .highlight ? annotationManager.highlightColor : annotationManager.underlineColor)
+                    },
+                    choose: { preset in
+                        if tool == .highlight { annotationManager.highlightColor = preset.color }
+                        else { annotationManager.underlineColor = preset.color }
+                    }
+                )
+                .transition(.opacity)
+            }
             GlassToolbarButton(
                 icon: "text.bubble",
                 help: "Add a comment",

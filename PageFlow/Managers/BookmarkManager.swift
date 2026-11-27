@@ -137,6 +137,15 @@ final class BookmarkManager {
         bookmarks.removeAll()
         selectedBookmarkID = nil
 
+        // The file's own bookmarks win: they travel with the PDF. This Mac's
+        // saved list is the fallback for a document that has none yet.
+        let pageCount = pdfManager?.pageCount ?? 0
+        if let stored = pdfManager?.storedBookmarks() {
+            bookmarks = stored.filter { $0.pageIndex < pageCount }
+                .map { BookmarkModel(pageIndex: $0.pageIndex, title: $0.title) }
+            return
+        }
+
         guard let url = documentURL,
               let key = storageKey(for: url),
               let data = defaults.data(forKey: key) else {
@@ -282,6 +291,7 @@ final class BookmarkManager {
     // MARK: - Persistence
 
     private func save() {
+        pdfManager?.storeBookmarks(sortedBookmarks.map { ($0.title, $0.pageIndex) })
         guard let url = pdfManager?.documentURL,
               let key = storageKey(for: url) else {
             return

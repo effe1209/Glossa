@@ -41,13 +41,33 @@ struct TabItemView: View {
     var width: CGFloat? = nil
 
     var body: some View {
+        // Re-render when the tab size setting changes.
+        let _ = SettingsManager.shared.tabScale
         // Strip pills and the Deck's cards share the sidebar's legible glass,
         // so a tab's adaptive label reads the same however the strip is laid out.
         content
             .pageFlowLiquidGlassSurface(.tab(active: isActive))
-        .shadow(color: .black.opacity(DesignTokens.glassElevationShadowOpacity), radius: isActive ? 8 : 4, y: isActive ? -3 : -2)
+        .shadow(color: .black.opacity(DesignTokens.glassElevationShadowOpacity * 0.5), radius: 2, y: -1)
+        // The focused tab carries an accent outline, so it reads on any page
+        // colour behind the glass.
+        .overlay {
+            if isActive, !isSliver {
+                RoundedRectangle(cornerRadius: DesignTokens.tabCornerRadius, style: .continuous)
+                    .fill(Color.accentColor.opacity(0.16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignTokens.tabCornerRadius, style: .continuous)
+                            .strokeBorder(Color.accentColor, lineWidth: 1)
+                    )
+                    .allowsHitTesting(false)
+            }
+        }
         .contentShape(Rectangle())
         // Gesture handling moved to TabBarView for unified tap/drag detection
+    }
+
+    private var isSliver: Bool {
+        if case .sliver = style { return true }
+        return false
     }
 
     @ViewBuilder
@@ -69,7 +89,7 @@ struct TabItemView: View {
                 }
                 icon
                 Text(tab.displayTitle)
-                    .font(.system(size: 12, weight: isActive ? .semibold : .regular))
+                    .font(.system(size: DesignTokens.tabTitleFontSize, weight: isActive ? .semibold : .regular))
                     .foregroundStyle(Color.primary.opacity(isActive ? 1 : 0.58))
                     .lineLimit(1)
                     .truncationMode(.middle)
@@ -90,14 +110,6 @@ struct TabItemView: View {
         .padding(.horizontal, DesignTokens.spacingSM)
         .padding(.vertical, DesignTokens.spacingXS)
         .frame(height: DesignTokens.tabHeight)
-        .overlay(alignment: .bottom) {
-            // A short accent bar under the focused tab.
-            Capsule()
-                .fill(Color.accentColor)
-                .frame(width: 24, height: 2)
-                .padding(.bottom, 1)
-                .opacity(isActive ? 1 : 0)
-        }
         .frame(minWidth: width ?? DesignTokens.tabMinWidth, maxWidth: width ?? DesignTokens.tabMaxWidth)
     }
 
@@ -122,7 +134,7 @@ struct TabItemView: View {
 
     private var icon: some View {
         Image(systemName: (contentKind ?? .pdf).tabIconSystemName)
-            .font(.system(size: 10, weight: .medium))
+            .font(.system(size: DesignTokens.tabIconFontSize, weight: .medium))
             .foregroundStyle(Color.primary.opacity(isActive ? 0.85 : 0.45))
     }
 

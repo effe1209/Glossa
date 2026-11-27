@@ -36,12 +36,62 @@ final class StablePDFView: PDFView {
     var markupTool: AnnotationManager.StickyMarkup? {
         didSet {
             guard markupTool != oldValue else { return }
-            markupCursor = markupTool.map(Self.makeCursor)
+            markupCursor = markupTool.map { Self.makeCursor(for: $0) }
+            updateMarkupCursorMonitor()
             window?.invalidateCursorRects(for: self)
-            if markupCursor != nil { markupCursor?.set() } else { NSCursor.arrow.set() }
+            if let markupCursor { markupCursor.set() } else { NSCursor.arrow.set() }
         }
     }
     private var markupCursor: NSCursor?
+    private var markupCursorMonitor: Any?
+    private var markupCursorTimer: Timer?
+
+    /// While a markup tool is on, its icon is the pointer everywhere in this
+    /// window — over the toolbar and tab strip too. Controls set their own
+    /// cursors (a hand, an arrow) as the pointer moves, so the icon is put
+    /// back right after each such event instead of being fought for.
+    private func updateMarkupCursorMonitor() {
+        if let monitor = markupCursorMonitor {
+            NSEvent.removeMonitor(monitor)
+            markupCursorMonitor = nil
+        }
+        markupCursorTimer?.invalidate()
+        markupCursorTimer = nil
+        MarkupCursorState.shared.setActive(markupCursor != nil, owner: self)
+        if let markupCursor, interactionMode != .pan {
+            MarkupCursorOverride.install()
+            MarkupCursorOverride.cursor = markupCursor
+            MarkupCursorOverride.window = window
+        } else if MarkupCursorOverride.window === window || MarkupCursorOverride.window == nil {
+            MarkupCursorOverride.cursor = nil
+        }
+        guard markupCursor != nil else { return }
+        // Other code's cursors are swapped for ours (`MarkupCursorOverride`);
+        // this tick only puts ours on when nothing else has asked for one.
+        let timer = Timer(timeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, let cursor = self.markupCursor, self.interactionMode != .pan,
+                      MarkupCursorOverride.pointerIsOverWindow() else { return }
+                cursor.set()
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        markupCursorTimer = timer
+        let events: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDragged, .leftMouseDown, .leftMouseUp,
+                                             .cursorUpdate, .mouseEntered, .mouseExited]
+        markupCursorMonitor = NSEvent.addLocalMonitorForEvents(matching: events) { [weak self] event in
+            if let self, let cursor = self.markupCursor, event.window != nil, event.window === self.window,
+               self.interactionMode != .pan {
+                MarkupCursorOverride.window = self.window
+                DispatchQueue.main.async { [weak self] in
+                    guard let self, self.markupCursor === cursor, MarkupCursorOverride.pointerIsOverWindow() else { return }
+                    cursor.set()
+                }
+            }
+            return event
+        }
+    }
+
 
     private static func makeCursor(for tool: AnnotationManager.StickyMarkup) -> NSCursor {
         let name = tool == .highlight ? "highlighter" : "underline"
@@ -252,6 +302,11 @@ final class StablePDFView: PDFView {
         pendingScrollRestore?.cancel()
         NotificationCenter.default.removeObserver(self)
         removeRightClickMonitor()
+        if let markupCursorMonitor { NSEvent.removeMonitor(markupCursorMonitor) }
+        markupCursorTimer?.invalidate()
+        if MarkupCursorOverride.window == nil { MarkupCursorOverride.cursor = nil }
+        let id = ObjectIdentifier(self)
+        Task { @MainActor in MarkupCursorState.shared.release(id) }
     }
 
     func setupRightClickMonitor() {
@@ -618,8 +673,6 @@ final class StablePDFView: PDFView {
     override func resetCursorRects() {
         if interactionMode == .pan {
             addCursorRect(bounds, cursor: .openHand)
-        } else if let markupCursor {
-            addCursorRect(bounds, cursor: markupCursor)
         } else {
             super.resetCursorRects()
         }
@@ -636,13 +689,6 @@ final class StablePDFView: PDFView {
     }
 
     // MARK: - Mouse Handling
-
-    /// The document's own I-beam rects would win over ours; keep the markup
-    /// cursor on while the pointer moves.
-    override func mouseMoved(with event: NSEvent) {
-        super.mouseMoved(with: event)
-        if interactionMode != .pan { markupCursor?.set() }
-    }
 
     override func mouseDown(with event: NSEvent) {
         onRequestFocus?()
@@ -723,6 +769,13 @@ final class StablePDFView: PDFView {
         if event.keyCode == 51 || event.keyCode == 117,
            let annotation = selectedMarkup, annotation.page != nil {
             onAnnotationRemove?(annotation)
+            return
+        }
+        // Left and right turn pages (in any display mode).
+        if event.modifierFlags.intersection([.command, .option, .control, .shift]).isEmpty,
+           interactionMode != .pan, event.keyCode == 123 || event.keyCode == 124 {
+            onReaderScroll?()
+            if event.keyCode == 123 { goToPreviousPage(nil) } else { goToNextPage(nil) }
             return
         }
         if Self.scrollingKeys.contains(event.keyCode) { onReaderScroll?() }
