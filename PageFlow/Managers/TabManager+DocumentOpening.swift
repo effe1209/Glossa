@@ -565,6 +565,8 @@ extension TabManager {
             }
             return nil
         }
+        // A quote taken from a PDF: found by its document identity, not just its path.
+        if Self.isPDFCitation(link) { return openPDFCitation(link, from: content) }
         guard let target = content.localLinkTarget(link) else {
             postTransientToast("Save the note to follow its relative links")
             return nil

@@ -8,16 +8,29 @@
 import SwiftUI
 import AppKit
 
+/// What the right-hand panel of a PDF shows.
+enum CommentsSection: String, Sendable, CaseIterable {
+    case comments = "Comments"
+    case notes = "Notes"
+}
+
 struct CommentsSidebar: View {
     @Bindable var commentManager: CommentManager
+    @Binding var section: CommentsSection
+    /// Notes that quote this PDF.
+    let notes: [PDFCitingNote]
+    let onOpenNote: (PDFCitingNote) -> Void
     let onClose: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-            commentsList
+            switch section {
+            case .comments: commentsList
+            case .notes: CitingNotesView(notes: notes, onOpen: onOpenNote)
+            }
         }
-        .frame(width: DesignTokens.commentSidebarWidth)
+        .frame(width: DesignTokens.pdfCommentsPanelWidth)
         .pageFlowLiquidGlassPanel(.sidebar)
     }
 
@@ -25,10 +38,15 @@ struct CommentsSidebar: View {
 
     private var header: some View {
         HStack {
-            Text("Comments")
-                .font(.headline)
-                .foregroundStyle(.primary)
-            Spacer()
+            Picker("", selection: $section) {
+                Text("Comments").tag(CommentsSection.comments)
+                Text(notes.isEmpty ? "Notes" : "Notes (\(notes.count))").tag(CommentsSection.notes)
+            }
+            .pickerStyle(.segmented)
+            .controlSize(.large)
+            .labelsHidden()
+            .accessibilityLabel("Panel section")
+            Spacer(minLength: DesignTokens.spacingSM)
             GlassSidebarCloseButton(label: "Close Comments", action: onClose)
         }
         .padding(.leading, DesignTokens.spacingMD)

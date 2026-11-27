@@ -64,21 +64,56 @@ struct TabContainerView: View {
     /// instant show. `.id(tabID)` keeps each tab's PDFViewWrapper Coordinator
     /// bound to that tab's managers.
     @ViewBuilder
-    private func warmTab(for render: TabRender) -> some View {
+    private func warmTab(for render: TabRender, in size: CGSize) -> some View {
         let isActiveTab = render.id == tabManager.activeTabID
+        let side = tabManager.paneSide(of: render.id)
+        let isDisplayed = tabManager.isTabSplit || tabManager.isChoosingSplitPartner ? side != nil : isActiveTab
+        let leadingWidth = (size.width * tabManager.splitFraction).rounded()
+        let width: CGFloat = switch side {
+        case .leading: leadingWidth
+        case .trailing: size.width - leadingWidth
+        case nil: size.width
+        }
         TabRenderView(
             render: render,
             isActive: isActiveTab,
-            isDisplayed: isActiveTab,
+            isDisplayed: isDisplayed,
             showingSearch: showingSearch(for: render.id),
             searchFocusRequest: tabManager.searchFocusRequest,
             tabManager: tabManager
         )
         .id(render.id)
-        .opacity(isActiveTab ? 1 : 0)
-        .allowsHitTesting(isActiveTab)
-        .zIndex(isActiveTab ? 1 : 0)
-        .accessibilityHidden(!isActiveTab)
+        .frame(width: width, height: size.height)
+        // A pane draws and takes clicks only inside its own half: the PDF's backdrop
+        // reaches past its frame and, painted above the note, left it black and dead.
+        .clipped()
+        .offset(x: side == .trailing ? leadingWidth : 0)
+        .opacity(isDisplayed ? 1 : 0)
+        .allowsHitTesting(isDisplayed)
+        .zIndex(isDisplayed ? 1 : 0)
+        .accessibilityHidden(!isDisplayed)
+    }
+
+    /// The handle between two panes: drag to give one more room.
+    private func splitHandle(in size: CGSize) -> some View {
+        let x = (size.width * tabManager.splitFraction).rounded()
+        return SplitDividerHandle(
+            totalWidth: size.width,
+            fraction: tabManager.splitFraction,
+            onChange: {
+                tabManager.splitFraction = min(0.75, max(0.25, $0))
+                tabManager.fitSplitPDFPanes(totalWidth: size.width)
+            },
+            onReset: {
+                tabManager.splitFraction = 0.5
+                tabManager.fitSplitPDFPanes(totalWidth: size.width)
+            },
+            onDragState: { tabManager.isResizingSplit = $0 }
+        )
+        .frame(width: SplitDividerHandle.hitWidth, height: size.height)
+        .offset(x: x - SplitDividerHandle.hitWidth / 2)
+        .zIndex(2)
+        .accessibilityLabel("Resize panes")
     }
 
     /// Every warm tab (TabManager.renderedTabs, LRU-capped) in one ZStack, so
@@ -88,10 +123,22 @@ struct TabContainerView: View {
     /// tabs. Per-tab reading position is restored by TabManager.restoreTabState
     /// + DocumentStateStore.
     private var content: some View {
-        ZStack {
-            ForEach(tabManager.renderedTabs) { render in
-                warmTab(for: render)
+        GeometryReader { proxy in
+            ZStack(alignment: .topLeading) {
+                ForEach(tabManager.renderedTabs) { render in
+                    warmTab(for: render, in: proxy.size)
+                }
+                if tabManager.isChoosingSplitPartner {
+                    let leadingWidth = (proxy.size.width * tabManager.splitFraction).rounded()
+                    SplitPartnerChooserView(tabManager: tabManager, topInset: TopChromeView.height(toolbarScale: settingsManager.toolbarScale))
+                        .frame(width: proxy.size.width - leadingWidth, height: proxy.size.height)
+                        .offset(x: leadingWidth)
+                        .zIndex(1)
+                }
+                if tabManager.isTabSplit || tabManager.isChoosingSplitPartner { splitHandle(in: proxy.size) }
             }
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
+            .coordinateSpace(name: "tabPanes")
         }
     }
 

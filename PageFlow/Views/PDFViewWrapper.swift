@@ -33,6 +33,8 @@ struct PDFViewWrapper: NSViewRepresentable {
     /// Whether this view holds the keyboard (`FindOverlay.documentTakesKeyboard`).
     var takesKeyboard: Bool
     var onRequestFocus: () -> Void = {}
+    /// "Copy to Note": quotes the selected passage into the active note.
+    var onCopySelectionToNote: ((PDFSelection) -> Void)?
 
     func makeNSView(context: Context) -> PDFViewHost {
         let pdfView = StablePDFView()
@@ -154,6 +156,8 @@ struct PDFViewWrapper: NSViewRepresentable {
             pdfManager.copyMarkdown(scope: .currentPage(pdfManager.currentPageIndex), comments: commentManager?.comments ?? [])
         }
 
+        pdfView.onCopySelectionToNote = onCopySelectionToNote
+
         pdfView.onCopyDocumentAsMarkdown = { [weak pdfManager, weak commentManager] in
             pdfManager?.copyMarkdown(scope: .entireDocument, comments: commentManager?.comments ?? [])
         }
@@ -272,6 +276,24 @@ struct PDFViewWrapper: NSViewRepresentable {
         coordinator.project(pdfView, documentDidChange: documentDidChange)
 
         updateSearchHighlights(pdfView, context: context)
+        updateCitationHighlight(pdfView, context: context)
+    }
+
+    /// A clicked citation marks its passage for a few seconds, then lets go of it
+    /// (unless the reader has selected something else meanwhile).
+    private func updateCitationHighlight(_ pdfView: StablePDFView, context: Context) {
+        let coord = context.coordinator
+        guard !searchManager.hasResults else { return }
+        if let highlight = pdfManager.citationHighlight {
+            guard coord.lastCitationHighlight != highlight else { return }
+            coord.lastCitationHighlight = highlight
+            coord.invalidateDeferredProjection()
+            pdfManager.pendingScrollRestore = nil
+            pdfView.highlightedSelections = [highlight.selection]
+        } else if coord.lastCitationHighlight != nil {
+            coord.lastCitationHighlight = nil
+            pdfView.highlightedSelections = nil
+        }
     }
 
     private func updateSearchHighlights(_ pdfView: StablePDFView, context: Context) {
@@ -365,6 +387,7 @@ struct PDFViewWrapper: NSViewRepresentable {
         pdfView.onUserZoom = nil
         pdfView.onLinkNavigation = nil
         pdfView.onCopyPageAsMarkdown = nil
+        pdfView.onCopySelectionToNote = nil
         pdfView.onCopyDocumentAsMarkdown = nil
         pdfView.onToggleBookmark = nil
         pdfView.onRequestFocus = nil
@@ -432,6 +455,7 @@ struct PDFViewWrapper: NSViewRepresentable {
         var lastSearchResultCount: Int = 0
         fileprivate var lastAppliedSearchHighlightSignature: SearchHighlightSignature?
         var searchHighlightsAreClear = true
+        var lastCitationHighlight: PDFManager.CitationHighlight?
         private var zoomQualityRestore: DispatchWorkItem?
         private var deferredProjectionGeneration: UInt64 = 0
         private var isDismantled = false
@@ -600,6 +624,7 @@ struct PDFViewWrapper: NSViewRepresentable {
         func project(_ pdfView: StablePDFView, documentDidChange: Bool) {
             isProjecting = true
             defer { isProjecting = false; scheduleRailFitRefresh(pdfView) }
+            pdfManager.viewportHeight = pdfView.bounds.height
             pdfView.onLayoutGeometryChange = { [weak self, weak pdfView] in
                 guard let pdfView else { return }
                 self?.scheduleRailFitRefresh(pdfView)

@@ -14,10 +14,12 @@ extension TabManager {
     /// Starts the clock on a tab just hidden, and stops it on the one shown.
     func noteHiddenTab(_ id: UUID?) {
         if let id {
-            sessions[id]?.hiddenSince = Date()
+            // The other pane of a side-by-side window is on screen, not hidden.
+            if splitSide(of: id) == nil { sessions[id]?.hiddenSince = Date() }
             sessions[id]?.content.markdown?.noteGoingOutOfSight()
         }
         activeSession?.hiddenSince = nil
+        for partner in splitPair { sessions[partner]?.hiddenSince = nil }
         activeSession?.content.epub?.resumeReleasedCaches()
         scheduleHiddenTabRelease()
     }

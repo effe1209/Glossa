@@ -35,6 +35,7 @@ final class TabManager {
     /// edit-mode key monitor.
     var activeTabID: UUID? {
         didSet {
+            followActiveTabInSplit(from: oldValue)
             tabRecency.noteActivated(activeTabID)
             reconcileRenderedTabs()
             reconcileEditModeKeyMonitor()
@@ -44,6 +45,20 @@ final class TabManager {
             }
         }
     }
+
+    /// Every joined pair of the window, each a left and a right tab; a tab is in at most one.
+    var splitPairs: [[UUID]] = []
+    /// The left pane's share of the window's width.
+    var splitFractions: [UUID: CGFloat] = [:]
+    /// The divider is being dragged: a pane's edge-hover sidebar and page rail hold
+    /// still, as the pointer is at the pane's edge the whole time.
+    var isResizingSplit = false
+    /// The tab a side-by-side window is being opened for while its other half is still a
+    /// chooser (open tabs, Open File, New Markdown, recents, drop); nil otherwise.
+    var splitChooserAnchor: UUID?
+    /// The reader has asked the chooser to open something: the next tab to come to the
+    /// front becomes the second pane.
+    var splitAwaitsPartner = false
 
     /// This window's tabs in the order Ctrl-Tab walks. Ids only, so nothing here
     /// has to travel with a tab that moves away.
@@ -202,7 +217,10 @@ final class TabManager {
     /// list the single-pane ZStack mounts. PDF and Markdown tabs coexist here;
     /// each routes to its own view via `TabRender`.
     var renderedTabs: [TabRender] {
-        renderedTabIDs.compactMap(renderModel)
+        var ids = renderedTabIDs
+        // Both panes of a split stay mounted, whatever the warm cap says.
+        if let split = splitView { for id in [split.leading, split.trailing] where !ids.contains(id) { ids.append(id) } }
+        return ids.compactMap(renderModel)
     }
 
     /// Projects a tab id onto the render unit for its content, or nil if the
@@ -234,6 +252,15 @@ final class TabManager {
             return
         }
         touchRenderedTab(id)
+        warmSplitPanes()
+    }
+
+    /// The other pane of a side-by-side window is in the warm set too, so its editor is
+    /// mounted (a note's native view only mounts for a warm tab) and not left black.
+    func warmSplitPanes() {
+        guard let split = splitView, let active = activeTabID else { return }
+        touchRenderedTab(split.leading == active ? split.trailing : split.leading)
+        touchRenderedTab(active)
     }
 
     /// Promotes `id` to the warm set's head and evicts past the cap. Called when
@@ -428,7 +455,7 @@ final class TabManager {
     }
 
     /// Opens NSOpenPanel as a sheet on this manager's registered window.
-    func openFilePicker() {
+    func openFilePicker(onCancel: (() -> Void)? = nil) {
         // Test host: an NSOpenPanel here blocks the main actor that all
         // @MainActor tests need, stalling the suite (see TestEnvironment).
         guard !TestEnvironment.isRunningTests else { return }
@@ -450,28 +477,29 @@ final class TabManager {
         panel.message = "Select a PDF, EPUB or Markdown file to open"
 
         openPanel = panel  // Set immediately to block concurrent calls
-        presentOpenPanel(panel, retryCount: 0)
+        presentOpenPanel(panel, retryCount: 0, onCancel: onCancel)
     }
 
-    private func presentOpenPanel(_ panel: NSOpenPanel, retryCount: Int) {
+    private func presentOpenPanel(_ panel: NSOpenPanel, retryCount: Int, onCancel: (() -> Void)? = nil) {
         // Bail out if closeFilePicker() was called during retry loop
         guard openPanel === panel else { return }
 
         guard let window = WindowRegistry.shared.window(for: self), window.isVisible else {
             guard retryCount < DesignTokens.maxReadinessRetries else {
                 openPanel = nil  // Give up — clean up sentinel
+                onCancel?()
                 return
             }
             // Delay: window may not be ready yet during app launch or new window creation
             DispatchQueue.main.asyncAfter(deadline: .now() + DesignTokens.pdfViewReadyRetryInterval) { [weak self] in
-                self?.presentOpenPanel(panel, retryCount: retryCount + 1)
+                self?.presentOpenPanel(panel, retryCount: retryCount + 1, onCancel: onCancel)
             }
             return
         }
 
         panel.beginSheetModal(for: window) { [weak self] response in
             self?.openPanel = nil
-            guard response == .OK, let url = panel.url else { return }
+            guard response == .OK, let url = panel.url else { onCancel?(); return }
             DispatchQueue.main.async {
                 self?.openDocument(url: url, isSecurityScoped: true, replaceCurrent: false)
             }
