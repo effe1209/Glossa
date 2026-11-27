@@ -55,12 +55,12 @@ final class AnnotationManager {
     private var _highlightColor: NSColor?
 
     var underlineColor: NSColor {
-        get { _underlineColor ?? SettingsManager.shared.underlinePresets.first?.color ?? .black }
+        get { _underlineColor ?? SettingsManager.shared.underlinePresets.first?.color ?? MarkupPalette.defaultUnderlineColor }
         set { _underlineColor = newValue }
     }
 
     var highlightColor: NSColor {
-        get { _highlightColor ?? SettingsManager.shared.highlightPresets.first?.color ?? .yellow }
+        get { _highlightColor ?? SettingsManager.shared.highlightPresets.first?.color ?? MarkupPalette.defaultHighlightColor }
         set { _highlightColor = newValue }
     }
 

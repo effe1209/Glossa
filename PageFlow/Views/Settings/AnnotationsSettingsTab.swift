@@ -12,15 +12,16 @@ struct AnnotationsSettingsTab: View {
     private typealias Presets = ReferenceWritableKeyPath<SettingsManager, [SettingsManager.ColorPreset]>
 
     private var settings: SettingsManager { SettingsManager.shared }
+    @State private var confirmingReset = false
 
     var body: some View {
         Form {
             presetSection(
-                "Highlight Colors", \.highlightPresets, fallback: .yellow,
+                "Highlight Colors", \.highlightPresets, fallback: MarkupPalette.defaultHighlightColor,
                 add: { $0.addHighlightPreset() }, remove: { $0.removeHighlightPreset(at: $1) }
             )
             presetSection(
-                "Underline Colors", \.underlinePresets, fallback: .black,
+                "Underline Colors", \.underlinePresets, fallback: MarkupPalette.defaultUnderlineColor,
                 add: { $0.addUnderlinePreset() }, remove: { $0.removeUnderlinePreset(at: $1) }
             )
             presetSection(
@@ -28,9 +29,23 @@ struct AnnotationsSettingsTab: View {
                 add: { $0.addCommentPreset() }, remove: { $0.removeCommentPreset(at: $1) }
             )
 
+            if !settings.markupPaletteIssues.isEmpty {
+                Section {
+                    Label("Some saved colors can't be used by this version of Glossa. The defaults are shown instead and your saved colors are left untouched; changes to them are not saved until Glossa is updated.",
+                          systemImage: "exclamationmark.triangle")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             Section {
-                Button("Reset Colors to Defaults") {
-                    settings.resetColors()
+                Button("Reset Colors to Defaults…") {
+                    confirmingReset = true
+                }
+                .confirmationDialog("Reset highlight, underline and comment colors?", isPresented: $confirmingReset) {
+                    Button("Reset Colors", role: .destructive) { settings.resetColors() }
+                } message: {
+                    Text("Your own colors are replaced by the Glossa defaults. Existing highlights and underlines keep their colors.")
                 }
             }
         }
