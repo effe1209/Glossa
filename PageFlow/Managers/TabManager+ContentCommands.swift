@@ -139,6 +139,10 @@ extension TabManager {
     var zoomToFitTitle: String { activeCommands?.zoomToFitTitle ?? "Zoom to Fit" }
     func zoomToFit() { activeCommands?.zoomToFit() }
     var canZoomToFit: Bool { activeCommands?.canZoomToFit ?? false }
+    /// Fit Page and Fit Width: PDF's pages have a fixed size to fit.
+    var supportsPageFit: Bool { activeCommands?.supportsPageFit ?? false }
+    func canFit(_ mode: PDFZoomFit.Mode) -> Bool { activeCommands?.canFit(mode) ?? false }
+    func fit(_ mode: PDFZoomFit.Mode) { activeCommands?.fit(mode) }
 
     /// ⌘U: PDF underlines the selection as an annotation; Markdown wraps the
     /// selection in `<u>…</u>` via the format bus; a book underlines it as a

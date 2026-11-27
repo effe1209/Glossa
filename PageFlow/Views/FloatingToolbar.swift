@@ -47,10 +47,18 @@ struct FloatingToolbar: View {
                 canZoomIn: pdfManager.canZoomIn,
                 onZoomOut: { pdfManager.zoomOut() },
                 onZoomIn: { pdfManager.zoomIn() },
-                reset: .init(help: "Actual size (100%)", disabled: !pdfManager.canResetZoom,
-                             action: { pdfManager.resetZoom() }),
-                fit: .init(isFitted: pdfManager.isAutoScaling, isAvailable: pdfManager.hasDocument,
-                           action: { pdfManager.zoomToFit() })
+                // The magnifier with the 1 fits the whole page, the arrows fit its width; each
+                // measures the page in view by its own size, so a slide and an A4 page fill the
+                // window their own way. Actual size (100%) stays on ⌘0 and in the View menu.
+                reset: .init(label: "Fit Page",
+                             help: "Fit page: scale the whole page to the window. Now \(PDFZoomFit.percentage(of: pdfManager.scaleFactor))%",
+                             isOn: pdfManager.activeFitMode == .page,
+                             disabled: !pdfManager.canFit(.page),
+                             action: { pdfManager.fit(.page) }),
+                fit: .init(isFitted: pdfManager.activeFitMode == .width, isAvailable: pdfManager.hasDocument,
+                           label: "Fit Width",
+                           help: "Fit width: scale the page to the window's width",
+                           action: { pdfManager.fit(.width) })
             )
             GlassToolbarButton(icon: "magnifyingglass", help: "Find", action: onFind,
                                disabled: !pdfManager.hasDocument, label: "Find")

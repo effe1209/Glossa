@@ -151,7 +151,6 @@ struct DesignTokens {
     nonisolated static let pdfMaxScale: CGFloat = 4.0
     static let pdfDefaultScale: CGFloat = 1.0
     static let pdfViewPadding: CGFloat = 20
-    static let pdfFitZoomBump: CGFloat = 0.05
     static let pdfTwoPageGap: CGFloat = 10
     static let pdfControlScrollZoomFactor: CGFloat = 1.1
 

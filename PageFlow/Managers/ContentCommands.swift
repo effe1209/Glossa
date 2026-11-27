@@ -47,6 +47,10 @@ protocol ContentCommands {
     var zoomToFitTitle: String { get }
     var canZoomToFit: Bool { get }
     func zoomToFit()
+    /// Fit Page and Fit Width, for content made of pages of fixed size.
+    var supportsPageFit: Bool { get }
+    func canFit(_ mode: PDFZoomFit.Mode) -> Bool
+    func fit(_ mode: PDFZoomFit.Mode)
 
     /// Print is allowed by the content itself; the tab must also have content.
     var allowsPrinting: Bool { get }
@@ -89,6 +93,9 @@ extension ContentCommands {
     var zoomToFitTitle: String { "Zoom to Fit" }
     var canZoomToFit: Bool { false }
     func zoomToFit() {}
+    var supportsPageFit: Bool { false }
+    func canFit(_ mode: PDFZoomFit.Mode) -> Bool { false }
+    func fit(_ mode: PDFZoomFit.Mode) {}
 
     var allowsPrinting: Bool { false }
 
@@ -152,8 +159,12 @@ struct PDFTabCommands: ContentCommands {
     }
 
     /// Already fitted, the command has nothing to do.
-    var canZoomToFit: Bool { pdf.hasDocument && !pdf.isAutoScaling }
+    var canZoomToFit: Bool { pdf.canFit(.width) }
+    var zoomToFitTitle: String { "Fit Width" }
     func zoomToFit() { pdf.zoomToFit() }
+    var supportsPageFit: Bool { true }
+    func canFit(_ mode: PDFZoomFit.Mode) -> Bool { pdf.canFit(mode) }
+    func fit(_ mode: PDFZoomFit.Mode) { pdf.fit(mode) }
 
     var allowsPrinting: Bool { pdf.permissions.print }
 

@@ -167,6 +167,7 @@ enum ShortcutCatalog {
         ShortcutAction(id: "zoomOut", title: "Zoom Out", category: .zoom, defaultShortcut: ShortcutModel(key: "-")),
         ShortcutAction(id: "actualSize", title: "Actual Size", category: .zoom, defaultShortcut: ShortcutModel(key: "0")),
         ShortcutAction(id: "zoomToFit", title: "Zoom to Fit", category: .zoom, defaultShortcut: ShortcutModel(key: "0", option: true), scope: .app),
+        ShortcutAction(id: "fitPage", title: "Fit Page", category: .zoom, defaultShortcut: .none, scope: .pdf),
 
         // Navigation
         ShortcutAction(id: "goBack", title: "Back", category: .navigation, defaultShortcut: ShortcutModel(key: "[")),

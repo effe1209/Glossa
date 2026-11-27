@@ -509,6 +509,14 @@ struct PageFlowApp: App {
         .keyboardShortcut(for: "zoomToFit")
         .disabled(focusedTabManager?.canZoomToFit != true)
 
+        if focusedTabManager?.supportsPageFit == true {
+            Button("Fit Page") {
+                focusedTabManager?.fit(.page)
+            }
+            .keyboardShortcut(for: "fitPage")
+            .disabled(!canUseViewCommands || focusedTabManager?.canFit(.page) != true)
+        }
+
         Divider()
 
         foldingMenuContent

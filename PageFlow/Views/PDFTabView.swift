@@ -319,11 +319,9 @@ struct PDFTabView: View {
     // MARK: - Page Indicator
 
     private var bottomPageBar: some View {
-        DocumentStatusBar(
-            label: "Page \(pdfManager.currentPageIndex + 1) of \(pdfManager.pageCount)",
-            shorterLabels: ["\(pdfManager.currentPageIndex + 1) / \(pdfManager.pageCount)"],
+        PDFPageStatusBar(
+            pdfManager: pdfManager,
             centerReservation: FindOverlay.chipReservation(barWidth: findBarWidth),
-            help: "Go to page",
             height: topChromeHeight
         ) {
             showingGoToPage = true
@@ -344,6 +342,33 @@ struct PDFTabView: View {
                 return nil
             },
             isPresented: showingGoToPageBinding
+        )
+    }
+}
+
+// MARK: - Page Status Bar
+
+/// The page and zoom chip. A view of its own so that the page number and the zoom,
+/// which change as the reader scrolls and zooms, invalidate only this chip: read in
+/// `PDFTabView.body` they re-rendered the whole tab (the PDF view's representable and
+/// every overlay) on each page crossed during a fast scroll.
+private struct PDFPageStatusBar: View {
+    let pdfManager: PDFManager
+    let centerReservation: CGFloat
+    let height: CGFloat
+    let onGoToPage: () -> Void
+
+    var body: some View {
+        let page = pdfManager.currentPageIndex + 1
+        let count = pdfManager.pageCount
+        let zoom = "\(PDFZoomFit.percentage(of: pdfManager.scaleFactor))%"
+        DocumentStatusBar(
+            label: "Page \(page) of \(count) · \(zoom)",
+            shorterLabels: ["\(page) / \(count) · \(zoom)", "\(page) / \(count)"],
+            centerReservation: centerReservation,
+            help: "Go to page",
+            height: height,
+            action: onGoToPage
         )
     }
 }

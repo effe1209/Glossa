@@ -144,6 +144,11 @@ final class StablePDFView: PDFView {
     }
 
     var onLayoutGeometryChange: (() -> Void)?
+    /// The view's size changed: a window resize, a sidebar, a layout reflow. Not called
+    /// for scrolling, which moves content and not the view. A fit that follows the
+    /// window re-measures here.
+    var onViewportSizeChange: (() -> Void)?
+    private var lastReportedViewportSize: NSSize = .zero
     private weak var observedGeometryHost: NSView?
 
     override func viewDidMoveToSuperview() {
@@ -167,7 +172,13 @@ final class StablePDFView: PDFView {
 
     override func layout() {
         super.layout()
-        defer { onLayoutGeometryChange?() }
+        defer {
+            onLayoutGeometryChange?()
+            if bounds.size != lastReportedViewportSize {
+                lastReportedViewportSize = bounds.size
+                onViewportSizeChange?()
+            }
+        }
 
         if let scrollView = documentScrollView {
             if configuredScrollView !== scrollView {
