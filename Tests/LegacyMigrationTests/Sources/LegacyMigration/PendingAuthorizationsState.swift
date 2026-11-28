@@ -1,1 +1,1 @@
-../../../../PageFlow/Migration/PendingAuthorizationsState.swift
+../../../../Glossa/Migration/PendingAuthorizationsState.swift

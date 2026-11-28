@@ -198,7 +198,7 @@ final class CombinedAvailabilityTests: XCTestCase {
     }
 
     func testTheSandboxIsDecidedBeforePageFlowsFolderIsLookedAt() throws {
-        let text = try source("PageFlow/Migration/CombinedMigrationCoordinator.swift")
+        let text = try source("Glossa/Migration/CombinedMigrationCoordinator.swift")
         let sandbox = try XCTUnwrap(text.range(of: "files.paths.legacyIsReachable"))
         let counting = try XCTUnwrap(text.range(of: "AppSupportCandidates("))
         XCTAssertLessThan(sandbox.lowerBound, counting.lowerBound)
@@ -484,7 +484,7 @@ final class CombinedLargeAndInterruptedTests: XCTestCase {
     }
 
     func testRecoveryIsCopiedBeforeTheStoreReadsItAndTheOfferComesBeforeRestoring() throws {
-        let delegate = try source("PageFlow/AppDelegate.swift")
+        let delegate = try source("Glossa/AppDelegate.swift")
         let offer = try XCTUnwrap(delegate.range(of: "MigrationPresenter.presentIfNeeded(recentFiles: recentFilesManager)"))
         let restoreNotes = try XCTUnwrap(delegate.range(of: "        restoreUnsavedMarkdownCopies()\n"))
         let session = try XCTUnwrap(delegate.range(of: "        restorePreviousSessionIfNeeded()\n"))
@@ -647,7 +647,7 @@ final class CombinedLargeAndInterruptedTests: XCTestCase {
 
 final class MigrationWindowWiringTests: XCTestCase {
     func testTheWindowShowsBothUnitsAndRestartsOnlyWhenTheResultSaysSo() throws {
-        let view = try source("PageFlow/Views/MigrationView.swift")
+        let view = try source("Glossa/Views/MigrationView.swift")
         for text in ["Don't Import Ever", "Not Now", "Button(\"Import\")", "session.prompt.preferences.summary", "session.prompt.files.offer",
                      "Copy \\(FilesResultSummary.mebibytes(bytes)) of attachments?", "session.confirmLargeAttachments(true)", "session.confirmLargeAttachments(false)"] {
             XCTAssertTrue(view.contains(text), text)
@@ -657,7 +657,7 @@ final class MigrationWindowWiringTests: XCTestCase {
     }
 
     func testThePresenterRestartsOnlyWhenTheSessionAsksAndConfirmsTheImportFirst() throws {
-        let presenter = try source("PageFlow/Migration/MigrationPresenter.swift")
+        let presenter = try source("Glossa/Migration/MigrationPresenter.swift")
         XCTAssertTrue(presenter.contains("guard relaunch else { return false }"))
         XCTAssertTrue(presenter.contains("importIsRecorded(in: readback)"))
         XCTAssertTrue(presenter.contains("if prompt.hasOffer"))
@@ -668,7 +668,7 @@ final class MigrationWindowWiringTests: XCTestCase {
     }
 
     func testTheSessionHasNoUserInterfaceInIt() throws {
-        let text = try source("PageFlow/Migration/MigrationSession.swift")
+        let text = try source("Glossa/Migration/MigrationSession.swift")
         XCTAssertFalse(text.contains("import SwiftUI") || text.contains("import AppKit") || text.contains("NSAlert"))
     }
 }
@@ -775,7 +775,7 @@ final class MigrationWindowWiringTests: XCTestCase {
     }
 
     func testTheErrorTextSaysTheSettingsWereImportedOnlyWhenTheyWere() throws {
-        let view = try source("PageFlow/Views/MigrationView.swift")
+        let view = try source("Glossa/Views/MigrationView.swift")
         XCTAssertTrue(view.contains("Your settings were imported, but the rest could not be completed"))
         XCTAssertTrue(view.contains("if session.preferencesApplied {\n                Text(\"Your settings were imported"))
         let applied = try XCTUnwrap(view.range(of: "Your settings were imported"))
@@ -931,13 +931,13 @@ final class LabelsAndDocumentationTests: XCTestCase {
     func testSizesAreWrittenInMiBBecauseTheyAreBinary() throws {
         XCTAssertEqual(FilesResultSummary.mebibytes(3 * 1_048_576), "3 MiB")
         XCTAssertEqual(FilesResultSummary.mebibytes(0), "0 MiB")
-        for file in ["PageFlow/Views/MigrationView.swift", "PageFlow/Migration/CombinedMigrationCoordinator.swift", "PageFlow/Migration/AppSupportMigrator.swift",
-                     "PageFlow/Migration/AppSupportOffer.swift"] {
+        for file in ["Glossa/Views/MigrationView.swift", "Glossa/Migration/CombinedMigrationCoordinator.swift", "Glossa/Migration/AppSupportMigrator.swift",
+                     "Glossa/Migration/AppSupportOffer.swift"] {
             let code = try source(file).components(separatedBy: "\n").filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }.joined(separator: "\n")
             XCTAssertFalse(code.contains(" MB\"") || code.contains(" MB.") || code.contains(" MB "), "\(file) still says MB")
             XCTAssertFalse(code.contains("megabytes"), file)
         }
-        XCTAssertTrue(try source("PageFlow/Views/MigrationView.swift").contains("larger than 500 MiB"))
+        XCTAssertTrue(try source("Glossa/Views/MigrationView.swift").contains("larger than 500 MiB"))
     }
 
     func testTheDocumentationDescribesTheNewPaths() throws {

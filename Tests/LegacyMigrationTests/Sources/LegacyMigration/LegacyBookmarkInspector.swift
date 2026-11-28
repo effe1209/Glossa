@@ -1,1 +1,1 @@
-../../../../PageFlow/Migration/LegacyBookmarkInspector.swift
+../../../../Glossa/Migration/LegacyBookmarkInspector.swift

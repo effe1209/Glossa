@@ -99,7 +99,7 @@ cd Glossa
 xcodebuild -project Glossa.xcodeproj -scheme "Glossa Direct" -configuration Release-Direct build
 ```
 
-The Xcode project is `Glossa.xcodeproj` and the app it builds is **Glossa.app**. The `Glossa` scheme builds the sandboxed configuration and `Glossa Direct` the non-sandboxed one. The source folder is still called `PageFlow/`. Xcode resolves the Swift Package Manager dependencies on the first build.
+The Xcode project is `Glossa.xcodeproj` and the app it builds is **Glossa.app**. The `Glossa` scheme builds the sandboxed configuration and `Glossa Direct` the non-sandboxed one. The source folder is `Glossa/`. Xcode resolves the Swift Package Manager dependencies on the first build.
 
 ### Signing, for free
 
@@ -108,7 +108,7 @@ You do not need an Apple Developer account to build and run Glossa on your own M
 | Configuration | Sandbox | Entitlements in the signed app |
 |---|---|---|
 | `Release-Direct` (the one to use) | no | none |
-| `Release` | yes | the sandbox set in `PageFlow/PageFlow.entitlements` |
+| `Release` | yes | the sandbox set in `Glossa/PageFlow.entitlements` |
 | `Debug` | yes | the same, plus Xcode's debugger entitlement |
 
 Hardened Runtime is off in the ad hoc configuration, and the app is **not notarized**: there is no Developer ID behind it. An app you built yourself opens normally. A copy you download or send to someone else shows a Gatekeeper warning: open it with a right-click, **Open**, or run `xattr -dr com.apple.quarantine Glossa.app`.

@@ -1,1 +1,1 @@
-../../../../PageFlow/Migration/MigrationSummary.swift
+../../../../Glossa/Migration/MigrationSummary.swift

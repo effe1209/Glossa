@@ -506,7 +506,7 @@ final class MigratorPreconditionTests: XCTestCase {
 
 final class MigratorCodeTests: XCTestCase {
     private func code() throws -> String {
-        let text = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Migration/AppSupportMigrator.swift"), encoding: .utf8)
+        let text = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Migration/AppSupportMigrator.swift"), encoding: .utf8)
         return text.components(separatedBy: "\n").filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }.joined(separator: "\n")
     }
 
@@ -533,7 +533,7 @@ final class MigratorCodeTests: XCTestCase {
     }
 
     func testTheMigratorRunsOnlyFromTheCombinedCoordinator() throws {
-        let app = repositoryRoot().appendingPathComponent("PageFlow")
+        let app = repositoryRoot().appendingPathComponent("Glossa")
         var runners: [String] = []
         var mentions: Set<String> = []
         if let files = FileManager.default.enumerator(at: app, includingPropertiesForKeys: nil) {
@@ -550,7 +550,7 @@ final class MigratorCodeTests: XCTestCase {
 
     func testNoStoreRunsTheMigratorOrTheScanner() throws {
         for file in ["MarkdownRecoveryStore", "PastedImageStore", "EPUBAnnotationStore"] {
-            let text = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Managers/\(file).swift"), encoding: .utf8)
+            let text = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Managers/\(file).swift"), encoding: .utf8)
             XCTAssertFalse(text.contains("AppSupportMigrator") || text.contains("AppSupportScanner"), "\(file) must not migrate by itself")
         }
     }

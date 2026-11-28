@@ -1,1 +1,1 @@
-../../../../PageFlow/Migration/AppSupportScanner.swift
+../../../../Glossa/Migration/AppSupportScanner.swift

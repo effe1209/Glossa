@@ -1,1 +1,1 @@
-../../../../PageFlow/Models/EPUBHighlight.swift
+../../../../Glossa/Models/EPUBHighlight.swift

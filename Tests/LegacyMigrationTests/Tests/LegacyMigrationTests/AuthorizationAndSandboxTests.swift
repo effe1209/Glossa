@@ -110,8 +110,8 @@ final class SandboxTests: XCTestCase {
     }
 
     func testTheEntitlementsAreAsTheyWere() throws {
-        let sandboxed = try String(contentsOf: root().appendingPathComponent("PageFlow/PageFlow.entitlements"), encoding: .utf8)
-        let direct = try String(contentsOf: root().appendingPathComponent("PageFlow/PageFlow-Direct.entitlements"), encoding: .utf8)
+        let sandboxed = try String(contentsOf: root().appendingPathComponent("Glossa/PageFlow.entitlements"), encoding: .utf8)
+        let direct = try String(contentsOf: root().appendingPathComponent("Glossa/PageFlow-Direct.entitlements"), encoding: .utf8)
         XCTAssertTrue(sandboxed.contains("com.apple.security.app-sandbox"), "the sandboxed configuration is still sandboxed")
         XCTAssertFalse(direct.contains("com.apple.security.app-sandbox"), "Release-Direct is still not")
         XCTAssertFalse(sandboxed.contains("shared-preference"), "no temporary exception was added to read PageFlow's preferences")
@@ -134,17 +134,17 @@ final class SandboxTests: XCTestCase {
     }
 
     func testTheMenuExplainsWhyWhenTheImportIsNotAvailable() throws {
-        let presenter = try String(contentsOf: root().appendingPathComponent("PageFlow/Migration/MigrationPresenter.swift"), encoding: .utf8)
+        let presenter = try String(contentsOf: root().appendingPathComponent("Glossa/Migration/MigrationPresenter.swift"), encoding: .utf8)
         XCTAssertTrue(presenter.contains("static func importFromMenu()"))
         XCTAssertTrue(presenter.contains("Importing is not available in this build"))
         XCTAssertTrue(presenter.contains("prompt.explanations"))
-        let app = try String(contentsOf: root().appendingPathComponent("PageFlow/PageFlowApp.swift"), encoding: .utf8)
+        let app = try String(contentsOf: root().appendingPathComponent("Glossa/PageFlowApp.swift"), encoding: .utf8)
         XCTAssertTrue(app.contains("Button(\"Import from PageFlow…\") { MigrationPresenter.importFromMenu() }"))
     }
 
     func testTheLaunchPromptStaysSilentWhenTheImportIsNotAvailable() throws {
         // Only an offer opens a window at launch; "not needed" (including sandboxed) opens none.
-        let presenter = try String(contentsOf: root().appendingPathComponent("PageFlow/Migration/MigrationPresenter.swift"), encoding: .utf8)
+        let presenter = try String(contentsOf: root().appendingPathComponent("Glossa/Migration/MigrationPresenter.swift"), encoding: .utf8)
         XCTAssertTrue(presenter.contains("if prompt.hasOffer"))
     }
 }
@@ -153,10 +153,10 @@ final class SandboxTests: XCTestCase {
 
 final class AuthorizationManagerTests: XCTestCase {
     func testTheMenuItemIsThereAndFollowsTheList() throws {
-        let app = try String(contentsOf: root().appendingPathComponent("PageFlow/PageFlowApp.swift"), encoding: .utf8)
+        let app = try String(contentsOf: root().appendingPathComponent("Glossa/PageFlowApp.swift"), encoding: .utf8)
         XCTAssertTrue(app.contains("Button(\"Manage Authorizations to Restore…\") { MigrationPresenter.showAuthorizationManager() }"))
         XCTAssertTrue(app.contains(".disabled(pendingAuthorizations.items.isEmpty)"), "available only when something is pending")
-        let presenter = try String(contentsOf: root().appendingPathComponent("PageFlow/Migration/MigrationPresenter.swift"), encoding: .utf8)
+        let presenter = try String(contentsOf: root().appendingPathComponent("Glossa/Migration/MigrationPresenter.swift"), encoding: .utf8)
         XCTAssertTrue(presenter.contains("static func showAuthorizationManager()"))
     }
 
@@ -278,7 +278,7 @@ final class AuthorizationManagerTests: XCTestCase {
     }
 
     func testTheLaunchPromptIsShownOnceAndTheMenuBringsTheListBack() throws {
-        let presenter = try String(contentsOf: root().appendingPathComponent("PageFlow/Migration/MigrationPresenter.swift"), encoding: .utf8)
+        let presenter = try String(contentsOf: root().appendingPathComponent("Glossa/Migration/MigrationPresenter.swift"), encoding: .utf8)
         XCTAssertTrue(presenter.contains("takeAuthorizationPrompt(pendingCount:"), "the first launch after an import asks once (the rule is the coordinator's)")
         XCTAssertTrue(presenter.contains("PendingAuthorizationsModel.shared.refresh()"), "the list is read from the preferences, so it is the same after any restart")
     }

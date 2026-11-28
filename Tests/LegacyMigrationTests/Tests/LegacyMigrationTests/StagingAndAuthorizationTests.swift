@@ -345,18 +345,18 @@ final class OrphanStagingTests: XCTestCase {
         _ = e.coordinator().evaluateFiles()
         _ = e.coordinator().files.status()
         XCTAssertEqual(tree(e.base), before)
-        let source = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Migration/CombinedMigrationCoordinator.swift"), encoding: .utf8)
+        let source = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Migration/CombinedMigrationCoordinator.swift"), encoding: .utf8)
         let start = try XCTUnwrap(source.range(of: "func evaluateFiles()"))
         let end = try XCTUnwrap(source.range(of: "// MARK: Orphan staging"))
         XCTAssertFalse(source[start.lowerBound..<end.lowerBound].contains("removeOwnStaging"), "deciding what to offer deletes nothing")
-        let migrator = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Migration/AppSupportMigrator.swift"), encoding: .utf8)
+        let migrator = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Migration/AppSupportMigrator.swift"), encoding: .utf8)
         let status = try XCTUnwrap(migrator.range(of: "func status()"))
         let run = try XCTUnwrap(migrator.range(of: "func run(confirmLargeAttachments"))
         XCTAssertFalse(migrator[status.lowerBound..<run.lowerBound].contains("removeItem"))
     }
 
     func testTheLaunchTidiesOffTheMainThreadAndBeforeDeciding() throws {
-        let presenter = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Migration/MigrationPresenter.swift"), encoding: .utf8)
+        let presenter = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Migration/MigrationPresenter.swift"), encoding: .utf8)
         let tidy = try XCTUnwrap(presenter.range(of: "Task.detached(priority: .utility) { coordinator.tidyOrphanStaging() }"))
         let evaluate = try XCTUnwrap(presenter.range(of: "coordinator.evaluate()"))
         XCTAssertLessThan(tidy.lowerBound, evaluate.lowerBound)
@@ -367,7 +367,7 @@ final class OrphanStagingTests: XCTestCase {
 
 final class SessionLifecycleSourceTests: XCTestCase {
     func testTheDeinitTouchesOnlyTheSendableTask() throws {
-        let source = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Migration/MigrationSession.swift"), encoding: .utf8)
+        let source = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Migration/MigrationSession.swift"), encoding: .utf8)
         XCTAssertTrue(source.contains("deinit { work?.cancel() }"), "a deinit is not isolated: it may only use what is Sendable")
         XCTAssertTrue(source.contains("private var work: Task<Void, Never>?"))
     }
@@ -375,7 +375,7 @@ final class SessionLifecycleSourceTests: XCTestCase {
     func testTheExtensionsTheOffersUseAreNotIsolatedToTheMainActor() throws {
         for (file, header) in [("AppSupportMigrator.swift", "nonisolated extension AppSupportInvalidReason"),
                                ("LegacyMigrationCoordinator.swift", "nonisolated extension MigrationOffer.Reason")] {
-            let source = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Migration/" + file), encoding: .utf8)
+            let source = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Migration/" + file), encoding: .utf8)
             XCTAssertTrue(source.contains(header), file)
         }
     }
@@ -514,7 +514,7 @@ final class UnreadableLegacyFolderTests: XCTestCase {
         XCTAssertEqual(offer.lines.map(\.category), [.epubAnnotations])
         XCTAssertEqual(offer.unreadable, [.recovery], "the window says what will not be copied")
         XCTAssertEqual(try XCTUnwrap(coordinator(e, failing: []).evaluate().files.offer).unreadable, [])
-        let view = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Views/MigrationView.swift"), encoding: .utf8)
+        let view = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Views/MigrationView.swift"), encoding: .utf8)
         XCTAssertTrue(view.contains("offer.unreadable"))
         XCTAssertTrue(view.contains("could not read"))
     }
@@ -770,7 +770,7 @@ private struct PartialRecoveryRecord: Codable {
         XCTAssertTrue(doc.contains("nulla era illeggibile"))
         let readme = try String(contentsOf: repositoryRoot().appendingPathComponent("README.md"), encoding: .utf8)
         XCTAssertTrue(readme.contains("does **not** record the copy as done"))
-        let view = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Views/MigrationView.swift"), encoding: .utf8)
+        let view = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Views/MigrationView.swift"), encoding: .utf8)
         XCTAssertTrue(view.contains("the copy is not recorded as done"))
     }
 
@@ -906,7 +906,7 @@ private struct PartialRecoveryRecord: Codable {
     }
 
     func testTheWindowSaysNothingWasSoundEnoughToCopy() throws {
-        let view = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Views/MigrationView.swift"), encoding: .utf8)
+        let view = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Views/MigrationView.swift"), encoding: .utf8)
         XCTAssertTrue(view.contains("Nothing was sound enough to copy"))
         XCTAssertTrue(view.contains("summary.copiedFiles + summary.identical > 0 ? \"Files copied\" : \"Files\""))
     }
@@ -1159,7 +1159,7 @@ final class RetryWithoutRecopyTests: XCTestCase {
     }
 
     func testTheCodeKeepsItsChecks() throws {
-        let code = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Migration/AppSupportMigrator.swift"), encoding: .utf8)
+        let code = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Migration/AppSupportMigrator.swift"), encoding: .utf8)
         XCTAssertTrue(code.contains("sourceIsAsScanned(file)"))
         XCTAssertTrue(code.contains("if !toCopy.isEmpty {"), "the room is checked for what is left to copy")
         XCTAssertTrue(code.contains("for file in toCopy {"), "and only that is staged")
@@ -1238,7 +1238,7 @@ final class RetryWithoutRecopyTests: XCTestCase {
     }
 
     func testTheWindowUsesTheTitleAndNoMessageChanged() throws {
-        let view = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Views/MigrationView.swift"), encoding: .utf8)
+        let view = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Views/MigrationView.swift"), encoding: .utf8)
         XCTAssertTrue(view.contains("Text(result.title)"))
         XCTAssertFalse(view.contains("Text(\"Import finished\")"))
         XCTAssertTrue(view.contains("The attachments were not copied. Glossa will offer them again the next time it starts."))
@@ -1251,8 +1251,8 @@ final class PhaseNineDocumentationTests: XCTestCase {
     private func text(_ path: String) throws -> String { try String(contentsOf: repositoryRoot().appendingPathComponent(path), encoding: .utf8) }
 
     func testTheHeadersNoLongerSayNothingCallsThem() throws {
-        let migrator = try text("PageFlow/Migration/AppSupportMigrator.swift")
-        let scanner = try text("PageFlow/Migration/AppSupportScanner.swift")
+        let migrator = try text("Glossa/Migration/AppSupportMigrator.swift")
+        let scanner = try text("Glossa/Migration/AppSupportScanner.swift")
         XCTAssertFalse(migrator.contains("Not wired to anything yet"))
         XCTAssertFalse(scanner.contains("nothing calls it yet"))
         XCTAssertTrue(migrator.contains("500 MiB"), "the order of the steps names the threshold")
@@ -1331,7 +1331,7 @@ final class AuthorizationPromptTests: XCTestCase {
     }
 
     func testTheLaunchShowsTheOffersWindowFirstAndThePermissionsAfterIt() throws {
-        let presenter = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Migration/MigrationPresenter.swift"), encoding: .utf8)
+        let presenter = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Migration/MigrationPresenter.swift"), encoding: .utf8)
         let launch = try XCTUnwrap(presenter.range(of: "static func presentIfNeeded"))
         let body = String(presenter[launch.lowerBound...])
         let offer = try XCTUnwrap(body.range(of: "runOffer(prompt, coordinator: coordinator) { return true }"))

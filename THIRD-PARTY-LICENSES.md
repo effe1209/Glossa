@@ -1,7 +1,7 @@
 # Third-Party Licenses
 
 The complete app notice resource is
-[`PageFlow/Resources/ThirdPartyNotices.txt`](PageFlow/Resources/ThirdPartyNotices.txt).
+[`Glossa/Resources/ThirdPartyNotices.txt`](Glossa/Resources/ThirdPartyNotices.txt).
 It contains the exact license texts from the vendored engine, the vendored
 ZIPFoundation used by the EPUB reader, and the dependency revisions recorded in
 [`Package.resolved`](Glossa.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved).

@@ -118,9 +118,9 @@ final class ApplicationSupportPathsTests: XCTestCase {
     // MARK: The stores
 
     func testTheThreeStoresTakeTheirFolderFromThePathsAndNameNoPageFlowFolder() throws {
-        let stores = ["PageFlow/Managers/MarkdownRecoveryStore.swift": "recovery",
-                      "PageFlow/Managers/PastedImageStore.swift": "attachments",
-                      "PageFlow/Managers/EPUBAnnotationStore.swift": "epubAnnotations"]
+        let stores = ["Glossa/Managers/MarkdownRecoveryStore.swift": "recovery",
+                      "Glossa/Managers/PastedImageStore.swift": "attachments",
+                      "Glossa/Managers/EPUBAnnotationStore.swift": "epubAnnotations"]
         for (file, property) in stores {
             let text = try source(file)
             XCTAssertTrue(text.contains("ApplicationSupportPaths.current().\(property)"), "\(file) does not use the central path")
@@ -137,10 +137,10 @@ final class ApplicationSupportPathsTests: XCTestCase {
     }
 
     func testNothingInTheAppBuildsAnApplicationSupportPathOrReadsPageFlowsFolder() throws {
-        let app = repositoryRoot().appendingPathComponent("PageFlow")
+        let app = repositoryRoot().appendingPathComponent("Glossa")
         var found: [String] = []
         if let files = FileManager.default.enumerator(at: app, includingPropertiesForKeys: nil) {
-            for case let url as URL in files where url.pathExtension == "swift" && !url.path.contains("/PageFlow/Debug/") {
+            for case let url as URL in files where url.pathExtension == "swift" && !url.path.contains("/Glossa/Debug/") {
                 let text = try String(contentsOf: url, encoding: .utf8)
                 let name = url.lastPathComponent
                 if name != "ApplicationSupportPaths.swift", text.contains("applicationSupportDirectory") { found.append("\(name): applicationSupportDirectory") }
@@ -153,7 +153,7 @@ final class ApplicationSupportPathsTests: XCTestCase {
     }
 
     func testThePathsHelperItselfDoesNothingToTheDisk() throws {
-        let paths = try source("PageFlow/Migration/ApplicationSupportPaths.swift")
+        let paths = try source("Glossa/Migration/ApplicationSupportPaths.swift")
         XCTAssertFalse(paths.contains("copyItem") || paths.contains("removeItem") || paths.contains("moveItem") || paths.contains("createDirectory"),
                        "the paths do nothing to the disk")
     }

@@ -1,1 +1,1 @@
-../../../../PageFlow/Managers/PDFCitationResolver.swift
+../../../../Glossa/Managers/PDFCitationResolver.swift

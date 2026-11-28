@@ -98,7 +98,7 @@ import AppKit
 
     func testTheStructureThatMakesItWork() throws {
         let url = (0..<5).reduce(URL(fileURLWithPath: #filePath)) { u, _ in u.deletingLastPathComponent() }
-            .appendingPathComponent("PageFlow/Views/AuthorizationContent.swift")
+            .appendingPathComponent("Glossa/Views/AuthorizationContent.swift")
         let code = try String(contentsOf: url, encoding: .utf8)
         let cap = try XCTUnwrap(code.range(of: ".frame(maxHeight: Self.listMaxHeight)"))
         let fixed = try XCTUnwrap(code.range(of: ".fixedSize(horizontal: false, vertical: true)    // …then"))
