@@ -146,6 +146,13 @@ Glossa does not have a networking layer of its own: a review of the app's source
 
 The sandboxed build also carries the `com.apple.security.network.client` entitlement.
 
+### Importing from PageFlow
+
+On first launch Glossa can import PageFlow's settings and document data (Import, Not Now, Don't Import Ever); it only reads PageFlow's data. **Glossa → Import from PageFlow…** says whether the import is available and why not when it is not (the import itself is offered only at launch, before any document opens, and Glossa restarts once it is done); and **Glossa → Manage Authorizations to Restore…** lists the files and folders whose permission has to be allowed again.
+
+- **Limitation: the sandboxed builds cannot import.** `Debug` and `Release` run inside the macOS sandbox, which does not let an app read another app's preferences, so they cannot see PageFlow's settings. They do not offer the import and, when asked from the menu, say why. The entitlements are not changed to get around this. Use `Release-Direct` (not sandboxed) to import.
+- **Application Support.** `~/Library/Application Support/Glossa` is created when an import completes, empty. Recovery, Attachments and EPUB Annotations still use `~/Library/Application Support/PageFlow` for now; copying them and separating the paths completely is a later change. Nothing in PageFlow's folder is moved, renamed or deleted.
+
 ## Keyboard shortcuts
 
 | Action | Shortcut |
@@ -192,7 +199,7 @@ For the history before Glossa, see the [PageFlow repository](https://github.com/
 
 ## Origin and attribution
 
-Glossa is derived from [PageFlow](https://github.com/pinchen147/PageFlow) by Pin Chen, which is licensed under the Apache License 2.0, and it keeps the original project's Git history. The bundle identifier (`com.raccoontechnologies.PageFlow`) and the Xcode project and scheme names are still those of PageFlow for now. The decided plan for separating them, step by step, is in [`docs/GLOSSA-IDENTITY-SEPARATION.md`](docs/GLOSSA-IDENTITY-SEPARATION.md). Glossa will keep reading and writing the file-format markers that PageFlow introduced (`pageflow-comments` in notes, `PageFlowType` in PDFs), because documents made with either app must open in both.
+Glossa is derived from [PageFlow](https://github.com/pinchen147/PageFlow) by Pin Chen, which is licensed under the Apache License 2.0, and it keeps the original project's Git history. Glossa's bundle identifier is `io.github.effe1209.Glossa`; the Xcode project and scheme names are still those of PageFlow for now. On first launch Glossa offers to import PageFlow's settings and document data (Import, Not Now, or Don't Import Ever); it only reads PageFlow's data and never imports without that choice. The decided plan for separating them, step by step, is in [`docs/GLOSSA-IDENTITY-SEPARATION.md`](docs/GLOSSA-IDENTITY-SEPARATION.md). Glossa will keep reading and writing the file-format markers that PageFlow introduced (`pageflow-comments` in notes, `PageFlowType` in PDFs), because documents made with either app must open in both.
 
 Glossa also builds on open-source components, listed with their licenses in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
 

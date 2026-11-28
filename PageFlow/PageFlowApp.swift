@@ -15,6 +15,7 @@ struct PageFlowApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     private var recentFilesManager: RecentFilesManager { appDelegate.recentFilesManager }
     @State private var settingsManager = SettingsManager.shared
+    @State private var pendingAuthorizations = PendingAuthorizationsModel.shared
 
     // MARK: - Focused Values
 
@@ -149,6 +150,11 @@ struct PageFlowApp: App {
             firstLaunchManager.setAsDefaultPDFReader()
         }
         .disabled(firstLaunchManager.isDefaultPDFReader)
+
+        Divider()
+        Button("Import from PageFlow…") { MigrationPresenter.importFromMenu() }
+        Button("Manage Authorizations to Restore…") { MigrationPresenter.showAuthorizationManager() }
+            .disabled(pendingAuthorizations.items.isEmpty)
 
         if let notices = Bundle.main.url(forResource: "ThirdPartyNotices", withExtension: "txt") {
             Divider()

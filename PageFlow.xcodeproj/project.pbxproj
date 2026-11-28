@@ -365,7 +365,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 3.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.raccoontechnologies.PageFlow;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.effe1209.Glossa;
 				PRODUCT_NAME = Glossa;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -399,7 +399,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 3.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.raccoontechnologies.PageFlow;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.effe1209.Glossa;
 				PRODUCT_NAME = Glossa;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -491,7 +491,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 3.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.raccoontechnologies.PageFlow;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.effe1209.Glossa;
 				PRODUCT_NAME = Glossa;
 				REGISTER_APP_GROUPS = NO;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

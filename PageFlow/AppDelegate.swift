@@ -192,7 +192,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         #if DEBUG
         QAPresentation.prepare()
         #endif
-        if !TestEnvironment.isRunningTests { firstLaunchManager.handleFirstLaunch() }
+        // The import from PageFlow is offered first, before the previous session is restored, and only
+        // offered. After an import the app restarts here and the launch goes no further.
+        if !TestEnvironment.isRunningTests {
+            if MigrationPresenter.presentIfNeeded(recentFiles: recentFilesManager) { return }
+            firstLaunchManager.handleFirstLaunch()
+        }
         ShortcutMenuRefresh.install()
         if !TestEnvironment.isRunningTests { TabCycleKeyboard.shared.install() }
         MemoryPressureMonitor.shared.start()
