@@ -3,7 +3,7 @@
 //  MarkdownEngine
 //
 //  Phase timers for the editor's hot paths (a ⌘A format, a restyle, the
-//  tokenizer, the inline parser). Off unless PAGEFLOW_PERF_TRACE is set, and
+//  tokenizer, the inline parser). Off unless GLOSSA_PERF_TRACE (or the legacy alias PAGEFLOW_PERF_TRACE) is set, and
 //  then each `time` call adds its wall-clock cost to a per-label total that
 //  `dump` prints and clears. The QA harness and the perf tests read them; the
 //  release path pays one static bool check per label.
@@ -11,10 +11,11 @@
 
 import Foundation
 
-/// Opt-in phase timers for the editor's hot paths (set `PAGEFLOW_PERF_TRACE`).
+/// Opt-in phase timers for the editor's hot paths (set `GLOSSA_PERF_TRACE`; `PAGEFLOW_PERF_TRACE` still works).
 public enum PerfTrace {
     /// Whether tracing is on for this process.
-    public static let enabled = ProcessInfo.processInfo.environment["PAGEFLOW_PERF_TRACE"] != nil
+    public static let enabled = ProcessInfo.processInfo.environment["GLOSSA_PERF_TRACE"] != nil
+        || ProcessInfo.processInfo.environment["PAGEFLOW_PERF_TRACE"] != nil
     /// Guards the totals and stamps: the background parse records off main.
     private static let lock = NSLock()
     nonisolated(unsafe) private static var totals: [String: Double] = [:]

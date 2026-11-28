@@ -19,7 +19,7 @@ import SwiftUI
 
 private enum Proximity {
     /// Coordinate space shared between the field and its magnified elements.
-    static let space = "pageflow.proximityField"
+    static let space = "glossa.proximityField"
     /// Peak scale of the element directly under the cursor.
     static let maxScale: CGFloat = 1.55
     /// Distance (pt) from an element's center at which magnification fades to zero.

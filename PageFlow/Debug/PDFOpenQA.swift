@@ -6,11 +6,11 @@ import Darwin
 @MainActor
 enum PDFOpenQA {
     static func run() async {
-        let env = ProcessInfo.processInfo.environment
-        guard let path = env["PAGEFLOW_QA_PDF_URL"], let output = env["PAGEFLOW_QA_OUTPUT_DIR"] else { exit(2) }
+        let env = AppEnvironment.current
+        guard let path = env.value("QA_PDF_URL"), let output = env.value("QA_OUTPUT_DIR") else { exit(2) }
         let url = URL(fileURLWithPath: path).pageFlowCanonicalDocumentURL
         let directory = URL(fileURLWithPath: output, isDirectory: true)
-        let mode = env["PAGEFLOW_QA_PDF_MODE"] ?? "warm"
+        let mode = env.value("QA_PDF_MODE") ?? "warm"
         var checks: [String: Bool] = [:]
         var deliveryAccepted = mode == "cold"
         var deliveryError: String?

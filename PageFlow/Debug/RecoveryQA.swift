@@ -11,11 +11,12 @@ nonisolated enum RecoveryQA {
     }
 
     private static var configuration: Configuration? {
-        let env = ProcessInfo.processInfo.environment
-        guard let runID = env["PAGEFLOW_QA_RUN_ID"], UUID(uuidString: runID) != nil,
-              Bundle.main.bundleIdentifier == "com.raccoontechnologies.PageFlow.RecoveryQA." + runID,
-              let phase = env["PAGEFLOW_QA_RECOVERY"], ["write", "early-quit", "restore", "empty"].contains(phase),
-              env["PAGEFLOW_QA_BACKGROUND"] == "1", !TestEnvironment.isRunningTests else { return nil }
+        let env = AppEnvironment.current
+        guard let runID = env.value("QA_RUN_ID"), UUID(uuidString: runID) != nil,
+              [AppIdentity.bundleIdentifier, AppIdentity.legacyBundleIdentifier]  // legacy: alias for harnesses that predate Glossa
+                  .contains(where: { Bundle.main.bundleIdentifier == $0 + ".RecoveryQA." + runID }),
+              let phase = env.value("QA_RECOVERY"), ["write", "early-quit", "restore", "empty"].contains(phase),
+              env.value("QA_BACKGROUND") == "1", !TestEnvironment.isRunningTests else { return nil }
         return Configuration(runID: runID, phase: phase)
     }
 
@@ -24,7 +25,7 @@ nonisolated enum RecoveryQA {
 
     @MainActor
     static func startIfRequested(delegate: AppDelegate, recoveryTask: Task<Void, Never>?) {
-        guard ProcessInfo.processInfo.environment["PAGEFLOW_QA_RECOVERY"] != nil else { return }
+        guard AppEnvironment.current.value("QA_RECOVERY") != nil else { return }
         guard let config = configuration else { exit(2) }
         if config.phase == "early-quit" {
             // Called synchronously after AppDelegate schedules recovery, before

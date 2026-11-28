@@ -6,10 +6,10 @@ import AppKit
 enum QAPresentation {
     static var runsInBackground: Bool {
         if TestEnvironment.isRunningTests { return true }
-        let environment = ProcessInfo.processInfo.environment
+        let environment = AppEnvironment.current
         // Foreground opt-in is reserved for a separately approved manual run.
-        if environment["PAGEFLOW_QA_BACKGROUND"] == "0" { return false }
-        return environment.keys.contains { $0.hasPrefix("PAGEFLOW_") && $0.contains("QA") }
+        if environment.value("QA_BACKGROUND") == "0" { return false }
+        return environment.hasQAVariable
     }
 
     static func prepare() {

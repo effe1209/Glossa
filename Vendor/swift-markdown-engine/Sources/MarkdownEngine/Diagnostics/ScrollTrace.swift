@@ -14,7 +14,7 @@
 //
 //  Read the trace after the fact with
 //  `log show --predicate 'subsystem == "com.pageflow.MarkdownEngine" AND category == "ScrollTrace"'`.
-//  Set PAGEFLOW_SCROLL_TRACE=1 to also log attributed moves (debug level).
+//  Set GLOSSA_SCROLL_TRACE=1 (legacy alias PAGEFLOW_SCROLL_TRACE) to also log attributed moves (debug level).
 //
 
 import AppKit
@@ -49,7 +49,8 @@ public enum ScrollTrace {
     private static let recentCapacity = 64
 
     private static let logger = Logger(subsystem: "com.pageflow.MarkdownEngine", category: "ScrollTrace")
-    static let isVerbose = ProcessInfo.processInfo.environment["PAGEFLOW_SCROLL_TRACE"] != nil
+    static let isVerbose = ProcessInfo.processInfo.environment["GLOSSA_SCROLL_TRACE"] != nil
+        || ProcessInfo.processInfo.environment["PAGEFLOW_SCROLL_TRACE"] != nil
 
     private struct ViewState {
         var originY: CGFloat

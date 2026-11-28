@@ -279,7 +279,7 @@ final class PastedImageStore: @unchecked Sendable {
     /// real: the sandbox answers only to a write.
     nonisolated private func canWrite(into folder: URL) -> Bool {
         folderAccess.withAccess(to: folder) {
-            let probe = folder.appendingPathComponent(".pageflow-\(UUID().uuidString)")
+            let probe = folder.appendingPathComponent(".glossa-\(UUID().uuidString)")
             do {
                 try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
                 try Data().write(to: probe)
