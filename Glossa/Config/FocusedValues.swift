@@ -1,6 +1,6 @@
 //
 //  FocusedValues.swift
-//  PageFlow
+//  Glossa
 //
 //  Exposes per-window state to menu commands via FocusedValue.
 //

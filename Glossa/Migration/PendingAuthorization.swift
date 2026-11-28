@@ -1,6 +1,6 @@
 //
 //  PendingAuthorization.swift
-//  PageFlow
+//  Glossa
 //
 //  The files and folders an import could not carry access for. A bookmark made under PageFlow's
 //  identity may not open anything under Glossa's, and an entry that is dropped would otherwise

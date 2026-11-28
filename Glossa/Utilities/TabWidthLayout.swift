@@ -1,6 +1,6 @@
 //
 //  TabWidthLayout.swift
-//  PageFlow
+//  Glossa
 //
 //  The pure decision of how wide each tab is in the full-width strip: all
 //  tabs share one width that starts at the preferred width, shrinks as tabs

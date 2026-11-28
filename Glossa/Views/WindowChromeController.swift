@@ -1,6 +1,6 @@
 //
 //  WindowChromeController.swift
-//  PageFlow
+//  Glossa
 //
 //  Owns per-window AppKit chrome: hides the title bar and hover-reveals the
 //  native window buttons (traffic lights) in sync with the SwiftUI top chrome.

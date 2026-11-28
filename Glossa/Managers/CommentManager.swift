@@ -1,6 +1,6 @@
 //
 //  CommentManager.swift
-//  PageFlow
+//  Glossa
 //
 //  Manages creation, editing, deletion, and loading of PDF comments.
 //

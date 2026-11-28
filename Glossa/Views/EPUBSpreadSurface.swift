@@ -1,6 +1,6 @@
 //
 //  EPUBSpreadSurface.swift
-//  PageFlow
+//  Glossa
 //
 //  The page-at-a-time EPUB layouts: one page, or an Apple Books–style
 //  two-page spread with a center fold, fitted to the viewport on PDF's viewer

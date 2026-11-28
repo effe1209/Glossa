@@ -1,6 +1,6 @@
 //
 //  PendingAuthorizationsState.swift
-//  PageFlow
+//  Glossa
 //
 //  The list of permissions still to be allowed again, as something the interface can watch.
 //  The menu item and the window both read `items`, so when the list changes (an entry is

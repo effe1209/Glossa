@@ -1,6 +1,6 @@
 //
 //  MigrationSummary.swift
-//  PageFlow
+//  Glossa
 //
 //  A report in the reader's words: what is carried over, what needs attention, what stays behind.
 //  It counts and names; it never holds a preference value.

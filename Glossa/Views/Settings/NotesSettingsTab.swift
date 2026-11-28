@@ -1,6 +1,6 @@
 //
 //  NotesSettingsTab.swift
-//  PageFlow
+//  Glossa
 //
 //  Settings pane for how Markdown notes look.
 //

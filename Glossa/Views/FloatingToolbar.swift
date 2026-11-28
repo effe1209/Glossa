@@ -1,6 +1,6 @@
 //
 //  FloatingToolbar.swift
-//  PageFlow
+//  Glossa
 //
 //  The PDF item set for the shared top-chrome toolbar slot: document, zoom,
 //  annotation, and page-navigation controls inside the shared

@@ -1,6 +1,6 @@
 //
 //  AppSupportMigrator.swift
-//  PageFlow
+//  Glossa
 //
 //  Copies the files the scanner found sound from PageFlow's Application Support folders into
 //  Glossa's. It is called by `CombinedMigrationCoordinator` when the reader chooses Import, from a

@@ -1,6 +1,6 @@
 //
 //  MarkdownWikiLinkPresence.swift
-//  PageFlow
+//  Glossa
 //
 //  Whether each `[[wiki-link]]` in one note points at a file, so the editor
 //  can draw links to missing notes dimmed. Styling asks synchronously on the

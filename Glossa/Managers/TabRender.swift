@@ -1,6 +1,6 @@
 //
 //  TabRender.swift
-//  PageFlow
+//  Glossa
 //
 //  The view-layer projection types a TabManager exposes to the window: a PDF tab's
 //  runtime bundle, a Markdown tab's live content handle, and the content-

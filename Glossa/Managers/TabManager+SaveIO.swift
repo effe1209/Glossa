@@ -1,6 +1,6 @@
 //
 //  TabManager+SaveIO.swift
-//  PageFlow
+//  Glossa
 //
 //  The active tab's document I/O: print, Save / Save-As routed by content type,
 //  and the unsaved-changes confirmation prompts. Pure decomposition — the save

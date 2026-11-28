@@ -1,6 +1,6 @@
 //
 //  TabGapShift.swift
-//  PageFlow
+//  Glossa
 //
 //  The pure decision of how far each tab pill slides to open the insertion
 //  gap during a drag.

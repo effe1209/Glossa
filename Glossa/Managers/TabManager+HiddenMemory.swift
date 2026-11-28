@@ -1,6 +1,6 @@
 //
 //  TabManager+HiddenMemory.swift
-//  PageFlow
+//  Glossa
 //
 //  What hidden tabs give back: after a while out of sight, and at once when
 //  the Mac runs short. Warm Markdown editors stay warm on purpose; a PDF view,

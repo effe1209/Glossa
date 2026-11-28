@@ -1,6 +1,6 @@
 //
 //  TabSwitcherReorder.swift
-//  PageFlow
+//  Glossa
 //
 //  Pure, testable geometry + state for press-and-hold drag-reorder in the Tab
 //  Switcher's OPEN TABS list. The view records each open row's frame (in the

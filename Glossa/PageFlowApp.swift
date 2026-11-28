@@ -1,6 +1,6 @@
 //
 //  PageFlowApp.swift
-//  PageFlow
+//  Glossa
 //
 //  Created by Chong Pin Shin on 7/12/25.
 //

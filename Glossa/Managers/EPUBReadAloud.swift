@@ -1,6 +1,6 @@
 //
 //  EPUBReadAloud.swift
-//  PageFlow
+//  Glossa
 //
 //  Read Aloud: the book's own recording (EPUBNarration) where a chapter has
 //  one, else the Mac's own voice a sentence at a time, from the selection or

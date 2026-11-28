@@ -1,6 +1,6 @@
 //
 //  SidebarView.swift
-//  PageFlow
+//  Glossa
 //
 //  Displays the PDF sidebar with Outline (Table of Contents) and Thumbnails.
 //

@@ -1,6 +1,6 @@
 //
 //  EPUBContent+Navigation.swift
-//  PageFlow
+//  Glossa
 //
 //  Labels for places in the book as the chrome and sidebar show them: Find's
 //  matches by page, and the print edition's page labels beside the layout

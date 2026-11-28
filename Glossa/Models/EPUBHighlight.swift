@@ -1,6 +1,6 @@
 //
 //  EPUBHighlight.swift
-//  PageFlow
+//  Glossa
 //
 //  A highlighted passage in an EPUB, with an optional note. Its place is a
 //  range of UTF-16 offsets in its chapter's styled text, so it stays on the

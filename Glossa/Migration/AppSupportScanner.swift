@@ -1,6 +1,6 @@
 //
 //  AppSupportScanner.swift
-//  PageFlow
+//  Glossa
 //
 //  Looks through PageFlow's Recovery, Attachments and EPUB Annotations folders and says what is
 //  in them and whether each file is sound. Reading only: it creates, copies, renames, changes and

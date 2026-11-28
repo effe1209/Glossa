@@ -1,6 +1,6 @@
 //
 //  SidebarHeaderView.swift
-//  PageFlow
+//  Glossa
 //
 //  Header controls for the document sidebar.
 //

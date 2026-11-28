@@ -1,6 +1,6 @@
 //
 //  MigrationPresenter.swift
-//  PageFlow
+//  Glossa
 //
 //  The app's one entry point to the import: it asks the coordinator whether to offer it and
 //  shows the window if so. It never imports by itself; only the Import button does.

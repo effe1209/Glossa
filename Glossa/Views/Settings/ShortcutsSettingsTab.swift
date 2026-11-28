@@ -1,6 +1,6 @@
 //
 //  ShortcutsSettingsTab.swift
-//  PageFlow
+//  Glossa
 //
 //  Settings tab for customizing keyboard shortcuts
 //

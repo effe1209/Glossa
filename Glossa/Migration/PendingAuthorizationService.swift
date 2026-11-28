@@ -1,6 +1,6 @@
 //
 //  PendingAuthorizationService.swift
-//  PageFlow
+//  Glossa
 //
 //  One attempt to allow a pending file or folder again, with everything that touches the screen
 //  or the stores passed in. The rules live here, where they can be tested:

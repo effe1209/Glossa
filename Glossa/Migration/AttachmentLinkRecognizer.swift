@@ -1,6 +1,6 @@
 //
 //  AttachmentLinkRecognizer.swift
-//  PageFlow
+//  Glossa
 //
 //  Which absolute image links in a note name one of the app's own attachment folders. Images pasted
 //  into a note that had no folder sit there behind absolute links; when the note is saved they move

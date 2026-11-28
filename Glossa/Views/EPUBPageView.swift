@@ -1,6 +1,6 @@
 //
 //  EPUBPageView.swift
-//  PageFlow
+//  Glossa
 //
 //  One EPUB page drawn as a PDF-style sheet: paper, a running header with the
 //  chapter title, a page number footer, and selectable TextKit 1 text with the

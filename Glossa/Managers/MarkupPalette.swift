@@ -1,6 +1,6 @@
 //
 //  MarkupPalette.swift
-//  PageFlow
+//  Glossa
 //
 //  The colours offered for highlights and underlines, and how a reader's
 //  changes to them are kept.

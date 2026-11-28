@@ -1,6 +1,6 @@
 //
 //  PDFDocumentRegistry.swift
-//  PageFlow
+//  Glossa
 //
 //  What Glossa remembers about the PDFs it has opened or quoted, keyed by the
 //  document's stable identity (`PDFDocumentFingerprint`) instead of its path:

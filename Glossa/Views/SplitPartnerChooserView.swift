@@ -1,6 +1,6 @@
 //
 //  SplitPartnerChooserView.swift
-//  PageFlow
+//  Glossa
 //
 //  The empty half of a side-by-side window while it waits for its second tab: the
 //  open tabs with a preview, Open File, New Markdown, the recent files, and a drop

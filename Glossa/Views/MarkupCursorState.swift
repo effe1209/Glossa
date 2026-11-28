@@ -1,6 +1,6 @@
 //
 //  MarkupCursorState.swift
-//  PageFlow
+//  Glossa
 //
 //  Whether a markup tool's cursor is in force, so the app's own pointer
 //  styles (the link hand on buttons) stand down instead of fighting it.

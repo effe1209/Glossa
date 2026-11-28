@@ -1,6 +1,6 @@
 //
 //  ColorContrast.swift
-//  PageFlow
+//  Glossa
 //
 //  WCAG contrast between two colours, and the one adjustment that uses it:
 //  an underline that would not show on its page is deepened toward black. A

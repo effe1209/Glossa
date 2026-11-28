@@ -1,6 +1,6 @@
 //
 //  TestEnvironment.swift
-//  PageFlow
+//  Glossa
 //
 //  Detects the app-hosted test environment.
 //

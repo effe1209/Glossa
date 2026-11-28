@@ -1,6 +1,6 @@
 //
 //  DocumentImageProvider.swift
-//  PageFlow
+//  Glossa
 //
 //  Resolves `![alt](path)` images the way Obsidian and GitHub do: relative to
 //  the note's own folder. Absolute paths and `file:` URLs are honoured; remote

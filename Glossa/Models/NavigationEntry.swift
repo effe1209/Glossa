@@ -1,6 +1,6 @@
 //
 //  NavigationEntry.swift
-//  PageFlow
+//  Glossa
 //
 //  Navigation history entry for back/forward functionality
 //

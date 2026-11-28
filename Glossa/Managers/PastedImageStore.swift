@@ -1,6 +1,6 @@
 //
 //  PastedImageStore.swift
-//  PageFlow
+//  Glossa
 //
 //  Images arriving in a note — files dropped on it, files copied in Finder
 //  and pasted, a file picked in Insert → Image, or raw image data from a

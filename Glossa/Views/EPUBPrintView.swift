@@ -1,6 +1,6 @@
 //
 //  EPUBPrintView.swift
-//  PageFlow
+//  Glossa
 //
 //  A book as paper: the whole reading flow laid out for the sheet the print panel
 //  has, by the same styling, paginator and page view the reader uses, in black on

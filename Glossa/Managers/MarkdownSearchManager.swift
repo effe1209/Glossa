@@ -1,6 +1,6 @@
 //
 //  MarkdownSearchManager.swift
-//  PageFlow
+//  Glossa
 //
 //  The Markdown half of the shared Find surface (S7a) — the `FindDriving` peer of
 //  `SearchManager`. Finds query occurrences in the live markdown text and drives

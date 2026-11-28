@@ -1,6 +1,6 @@
 //
 //  TabSession.swift
-//  PageFlow
+//  Glossa
 //
 //  The owned, lifecycle-bearing bundle of one tab's content plus per-tab state.
 //  A tab's content is discriminated by `TabContent`: `.pdf(PDFContent)` holds

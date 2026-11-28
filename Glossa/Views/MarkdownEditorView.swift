@@ -1,8 +1,8 @@
 //
 //  MarkdownEditorView.swift
-//  PageFlow
+//  Glossa
 //
-//  PageFlow's editor surface over the vendored swift-markdown-engine (ADR-0010):
+//  Glossa's editor surface over the vendored swift-markdown-engine (ADR-0010):
 //  the canonical editor configuration — the literal-markdown input policy (fork
 //  patch P5), auto-pairing off, the math, diagram and syntax-highlight bridges —
 //  and the per-editor controller handed to the engine wrapper. Other host files

@@ -1,6 +1,6 @@
 //
 //  FindDriving.swift
-//  PageFlow
+//  Glossa
 //
 //  The content-agnostic Find backend the shared Find bar drives (S7a). PDF and
 //  Markdown find share one ⌘F surface and one `SearchBar`; the bar holds a

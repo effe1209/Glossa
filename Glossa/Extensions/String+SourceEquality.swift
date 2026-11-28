@@ -1,6 +1,6 @@
 //
 //  String+SourceEquality.swift
-//  PageFlow
+//  Glossa
 //
 
 import Foundation

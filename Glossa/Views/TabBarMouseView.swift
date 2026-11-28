@@ -1,6 +1,6 @@
 //
 //  TabBarMouseView.swift
-//  PageFlow
+//  Glossa
 //
 //  AppKit gesture source for the tab bar. Owns no drag state — its only
 //  job is to convert mouse events into calls on `TabDragController`, and

@@ -1,6 +1,6 @@
 //
 //  PDFDocumentScroll.swift
-//  PageFlow
+//  Glossa
 //
 //  Clip-view arithmetic for PDFKit's document view, written for either
 //  orientation. PDFKit on macOS 26 lays the document out bottom-up (its

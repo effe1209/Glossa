@@ -1,6 +1,6 @@
 //
 //  MemoryPressureMonitor.swift
-//  PageFlow
+//  Glossa
 //
 //  When macOS reports memory pressure, hidden tabs and shared caches give back
 //  what can be rebuilt. The tab being read keeps its view, document and place.

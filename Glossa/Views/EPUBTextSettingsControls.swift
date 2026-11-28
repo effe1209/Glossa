@@ -1,6 +1,6 @@
 //
 //  EPUBTextSettingsControls.swift
-//  PageFlow
+//  Glossa
 //
 //  The typography popover's font picker and page settings: margins,
 //  justification, hyphenation and paragraph spacing. Each change re-lays

@@ -1,6 +1,6 @@
 //
 //  AppSupportOffer.swift
-//  PageFlow
+//  Glossa
 //
 //  Whether to offer the copy of PageFlow's Application Support files (unit B), and what to tell the
 //  reader about it. Unit B is independent of the preferences (unit A): its own refusal record in

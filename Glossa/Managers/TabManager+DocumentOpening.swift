@@ -1,6 +1,6 @@
 //
 //  TabManager+DocumentOpening.swift
-//  PageFlow
+//  Glossa
 //
 //  The open/create/replace half of the tab coordinator: new-tab creation, the
 //  content-routed open path (PDF vs Markdown), drag-drop opens, load-result

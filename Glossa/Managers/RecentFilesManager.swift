@@ -1,6 +1,6 @@
 //
 //  RecentFilesManager.swift
-//  PageFlow
+//  Glossa
 //
 //  Manages recently opened PDF files with UserDefaults persistence
 //

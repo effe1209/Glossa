@@ -1,6 +1,6 @@
 //
 //  ExportScope.swift
-//  PageFlow
+//  Glossa
 //
 //  Defines export targets for PDF to Markdown conversion.
 //

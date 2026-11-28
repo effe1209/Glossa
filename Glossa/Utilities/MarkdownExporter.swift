@@ -1,6 +1,6 @@
 //
 //  MarkdownExporter.swift
-//  PageFlow
+//  Glossa
 //
 //  PDFKit adapter for PDF → Markdown conversion.
 //

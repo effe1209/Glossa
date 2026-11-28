@@ -1,6 +1,6 @@
 //
 //  PanelTransition.swift
-//  PageFlow
+//  Glossa
 //
 //  How the floating panels come and go: sidebars, comments, Find and the
 //  toast slide in from their edge as they fade, or only fade with Reduce Motion.

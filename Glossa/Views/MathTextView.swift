@@ -1,6 +1,6 @@
 //
 //  MathTextView.swift
-//  PageFlow
+//  Glossa
 //
 //  Renders comment text with mixed plain text and LaTeX math expressions
 //

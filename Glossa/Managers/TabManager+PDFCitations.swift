@@ -1,6 +1,6 @@
 //
 //  TabManager+PDFCitations.swift
-//  PageFlow
+//  Glossa
 //
 //  The two directions of a PDF ⇄ note link. Quoting: a passage selected in a PDF
 //  becomes a quote in the active note, with its page and a link back. Following:

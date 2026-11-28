@@ -1,6 +1,6 @@
 //
 //  EPUBLandmarkRows.swift
-//  PageFlow
+//  Glossa
 //
 //  The book's landmarks (cover, contents, start of the text…) under the
 //  Contents list: a short way to its structural places.

@@ -1,6 +1,6 @@
 //
 //  BookmarkModel.swift
-//  PageFlow
+//  Glossa
 //
 //  Model representing a user bookmark on a specific page.
 //

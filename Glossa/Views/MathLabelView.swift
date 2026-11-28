@@ -1,6 +1,6 @@
 //
 //  MathLabelView.swift
-//  PageFlow
+//  Glossa
 //
 //  SwiftUI wrapper for MTMathUILabel to render LaTeX math expressions
 //

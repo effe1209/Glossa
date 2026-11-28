@@ -1,6 +1,6 @@
 //
 //  WindowDragArea.swift
-//  PageFlow
+//  Glossa
 //
 //  NSView that gives an area native titlebar behavior: drag to move the
 //  window, double-click to perform the user's configured titlebar action.

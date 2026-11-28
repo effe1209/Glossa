@@ -1,6 +1,6 @@
 //
 //  PDFCitingNotes.swift
-//  PageFlow
+//  Glossa
 //
 //  The reverse of a citation: the notes that quote a given PDF. There is no
 //  index. A note is looked at where it can be found cheaply: the notes open in

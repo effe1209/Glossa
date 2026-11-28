@@ -1,6 +1,6 @@
 //
 //  MigrationSession.swift
-//  PageFlow
+//  Glossa
 //
 //  What the offer window is doing, apart from how it looks: the phase it is in and what each button
 //  does. It holds no UI, so the flow can be tested. The window only shows `phase` and calls these.

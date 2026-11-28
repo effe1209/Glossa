@@ -1,6 +1,6 @@
 //
 //  ThumbnailReorderState.swift
-//  PageFlow
+//  Glossa
 //
 //  Pure visual reorder mapping for thumbnail drag-and-drop.
 //

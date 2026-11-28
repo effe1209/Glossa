@@ -1,6 +1,6 @@
 //
 //  PasswordDialogView.swift
-//  PageFlow
+//  Glossa
 //
 //  SwiftUI password dialog for protected PDFs
 //

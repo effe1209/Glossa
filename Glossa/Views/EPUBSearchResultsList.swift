@@ -1,6 +1,6 @@
 //
 //  EPUBSearchResultsList.swift
-//  PageFlow
+//  Glossa
 //
 //  The EPUB sidebar's Search mode: every Find match with the words around
 //  it, grouped by chapter, with its page. Clicking one jumps there (Back

@@ -1,6 +1,6 @@
 //
 //  EPUBNarration.swift
-//  PageFlow
+//  Glossa
 //
 //  A book's own recording, for Read Aloud (EPUB 3 media overlays): its clips
 //  in chapter offsets, and the player that sounds them from a temporary copy

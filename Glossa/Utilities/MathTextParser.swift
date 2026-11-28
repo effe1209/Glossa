@@ -1,6 +1,6 @@
 //
 //  MathTextParser.swift
-//  PageFlow
+//  Glossa
 //
 //  Parses comment text to extract LaTeX math expressions ($...$ and $$...$$)
 //

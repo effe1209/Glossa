@@ -1,6 +1,6 @@
 //
 //  TabDragController.swift
-//  PageFlow
+//  Glossa
 //
 //  Single source of truth for tab drag-and-drop. Owns the floating preview,
 //  the cross-window drop-target registry, the cursor lifecycle, tear-off

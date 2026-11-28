@@ -1,6 +1,6 @@
 //
 //  PDFViewWrapper.swift
-//  PageFlow
+//  Glossa
 //
 //  SwiftUI wrapper for PDFKit's PDFView using StablePDFView for resize stability.
 //

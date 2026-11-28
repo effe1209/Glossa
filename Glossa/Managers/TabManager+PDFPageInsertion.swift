@@ -1,6 +1,6 @@
 //
 //  TabManager+PDFPageInsertion.swift
-//  PageFlow
+//  Glossa
 //
 //  Edit ▸ Insert Blank Page / Insert Pages from File… for the active PDF,
 //  and the file panel and failure toasts the thumbnail menu shares.

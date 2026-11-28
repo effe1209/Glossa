@@ -1,6 +1,6 @@
 //
 //  PageIndexMath.swift
-//  PageFlow
+//  Glossa
 //
 //  Pure arithmetic for where the current page lands after a structural edit.
 //

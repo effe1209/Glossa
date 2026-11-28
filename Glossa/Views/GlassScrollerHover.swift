@@ -1,6 +1,6 @@
 //
 //  GlassScrollerHover.swift
-//  PageFlow
+//  Glossa
 //
 //  Applies the PDF tabs' scroller treatment to any NSScrollView: the Liquid
 //  Glass knob (`GlassScroller`), overlay style, and hidden-until-hover reveal

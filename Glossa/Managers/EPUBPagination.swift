@@ -1,6 +1,6 @@
 //
 //  EPUBPagination.swift
-//  PageFlow
+//  Glossa
 //
 //  Whole-book page numbers for EPUB: each chapter split into fixed-size
 //  pages, filled in chapter by chapter, with a single global page index, and

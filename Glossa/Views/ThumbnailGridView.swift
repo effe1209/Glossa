@@ -1,6 +1,6 @@
 //
 //  ThumbnailGridView.swift
-//  PageFlow
+//  Glossa
 //
 //  Optimized drag-and-drop: visual reordering during drag, commit only on drop.
 //  Includes edge-hover autoscroll with distance-based speed ramping, dwell time, and hysteresis.

@@ -1,6 +1,6 @@
 //
 //  EPUBPaginator.swift
-//  PageFlow
+//  Glossa
 //
 //  Page splitting for the EPUB reader's paged mode.
 //

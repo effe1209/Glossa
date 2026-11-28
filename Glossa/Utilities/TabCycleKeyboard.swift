@@ -1,6 +1,6 @@
 //
 //  TabCycleKeyboard.swift
-//  PageFlow
+//  Glossa
 //
 //  The keys behind Ctrl-Tab. A local event monitor, because two things can't
 //  come from a menu item: the release of Control, which ends a cycle, and going

@@ -1,6 +1,6 @@
 //
 //  EPUBTextStyling.swift
-//  PageFlow
+//  Glossa
 //
 //  Typography application for the EPUB reader's rendered chapters.
 //

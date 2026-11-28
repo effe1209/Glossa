@@ -1,6 +1,6 @@
 //
 //  TabManager.swift
-//  PageFlow
+//  Glossa
 //
 //  Per-window tab coordinator. Owns the tabs and one TabSession per tab; holds
 //  window-singleton state (password sheet queue, edit-mode key monitor, open

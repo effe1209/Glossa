@@ -1,6 +1,6 @@
 //
 //  SessionRestoreStore.swift
-//  PageFlow
+//  Glossa
 //
 //  Cross-launch session restore (S8 P1): the ordered set of each window's
 //  file-backed tabs, so a relaunch reopens the same documents (PDF and Markdown

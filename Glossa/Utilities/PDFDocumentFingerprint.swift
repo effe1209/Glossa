@@ -1,6 +1,6 @@
 //
 //  PDFDocumentFingerprint.swift
-//  PageFlow
+//  Glossa
 //
 //  The stable identity of a PDF, for citations that must find it again after
 //  it is moved or renamed. It is not the path, and not a hash of the bytes:

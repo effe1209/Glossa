@@ -1,6 +1,6 @@
 //
 //  MarkupCursorOverride.swift
-//  PageFlow
+//  Glossa
 //
 //  Keeps a markup tool's cursor on while the pointer is over the app's window.
 //  Controls and PDFKit set their own cursors as the pointer moves; racing

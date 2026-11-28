@@ -1,6 +1,6 @@
 //
 //  MarkdownSplitView.swift
-//  PageFlow
+//  Glossa
 //
 //  A Markdown tab's split view: the raw source on the left, an uneditable
 //  preview on the right, drawn as a white page like a PDF. Double-clicking

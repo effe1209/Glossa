@@ -1,6 +1,6 @@
 //
 //  EPUBPageView+Selection.swift
-//  PageFlow
+//  Glossa
 //
 //  Selecting a book's text with the mouse and keyboard, across every page on
 //  screen: a drag runs from one page into the next (scrolling the stack when

@@ -1,6 +1,6 @@
 //
 //  ApplicationSupportPaths.swift
-//  PageFlow
+//  Glossa
 //
 //  Every folder the app keeps under Application Support, in one place.
 //

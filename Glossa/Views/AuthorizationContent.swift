@@ -1,6 +1,6 @@
 //
 //  AuthorizationContent.swift
-//  PageFlow
+//  Glossa
 //
 //  What the "Allow Files and Folders" window shows, as a view that depends on nothing but the list it
 //  is given, so that its layout can be measured on its own. `AuthorizationView` feeds it from the model.

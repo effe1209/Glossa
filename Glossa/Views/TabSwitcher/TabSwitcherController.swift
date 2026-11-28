@@ -1,6 +1,6 @@
 //
 //  TabSwitcherController.swift
-//  PageFlow
+//  Glossa
 //
 //  Owns the single Tab Switcher dropdown — Chrome's "Search Tabs": one
 //  searchable, keyboard-navigable list of every tab in every window, plus

@@ -1,6 +1,6 @@
 //
 //  TabItemView.swift
-//  PageFlow
+//  Glossa
 //
 //  Individual tab component with glassmorphism styling
 //

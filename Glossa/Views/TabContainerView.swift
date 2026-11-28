@@ -1,6 +1,6 @@
 //
 //  TabContainerView.swift
-//  PageFlow
+//  Glossa
 //
 //  Root container view for tab management. Each window owns its own TabManager.
 //

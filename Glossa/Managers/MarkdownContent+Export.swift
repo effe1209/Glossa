@@ -1,6 +1,6 @@
 //
 //  MarkdownContent+Export.swift
-//  PageFlow
+//  Glossa
 //
 //  Exporting the note as PDF, HTML or a Word document: one path for File ▸ Export As
 //  and the Markdown toolbar's Export button.

@@ -1,6 +1,6 @@
 //
 //  TabSwitcherView.swift
-//  PageFlow
+//  Glossa
 //
 //  The Tab Switcher dropdown content: a search field over a sectioned list of
 //  every open tab (grouped per window, frontmost first) plus recently closed

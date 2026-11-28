@@ -1,6 +1,6 @@
 //
 //  EPUBReaderChrome.swift
-//  PageFlow
+//  Glossa
 //
 //  What both EPUB reading surfaces (the continuous stack and the spread)
 //  share around their pages: the reading keys, page-turn actions for

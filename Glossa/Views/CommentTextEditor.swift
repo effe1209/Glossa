@@ -1,6 +1,6 @@
 //
 //  CommentTextEditor.swift
-//  PageFlow
+//  Glossa
 //
 //  AppKit text editor adapter used by editable comment bubbles.
 //

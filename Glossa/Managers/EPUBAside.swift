@@ -1,6 +1,6 @@
 //
 //  EPUBAside.swift
-//  PageFlow
+//  Glossa
 //
 //  Supplements: spine items marked linear="no" (answers, charts, extra
 //  notes) stay out of the reading flow and its page count. A link, a

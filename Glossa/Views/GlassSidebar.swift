@@ -1,6 +1,6 @@
 //
 //  GlassSidebar.swift
-//  PageFlow
+//  Glossa
 //
 //  The ONE Liquid Glass sidebar kit shared by every content type's document
 //  sidebar in the leading-overlay slot (PDF `SidebarView`, Markdown

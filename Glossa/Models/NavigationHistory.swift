@@ -1,6 +1,6 @@
 //
 //  NavigationHistory.swift
-//  PageFlow
+//  Glossa
 //
 //  Back/forward page history for one document — a pure value type.
 //

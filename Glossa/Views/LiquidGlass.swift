@@ -1,8 +1,8 @@
 //
 //  LiquidGlass.swift
-//  PageFlow
+//  Glossa
 //
-//  Shared Liquid Glass styling for PageFlow controls and navigation chrome.
+//  Shared Liquid Glass styling for Glossa controls and navigation chrome.
 //
 
 import AppKit

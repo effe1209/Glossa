@@ -1,6 +1,6 @@
 //
 //  EPUBAnnotationStore.swift
-//  PageFlow
+//  Glossa
 //
 //  What the reader placed in a book — highlights, notes and bookmarks —
 //  kept apart from `DocumentStateStore`, which remembers where and how a

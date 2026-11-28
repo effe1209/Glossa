@@ -1,6 +1,6 @@
 //
 //  TabManager+TabCommands.swift
-//  PageFlow
+//  Glossa
 //
 //  The Tab menu's commands over this window's tabs: reopening a closed tab,
 //  moving tabs between windows through the path a tab drag takes, and going

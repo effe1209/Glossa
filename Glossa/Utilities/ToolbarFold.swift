@@ -1,6 +1,6 @@
 //
 //  ToolbarFold.swift
-//  PageFlow
+//  Glossa
 //
 //  The pure decision of whether the floating toolbar holds its full width in
 //  the top row, sits folded into its glass sphere, or springs open over the

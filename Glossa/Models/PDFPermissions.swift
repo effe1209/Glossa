@@ -1,6 +1,6 @@
 //
 //  PDFPermissions.swift
-//  PageFlow
+//  Glossa
 //
 
 import PDFKit

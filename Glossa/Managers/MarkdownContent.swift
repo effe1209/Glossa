@@ -1,6 +1,6 @@
 //
 //  MarkdownContent.swift
-//  PageFlow
+//  Glossa
 //
 //  The Markdown backend of a tab (ADR-0006 `TabContent.markdown`; ADR-0012 D3) —
 //  the peer of `PDFContent`. Owns the durable text document, a per-editor undo

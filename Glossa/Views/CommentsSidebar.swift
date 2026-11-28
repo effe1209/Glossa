@@ -1,6 +1,6 @@
 //
 //  CommentsSidebar.swift
-//  PageFlow
+//  Glossa
 //
 //  Right sidebar displaying PDF comment cards.
 //

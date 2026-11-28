@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  PageFlow
+//  Glossa
 //
 //  Handles app-level termination prompts for unsaved documents.
 //

@@ -1,6 +1,6 @@
 //
 //  QuadPoints.swift
-//  PageFlow
+//  Glossa
 //
 //  Shared utility for building PDF quadrilateral points from rectangles.
 //

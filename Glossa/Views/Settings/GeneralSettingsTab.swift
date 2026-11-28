@@ -1,6 +1,6 @@
 //
 //  GeneralSettingsTab.swift
-//  PageFlow
+//  Glossa
 //
 //  Settings pane for what every document shares: the window, the toolbar and the rail.
 //

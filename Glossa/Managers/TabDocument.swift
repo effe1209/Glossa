@@ -1,6 +1,6 @@
 //
 //  TabDocument.swift
-//  PageFlow
+//  Glossa
 //
 //  The behavioral contract every tab-content backend implements (`PDFContent`,
 //  `MarkdownContent`) so the session and the quit/close lifecycle route through

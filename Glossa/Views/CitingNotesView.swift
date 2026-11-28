@@ -1,6 +1,6 @@
 //
 //  CitingNotesView.swift
-//  PageFlow
+//  Glossa
 //
 //  The "Notes" section of a PDF's right-hand panel: the Markdown notes that
 //  quote the open document, with the pages they cite. A click opens the note.

@@ -1,6 +1,6 @@
 //
 //  PDFCitation.swift
-//  PageFlow
+//  Glossa
 //
 //  A passage quoted from a PDF into a note, and the link that takes the reader
 //  back to it. The link is an ordinary relative Markdown link to the PDF, so

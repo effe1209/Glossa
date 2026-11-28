@@ -1,6 +1,6 @@
 //
 //  ShortcutMenuRefresh.swift
-//  PageFlow
+//  Glossa
 //
 //  SwiftUI gives a menu item a changed key equivalent only when its menu
 //  updates, which happens as the menu opens; until then the old key stays

@@ -1,6 +1,6 @@
 //
 //  FileDropTarget.swift
-//  PageFlow
+//  Glossa
 //
 //  The ONE file-drop surface for a tab, shared by PDF (`PDFTabView`) and
 //  Markdown (`MarkdownTabView`): drop .pdf/.md files anywhere on the document

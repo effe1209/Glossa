@@ -1,6 +1,6 @@
 //
 //  MarkdownWikiLink.swift
-//  PageFlow
+//  Glossa
 //
 //  `[[Note]]` links the way Obsidian reads them: a target path, an optional
 //  `#heading`, an optional `^block` (ignored), and an alias after `|` that the
