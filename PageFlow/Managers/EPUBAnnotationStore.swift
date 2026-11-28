@@ -37,7 +37,7 @@ final class EPUBAnnotationStore {
 
         init(identifier: String?, url: URL) {
             self.identifier = identifier
-            path = url.pageFlowCanonicalDocumentURL.path
+            path = url.glossaCanonicalDocumentURL.path
         }
 
         fileprivate var fileName: String { Self.fileName(identifier.map { "id:\($0)" } ?? "path:\(path)") }

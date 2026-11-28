@@ -6,7 +6,7 @@ final class PDFFileAccess: @unchecked Sendable {
     let url: URL
     let isSecurityScoped: Bool
     /// Minted once per held access (an XPC round trip read on every tab change).
-    private(set) lazy var bookmark: Data? = url.pageFlowSecurityScopedBookmark
+    private(set) lazy var bookmark: Data? = url.glossaSecurityScopedBookmark
 
     init(url: URL, requestSecurityScope: Bool = false) {
         self.url = url

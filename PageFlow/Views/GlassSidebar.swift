@@ -30,7 +30,7 @@ struct GlassSidebarShell<Header: View, Content: View>: View {
             content
         }
         .frame(width: DesignTokens.sidebarWidth)
-        .pageFlowLiquidGlassPanel(.sidebar)
+        .glossaLiquidGlassPanel(.sidebar)
     }
 }
 
@@ -92,7 +92,7 @@ struct GlassSidebarCloseButton: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .help(label)
         .accessibilityLabel(label)
     }

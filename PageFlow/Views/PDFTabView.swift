@@ -141,7 +141,7 @@ struct PDFTabView: View {
                 onBarWidthChange: { findBarWidth = $0 }
             )
         }
-        .pageFlowFileDropTarget(tabManager: tabManager)
+        .glossaFileDropTarget(tabManager: tabManager)
         .sheet(isPresented: showingGoToPageBinding) {
             goToPageDialog
         }
@@ -187,7 +187,7 @@ struct PDFTabView: View {
                 .padding(.top, topChromeHeight + DesignTokens.spacingXS)
                 .padding(.bottom, DesignTokens.spacingMD)
                 .padding(.trailing, DesignTokens.spacingXS)
-                .pageFlowPanelTransition(edge: .trailing)
+                .glossaPanelTransition(edge: .trailing)
             }
         }
         .animation(.easeInOut(duration: DesignTokens.animationFast), value: showingComments)
@@ -285,7 +285,7 @@ struct PDFTabView: View {
                 .padding(.bottom, DesignTokens.spacingMD)
                 // Beside the rail's lane, which stays where it is.
                 .padding(.leading, railIsAvailable ? NavigationRailView.laneWidth + DesignTokens.spacingXS : DesignTokens.spacingXS)
-                .pageFlowPanelTransition(edge: .leading)
+                .glossaPanelTransition(edge: .leading)
             }
         }
         .animation(.easeInOut(duration: DesignTokens.animationFast), value: showingOutline || isPeekingSidebar)
@@ -319,19 +319,19 @@ struct PDFTabView: View {
                     tabManager.openFilePicker()
                 }
                 .buttonStyle(.plain)
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .padding(.horizontal, DesignTokens.spacingMD)
                 .padding(.vertical, DesignTokens.spacingSM)
-                .pageFlowLiquidGlassPanel(.primaryButton)
+                .glossaLiquidGlassPanel(.primaryButton)
 
                 Button("New Markdown") {
                     tabManager.newMarkdownDocument()
                 }
                 .buttonStyle(.plain)
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .padding(.horizontal, DesignTokens.spacingMD)
                 .padding(.vertical, DesignTokens.spacingSM)
-                .pageFlowLiquidGlassPanel(.primaryButton)
+                .glossaLiquidGlassPanel(.primaryButton)
             }
 
             Text("or drag and drop a PDF, EPUB or Markdown file here")

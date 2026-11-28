@@ -470,7 +470,7 @@ final class TabManager {
         // from the open gate / content router. `UTType(filenameExtension:)` can be
         // nil on a system without the type registered, so absent types are dropped.
         panel.allowedContentTypes = [.pdf, UTType(filenameExtension: "epub")].compactMap { $0 }
-            + URL.pageFlowMarkdownExtensions.compactMap {
+            + URL.glossaMarkdownExtensions.compactMap {
             UTType(filenameExtension: $0)
         }
         panel.allowsMultipleSelection = false
@@ -575,7 +575,7 @@ final class TabManager {
         let held = heldRestoreTabs.filter { tabID(for: URL(fileURLWithPath: $0.path)) == nil }
         let heldPaths = Set(held.map(\.path))
         let downloading = downloadingURLs.sorted { $0.path < $1.path }.compactMap { url -> RestoreTab? in
-            let path = url.pageFlowCanonicalDocumentURL.path
+            let path = url.glossaCanonicalDocumentURL.path
             return heldPaths.contains(path) || tabID(for: url) != nil
                 ? nil : RestoreTab(path: path, bookmark: mintedRestoreBookmark(for: url, path: path))
         }
@@ -590,7 +590,7 @@ final class TabManager {
     /// → else `nil` (non-sandboxed build), where the canonical path is the fallback.
     private func restoreTab(for tab: TabModel) -> RestoreTab? {
         guard let url = tab.documentURL ?? sessions[tab.id]?.pendingMarkdownOpen?.url else { return nil }
-        let path = url.pageFlowCanonicalDocumentURL.path
+        let path = url.glossaCanonicalDocumentURL.path
         let bookmark = sessions[tab.id]?.restoreBookmark
             ?? sessions[tab.id]?.pendingMarkdownOpen?.access.securityScopedBookmark
             ?? mintedRestoreBookmark(for: url, path: path)
@@ -601,7 +601,7 @@ final class TabManager {
     /// so each file's fallback bookmark is minted once per window.
     private func mintedRestoreBookmark(for url: URL, path: String) -> Data? {
         if let minted = mintedRestoreBookmarks[path] { return minted }
-        let bookmark = url.pageFlowSecurityScopedBookmark
+        let bookmark = url.glossaSecurityScopedBookmark
         mintedRestoreBookmarks[path] = bookmark
         return bookmark
     }
@@ -621,15 +621,15 @@ final class TabManager {
 
     /// Returns the tab ID if this TabManager has a tab with the given URL open.
     func tabID(for url: URL) -> UUID? {
-        let canonicalURL = url.pageFlowCanonicalDocumentURL
+        let canonicalURL = url.glossaCanonicalDocumentURL
 
         if let tabID = tabAwaitingPassword(for: canonicalURL) {
             return tabID
         }
 
         return tabs.first {
-            $0.documentURL?.pageFlowCanonicalDocumentURL == canonicalURL ||
-                sessions[$0.id]?.pendingMarkdownOpen?.url.pageFlowCanonicalDocumentURL == canonicalURL
+            $0.documentURL?.glossaCanonicalDocumentURL == canonicalURL ||
+                sessions[$0.id]?.pendingMarkdownOpen?.url.glossaCanonicalDocumentURL == canonicalURL
         }?.id
     }
 
@@ -910,7 +910,7 @@ final class TabManager {
     @ObservationIgnored var largeNoteOpenPrompt: (_ title: String, _ byteCount: Int) -> Bool
         = presentMarkdownLargeNotePrompt
     /// Whether a file's bytes live only with its cloud provider; a test seam too.
-    @ObservationIgnored var isCloudOnly: (URL) -> Bool = \.pageFlowIsDataless
+    @ObservationIgnored var isCloudOnly: (URL) -> Bool = \.glossaIsDataless
     /// Cloud-only files downloading before they open, so a repeated open waits.
     @ObservationIgnored var downloadingURLs: Set<URL> = []
     @ObservationIgnored var downloadingTasks: [URL: Task<Void, Never>] = [:]

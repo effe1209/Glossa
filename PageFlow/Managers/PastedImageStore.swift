@@ -455,7 +455,7 @@ final class PastedImageStore: @unchecked Sendable {
     }
 
     nonisolated private func remember(_ url: URL) {
-        guard let bookmark = url.pageFlowSecurityScopedBookmark else { return }
+        guard let bookmark = url.glossaSecurityScopedBookmark else { return }
         let path = url.standardizedFileURL.path
         lock.lock(); defer { lock.unlock() }
         bookmarks.removeAll { $0.path == path }

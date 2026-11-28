@@ -58,7 +58,7 @@ nonisolated enum PDFCitingNotes {
         for note in openNotes { if let url = note.url { consider(url, scoped: false, text: note.text) } }
         for file in registry.notes(citing: id) { consider(file.url, scoped: file.isSecurityScoped, text: readFile(file)) }
         if let pdfFolder, let names = try? FileManager.default.contentsOfDirectory(atPath: pdfFolder.path) {
-            let notes = names.filter { name in URL.pageFlowMarkdownExtensions.contains((name as NSString).pathExtension.lowercased()) }
+            let notes = names.filter { name in URL.glossaMarkdownExtensions.contains((name as NSString).pathExtension.lowercased()) }
             for name in notes.sorted().prefix(maxFilesInFolder) {
                 let url = pdfFolder.appendingPathComponent(name)
                 consider(url, scoped: false, text: readFile(PDFLocatedFile(url: url, isSecurityScoped: false)))

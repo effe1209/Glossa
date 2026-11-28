@@ -118,7 +118,7 @@ final class DocumentStateStore {
     // MARK: - Identity
 
     private static func key(for url: URL) -> String? {
-        let path = url.pageFlowCanonicalDocumentURL.path
+        let path = url.glossaCanonicalDocumentURL.path
         return path.isEmpty ? nil : path
     }
 

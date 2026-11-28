@@ -216,7 +216,7 @@ extension MarkdownRuntime: ContentCommands {
     func zoomToFit() { content.zoomToFit() }
 
     func followLinkFragment(_ fragment: String, at url: URL) async -> Bool {
-        guard content.documentManager.documentURL?.pageFlowCanonicalDocumentURL == url.pageFlowCanonicalDocumentURL else { return false }
+        guard content.documentManager.documentURL?.glossaCanonicalDocumentURL == url.glossaCanonicalDocumentURL else { return false }
         if let thread = MarkdownEditorController.commentThreadID(inFragment: fragment) {
             content.openCommentThread(thread)
         } else {

@@ -327,7 +327,7 @@ enum WindowCloseQA {
                 "sentinelRegistered": WindowRegistry.shared.window(for: sentinelManager) === sentinel,
                 "sentinelClean": sentinelManager.dirtyDocuments().isEmpty,
                 "separateSentinel": sentinel !== window,
-                "expectedRoute": (window.identifier == PageFlowWindowIdentifiers.userCreated) == (route == "app-created-hosted-window"),
+                "expectedRoute": (window.identifier == GlossaWindowIdentifiers.userCreated) == (route == "app-created-hosted-window"),
                 "diskUnchangedBeforeClose": try Data(contentsOf: url) == diskBefore,
             ]
             // Complete native activation and hover reveal before the pending edit.
@@ -498,7 +498,7 @@ enum WindowCloseQA {
         for _ in 0..<500 {
             if AppDelegate.shared?.windowContentBuilder != nil,
                let initial = WindowRegistry.shared.allOpenTabs().first(where: {
-                   $0.window.identifier != PageFlowWindowIdentifiers.userCreated && $0.window.isVisible
+                   $0.window.identifier != GlossaWindowIdentifiers.userCreated && $0.window.isVisible
                }) { return initial }
             await sleep()
         }

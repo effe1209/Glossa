@@ -43,7 +43,7 @@ struct EPUBAsideView: View {
                 Label("Back", systemImage: "chevron.left")
             }
             .keyboardShortcut(.cancelAction)
-            .pageFlowClickCursor()
+            .glossaClickCursor()
             .help("Back to the page you were reading")
             Text(aside.title)
                 .font(.headline)

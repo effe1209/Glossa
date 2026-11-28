@@ -129,7 +129,7 @@ extension TabManager {
 
 extension Notification.Name {
     /// Posted for a registered window: `NSWindow` has no notification of its own for this.
-    static let pageFlowWindowDidFailToEnterFullScreen = Notification.Name("GlossaWindowDidFailToEnterFullScreen")
+    static let glossaWindowDidFailToEnterFullScreen = Notification.Name("GlossaWindowDidFailToEnterFullScreen")
 }
 
 /// Preserves the delegate installed by SwiftUI (or NSWindowController). AppKit
@@ -194,7 +194,7 @@ final class WindowCloseCoordinator: NSObject, NSWindowDelegate {
 
     /// AppKit tells only the delegate that a window didn't enter full screen.
     func windowDidFailToEnterFullScreen(_ window: NSWindow) {
-        NotificationCenter.default.post(name: .pageFlowWindowDidFailToEnterFullScreen, object: window)
+        NotificationCenter.default.post(name: .glossaWindowDidFailToEnterFullScreen, object: window)
         original?.windowDidFailToEnterFullScreen?(window)
     }
 

@@ -17,7 +17,7 @@ struct SearchBar: View {
         }
         .padding(.horizontal, DesignTokens.spacingSM)
         .padding(.vertical, DesignTokens.spacingXS)
-        .pageFlowLiquidGlassPanel(.glassPanel)
+        .glossaLiquidGlassPanel(.glassPanel)
         .background { copyShortcut }
     }
 
@@ -48,7 +48,7 @@ struct SearchBar: View {
                         .frame(width: 16, height: 20)
                 }
                 .buttonStyle(.plain)
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .accessibilityLabel(replacementDriver.showsReplacement ? "Hide replacement" : "Show replacement")
                 .help("Show or hide replacement controls")
             }
@@ -81,7 +81,7 @@ struct SearchBar: View {
                     .foregroundStyle(.primary)
             }
             .buttonStyle(.plain)
-            .pageFlowClickCursor()
+            .glossaClickCursor()
             .keyboardShortcut(.cancelAction)
             .accessibilityLabel("Close Find")
             .help("Close Find")
@@ -96,7 +96,7 @@ struct SearchBar: View {
                 .foregroundStyle(.primary)
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .disabled(!driver.hasResults)
         .accessibilityLabel(label)
         .help(label)
@@ -116,11 +116,11 @@ struct SearchBar: View {
             .accessibilityLabel("Replacement text")
             .onSubmit { replacement.replaceCurrent() }
             Button("Replace") { replacement.replaceCurrent() }
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .disabled(driver.query.isEmpty)
                 .help("Replace the current match and find the next")
             Button("Replace All") { replacement.replaceAll() }
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .disabled(driver.query.isEmpty)
                 .help("Replace every current match in this document")
         }
@@ -169,7 +169,7 @@ struct FindOverlay: View {
                 .onGeometryChange(for: CGFloat.self, of: \.size.width) { onBarWidthChange($0) }
                 .onDisappear { onBarWidthChange(0) }
                 .padding(.bottom, DesignTokens.spacingXS)
-                .pageFlowPanelTransition(edge: .bottom)
+                .glossaPanelTransition(edge: .bottom)
             }
         }
         // Fill the host and pin the bar to its bottom center, whatever the

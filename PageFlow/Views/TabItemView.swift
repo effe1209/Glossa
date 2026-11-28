@@ -58,7 +58,7 @@ struct TabItemView: View {
         // Strip pills and the Deck's cards share the sidebar's legible glass,
         // so a tab's adaptive label reads the same however the strip is laid out.
         content
-            .pageFlowLiquidGlassSurface(.tab(active: isActive))
+            .glossaLiquidGlassSurface(.tab(active: isActive))
         .shadow(color: .black.opacity(DesignTokens.glassElevationShadowOpacity * 0.5), radius: 2, y: -1)
         // The focused tab carries an accent outline, so it reads on any page
         // colour behind the glass.

@@ -31,7 +31,7 @@ struct EPUBLandmarkRows: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .pageFlowClickCursor()
+            .glossaClickCursor()
             .help(landmark.title)
         }
     }

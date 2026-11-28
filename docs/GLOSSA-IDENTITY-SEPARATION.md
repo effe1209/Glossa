@@ -141,7 +141,7 @@ Entrambi salvano, per ogni documento, un **segnalibro con scope di sicurezza** p
 
 - **Build senza sandbox in entrambe le identità:** i segnalibri si risolvono; si può importare `recentFiles` com'è, ricostruendo i segnalibri con il nuovo scope alla prima apertura.
 - **Build con sandbox:** i segnalibri dell'app vecchia **non** si risolvono nella nuova. Si importa solo l'elenco di percorsi e nomi con un'etichetta «da riautorizzare»: al primo clic l'app chiede il permesso con un pannello già puntato sul file (il flusso di `FolderAccessStore` esiste già) e crea il segnalibro nuovo.
-- **`recentFiles`:** importare, con duplicati uniti per percorso canonico (la logica c'è: `pageFlowCanonicalDocumentURL`), massimo 10 voci, i file che non esistono più scartati.
+- **`recentFiles`:** importare, con duplicati uniti per percorso canonico (la logica c'è: `glossaCanonicalDocumentURL`, già `pageFlowCanonicalDocumentURL` prima della PR 7), massimo 10 voci, i file che non esistono più scartati.
 - **`sessionRestore.v1`:** **non** importare di default. Riaprire all'improvviso le finestre che stavano aperte in un'altra app è una sorpresa. Si può offrire «Riapri le ultime finestre di PageFlow» come azione esplicita, con gli stessi limiti di permessi.
 - **`documentViewStates.v2`** (posizione di lettura per documento) è indicizzato per percorso canonico e non contiene permessi: importare.
 
@@ -192,7 +192,7 @@ Altre salvaguardie:
 
 **Identificatori privati rinominati** (non persistiti, non scambiati con altri processi): label delle code (`io.github.effe1209.Glossa.markdown-recovery`, `…thumbnail-render`, `Glossa.MarkdownWikiLinkPresence`), identificatori di finestra e voce di menu (`GlossaUserCreatedWindow`, `Glossa.contextMenuPrefix`), notifiche interne (`Glossa.shortcutsDidChange`, `GlossaWindowDidFailToEnterFullScreen`), spazio di coordinate (`glossa.proximityField`), chiave di attributo temporanea (`GlossaPhysicalLineEnding`), prefisso dei file audio temporanei EPUB (`Glossa-EPUBAudio-`) e file di prova dei permessi (`.glossa-<uuid>`).
 
-**Rimasto com'è di proposito:** sottosistema dei log `com.pageflow`, marker e chiavi dei formati dei documenti, pasteboard type e UTI `com.pageflow.*` del motore Markdown, schema `pageflow-epub`, cartelle di cache e temporanee del codice vendorizzato, percorsi temporanei delle prove QA (`pageflow-*-qa-…`, letti da script esterni) e la suite `pageflow.tests…` degli host di test. I simboli Swift `PageFlow*`/`pageFlow*` sono della PR 7.
+**Rimasto com'è di proposito:** sottosistema dei log `com.pageflow`, marker e chiavi dei formati dei documenti, pasteboard type e UTI `com.pageflow.*` del motore Markdown, schema `pageflow-epub`, cartelle di cache e temporanee del codice vendorizzato, percorsi temporanei delle prove QA (`pageflow-*-qa-…`, letti da script esterni) e la suite `pageflow.tests…` degli host di test. I simboli Swift sono stati rinominati nella PR 7 (`PageFlowApp` → `GlossaApp`, `pageFlow*` → `glossa*`, `PageFlowGlass*` → `GlossaGlass*`); restano `PageFlowLayout*` (package di test, PR 8), i nomi dei file e le chiavi `fromPageFlow` della migrazione.
 
 ## Piano di realizzazione, per PR piccole e indipendenti
 

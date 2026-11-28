@@ -249,7 +249,7 @@ extension TabManager {
     private func saveBookCopy(_ session: TabSession, content: EPUBContent, to url: URL,
                               isSecurityScoped: Bool) async -> SaveResult {
         let source = content.documentURL
-        let isSameFile = source.pageFlowCanonicalDocumentURL == url.pageFlowCanonicalDocumentURL
+        let isSameFile = source.glossaCanonicalDocumentURL == url.glossaCanonicalDocumentURL
         let access = isSecurityScoped && url.startAccessingSecurityScopedResource()
         let failure: String? = await Task.detached(priority: .userInitiated) {
             do {

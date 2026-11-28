@@ -85,7 +85,7 @@ final class WindowRegistry {
         entries[ObjectIdentifier(tabManager)] = Entry(
             tabManager: tabManager,
             window: window,
-            isUserCreated: window?.identifier == PageFlowWindowIdentifiers.userCreated,
+            isUserCreated: window?.identifier == GlossaWindowIdentifiers.userCreated,
             registeredAt: Date()
         )
         if window?.isMainWindow == true {
@@ -343,7 +343,7 @@ final class WindowRegistry {
     /// Whether `url`'s document is already open in any registered window. A
     /// read-only counterpart to `activateExistingDocument` — it never changes focus.
     func isDocumentOpen(_ url: URL) -> Bool {
-        let canonicalURL = url.pageFlowCanonicalDocumentURL
+        let canonicalURL = url.glossaCanonicalDocumentURL
         if pendingSaveAsOwner(for: canonicalURL) != nil { return true }
         for entry in entries.values where entry.window != nil {
             if entry.tabManager.tabID(for: canonicalURL) != nil { return true }
@@ -365,7 +365,7 @@ final class WindowRegistry {
     /// Activates an existing tab for the given URL if already open. Returns
     /// `true` if handled (caller should not create a new tab/window).
     func activateExistingDocument(for url: URL, bringsToFront: Bool = true, pdfPageIndex: Int? = nil) -> Bool {
-        let canonicalURL = url.pageFlowCanonicalDocumentURL
+        let canonicalURL = url.glossaCanonicalDocumentURL
         if let (owner, session) = pendingSaveAsOwner(for: canonicalURL) {
             owner.selectTab(session.id)
             if let pdfPageIndex, let pdf = session.pdfManager, let sourceURL = pdf.documentURL {
@@ -414,7 +414,7 @@ final class WindowRegistry {
     /// A conflicting destination only changes focus; neither draft is written.
     func claimSaveAs(to url: URL, session: TabSession, document: any TabDocument, owner: TabManager) -> SaveAsClaim? {
         guard self.owner(of: session, document: document, fallback: owner) === owner else { return nil }
-        let canonicalURL = url.pageFlowCanonicalDocumentURL
+        let canonicalURL = url.glossaCanonicalDocumentURL
         if let (existingOwner, existingSession) = pendingSaveAsOwner(for: canonicalURL),
            let pending = pendingSaveAs[canonicalURL] {
             guard existingSession === session else {

@@ -287,12 +287,12 @@ nonisolated struct PaletteStore {
                 return item.name + "|" + rgba
             }.sorted()
         }
-        let pageFlowHighlights = [("Yellow", "#FFFF00"), ("Green", "#00B342"), ("Red", "#D20000"), ("Blue", "#0072C6")]
-        let pageFlowUnderlines = [("Black", "#000000")] + pageFlowHighlights
+        let glossaHighlights = [("Yellow", "#FFFF00"), ("Green", "#00B342"), ("Red", "#D20000"), ("Blue", "#0072C6")]
+        let glossaUnderlines = [("Black", "#000000")] + glossaHighlights
         let pastel = MarkupPalette.highlightDefaults.map { ($0.name, $0.hex) }   // the `pastel-1` lists
         let known: [[(name: String, hex: String)]] = [
-            pageFlowHighlights.map { (name: $0.0, hex: $0.1) },
-            pageFlowUnderlines.map { (name: $0.0, hex: $0.1) },
+            glossaHighlights.map { (name: $0.0, hex: $0.1) },
+            glossaUnderlines.map { (name: $0.0, hex: $0.1) },
             pastel.map { (name: $0.0, hex: $0.1) },
             MarkupPalette.underlineDefaults.map { (name: $0.name, hex: $0.hex) }
         ]

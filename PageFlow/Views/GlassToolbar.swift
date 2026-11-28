@@ -114,7 +114,7 @@ private struct ToolbarFoldEffect: ViewModifier {
         .background {
             Color.clear
                 .frame(height: height)
-                .pageFlowLiquidGlassPanel(GlassStyle.toolbar.with(cornerRadius: cornerRadius))
+                .glossaLiquidGlassPanel(GlassStyle.toolbar.with(cornerRadius: cornerRadius))
         }
         .overlay(alignment: .trailing) {
             if let fold {
@@ -135,7 +135,7 @@ private struct ToolbarFoldEffect: ViewModifier {
                 .foregroundStyle(.primary)
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .opacity(isOpen ? 0 : 1)
         .allowsHitTesting(!isOpen)
         .accessibilityHidden(isOpen)
@@ -226,7 +226,7 @@ struct GlassToolbarButton: View {
                 }
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .disabled(disabled)
         .toolbarTooltip(help, enabled: settingsManager.showTooltips)
         // The symbol's own name ("1 magnifying glass") is no label.
@@ -359,7 +359,7 @@ struct AnnotationColorMenu: View {
             GlassToolbarLabel(icon: "paintpalette", interactive: isAvailable)
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .disabled(!isAvailable)
         .toolbarTooltip("Choose underline and highlight colors", enabled: settingsManager.showTooltips)
         .accessibilityLabel("Annotation Colors")
@@ -403,7 +403,7 @@ struct MarkupColorSwatches: View {
                         .overlay(Circle().strokeBorder(Color.primary, lineWidth: isChosen(preset) ? 1.5 : 0))
                 }
                 .buttonStyle(.plain)
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .help(preset.name)
                 .accessibilityLabel(preset.name)
                 .accessibilityAddTraits(isChosen(preset) ? .isSelected : [])

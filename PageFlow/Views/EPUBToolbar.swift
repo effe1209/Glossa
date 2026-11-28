@@ -153,7 +153,7 @@ struct EPUBToolbar: View {
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
         .fixedSize()
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .disabled(content.book == nil)
         .toolbarTooltip("Page layout", enabled: settingsManager.showTooltips)
         .accessibilityLabel("Page Layout")
@@ -194,7 +194,7 @@ struct EPUBToolbar: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .accessibilityLabel("Smaller Text")
                 .disabled(content.requestedTypography.fontSize <= EPUBTypography.fontSizeRange.lowerBound)
                 Text("\(Int(content.requestedTypography.fontSize))")
@@ -208,7 +208,7 @@ struct EPUBToolbar: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .accessibilityLabel("Larger Text")
                 .disabled(content.requestedTypography.fontSize >= EPUBTypography.fontSizeRange.upperBound)
             }
@@ -275,7 +275,7 @@ struct EPUBToolbar: View {
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .help(label)
         .accessibilityLabel("\(label) Theme")
         .accessibilityAddTraits(content.requestedTypography.theme == theme ? .isSelected : [])

@@ -8,7 +8,7 @@ final class MarkdownFileAccess: @unchecked Sendable {
     let requestedSecurityScope: Bool
     /// Minted once per held access: session saves read it on every tab change,
     /// and minting is an XPC round trip.
-    private(set) lazy var securityScopedBookmark: Data? = isSecurityScoped ? url.pageFlowSecurityScopedBookmark : nil
+    private(set) lazy var securityScopedBookmark: Data? = isSecurityScoped ? url.glossaSecurityScopedBookmark : nil
 
     init(url: URL, requestSecurityScope: Bool) {
         self.url = url

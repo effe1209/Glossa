@@ -172,9 +172,9 @@ enum OpenDocumentQA {
         result.observationMilliseconds = Date().timeIntervalSince(started) * 1000
         result.panelEvents = watcher.events
         result.after = snapshot()
-        let canonical = url.pageFlowCanonicalDocumentURL
+        let canonical = url.glossaCanonicalDocumentURL
         let matches = WindowRegistry.shared.allOpenTabs().flatMap(\.tabs).filter {
-            $0.documentURL?.pageFlowCanonicalDocumentURL == canonical
+            $0.documentURL?.glossaCanonicalDocumentURL == canonical
         }
         let content = owner.activeMarkdownContent
         let editor = window.contentView.flatMap(findEditor)
@@ -229,7 +229,7 @@ enum OpenDocumentQA {
         for _ in 0..<500 {
             if AppDelegate.shared?.windowContentBuilder != nil,
                let group = WindowRegistry.shared.allOpenTabs().first(where: {
-                   $0.window.isVisible && $0.window.identifier != PageFlowWindowIdentifiers.userCreated
+                   $0.window.isVisible && $0.window.identifier != GlossaWindowIdentifiers.userCreated
                }) { return group }
             await sleep(0.01)
         }

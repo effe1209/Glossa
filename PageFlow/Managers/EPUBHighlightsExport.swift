@@ -183,7 +183,7 @@ struct EPUBHighlightsExportMenu: View {
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
         .fixedSize()
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .disabled(!isEnabled)
         .help("Export highlights and notes as Markdown")
         .accessibilityLabel("Export Highlights")

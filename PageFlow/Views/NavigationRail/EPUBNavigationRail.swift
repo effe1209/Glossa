@@ -91,7 +91,7 @@ private struct EPUBPageGridPreview: View {
         }
         // The sidebar's glass, so the preview reads as the rail's own panel.
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.floatingToolbarCornerRadius, style: .continuous))
-        .pageFlowLiquidGlassPanel(.sidebar)
+        .glossaLiquidGlassPanel(.sidebar)
         .transaction { if reduceMotion { $0.disablesAnimations = true } }
     }
 

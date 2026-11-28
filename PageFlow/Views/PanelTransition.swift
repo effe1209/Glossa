@@ -11,7 +11,7 @@ import SwiftUI
 extension View {
     /// The insertion and removal transition for a panel attached to `edge`:
     /// slides and fades, or, when Reduce Motion is on, only fades.
-    func pageFlowPanelTransition(edge: Edge) -> some View {
+    func glossaPanelTransition(edge: Edge) -> some View {
         modifier(PanelTransitionModifier(edge: edge))
     }
 }

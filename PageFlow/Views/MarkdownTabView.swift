@@ -147,7 +147,7 @@ struct MarkdownTabView: View {
                         DispatchQueue.main.async { tabManager.openDroppedFiles(urls) }
                         return true
                     },
-                    opensDroppedFile: { $0.pageFlowIsOpenableDocument },
+                    opensDroppedFile: { $0.glossaIsOpenableDocument },
                     onImportImages: { [weak content, weak tabManager] drop, completion in
                         guard let content else { return completion([]) }
                         PastedImageStore.shared.importImages(
@@ -208,7 +208,7 @@ struct MarkdownTabView: View {
         .onChange(of: content.documentId, initial: true) {
             content.showCommentToasts { [weak tabManager] message in tabManager?.postTransientToast(message) }
         }
-        .pageFlowFileDropTarget(tabManager: tabManager, hintsImagesGoInTheNote: true)
+        .glossaFileDropTarget(tabManager: tabManager, hintsImagesGoInTheNote: true)
         .sheet(isPresented: showingGoToLineBinding) {
             goToLineDialog
         }
@@ -242,7 +242,7 @@ struct MarkdownTabView: View {
                 .padding(.top, TopChromeView.height(toolbarScale: settingsManager.toolbarScale) + DesignTokens.spacingXS)
                 .padding(.bottom, DesignTokens.spacingMD)
                 .padding(.leading, DesignTokens.spacingXS)
-                .pageFlowPanelTransition(edge: .leading)
+                .glossaPanelTransition(edge: .leading)
             }
         }
         .animation(.easeInOut(duration: DesignTokens.animationFast), value: showingOutline)

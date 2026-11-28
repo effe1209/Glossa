@@ -152,13 +152,13 @@ final class WindowPlacementTracker {
         }
         observe([NSWindow.didResizeNotification, NSWindow.didMoveNotification]) { $0.noteFrame() }
         observe([NSWindow.willEnterFullScreenNotification]) { $0.isFullScreen = true }
-        observe([NSWindow.didExitFullScreenNotification, .pageFlowWindowDidFailToEnterFullScreen]) {
+        observe([NSWindow.didExitFullScreenNotification, .glossaWindowDidFailToEnterFullScreen]) {
             $0.isFullScreen = false
             $0.noteFrame()
         }
         observe([NSWindow.didMoveNotification, NSWindow.didEndLiveResizeNotification,
                  NSWindow.didEnterFullScreenNotification, NSWindow.didExitFullScreenNotification,
-                 .pageFlowWindowDidFailToEnterFullScreen, NSWindow.didBecomeMainNotification]) { _ in onChange() }
+                 .glossaWindowDidFailToEnterFullScreen, NSWindow.didBecomeMainNotification]) { _ in onChange() }
     }
 
     deinit {

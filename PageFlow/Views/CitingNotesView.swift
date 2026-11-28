@@ -52,7 +52,7 @@ struct CitingNotesView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .help(note.url.path)
     }
 

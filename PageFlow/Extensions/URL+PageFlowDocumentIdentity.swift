@@ -8,7 +8,7 @@
 import Foundation
 
 extension URL {
-    var pageFlowCanonicalDocumentURL: URL {
+    var glossaCanonicalDocumentURL: URL {
         guard isFileURL else { return self }
         return standardizedFileURL.resolvingSymlinksInPath()
     }
@@ -20,7 +20,7 @@ extension URL {
     /// Returns `nil` for a non-file URL or when the sandbox won't vend a scoped
     /// bookmark (non-sandboxed build / no access) — the caller then falls back to
     /// the plain path.
-    var pageFlowSecurityScopedBookmark: Data? {
+    var glossaSecurityScopedBookmark: Data? {
         guard isFileURL else { return nil }
         return try? bookmarkData(
             options: .withSecurityScope,
@@ -34,14 +34,14 @@ extension URL {
     /// gate, the open-path content routing (`TabManager.documentKind`), and the open
     /// panel's allowed types — so the set never drifts between entry points. Add a
     /// new Markdown-family extension (or `.html` later) in exactly one place.
-    static let pageFlowMarkdownExtensions = ["md", "markdown"]
+    static let glossaMarkdownExtensions = ["md", "markdown"]
 
     /// Whether this URL names a Markdown document by extension.
-    var pageFlowIsMarkdown: Bool {
-        URL.pageFlowMarkdownExtensions.contains(pathExtension.lowercased())
+    var glossaIsMarkdown: Bool {
+        URL.glossaMarkdownExtensions.contains(pathExtension.lowercased())
     }
 
-    var pageFlowIsEPUB: Bool {
+    var glossaIsEPUB: Bool {
         pathExtension.lowercased() == "epub"
     }
 
@@ -51,7 +51,7 @@ extension URL {
     /// set never drifts between entry points. NOT a substitute for the strict
     /// per-engine load firewalls — `PDFManager.loadDocument` stays PDF-only and a
     /// `.md` is still routed exclusively through `MarkdownDocumentManager`.
-    var pageFlowIsOpenableDocument: Bool {
-        pathExtension.lowercased() == "pdf" || pageFlowIsMarkdown || pageFlowIsEPUB
+    var glossaIsOpenableDocument: Bool {
+        pathExtension.lowercased() == "pdf" || glossaIsMarkdown || glossaIsEPUB
     }
 }

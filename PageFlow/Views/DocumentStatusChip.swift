@@ -92,7 +92,7 @@ struct DocumentStatusChip: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .pageFlowClickCursor()
+            .glossaClickCursor()
             .toolbarTooltip(help, enabled: settingsManager.showTooltips)
             if let notice {
                 Button(action: notice.show) {
@@ -105,12 +105,12 @@ struct DocumentStatusChip: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .accessibilityLabel(notice.message)
                 .toolbarTooltip(notice.message, enabled: settingsManager.showTooltips)
             }
         }
-        .pageFlowLiquidGlassSurface(.pageIndicator)
+        .glossaLiquidGlassSurface(.pageIndicator)
         .shadow(color: .black.opacity(DesignTokens.glassElevationShadowOpacity), radius: 10, y: -3)
         .padding(.bottom, DesignTokens.spacingXS)
         .padding(.trailing, DesignTokens.spacingMD)

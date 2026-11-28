@@ -627,7 +627,7 @@ private struct ThumbnailCellView: View {
                     .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(Color.primary.opacity(0.78))
                     .padding(4)
-                    .pageFlowLiquidGlassSurface(.dragHandle)
+                    .glossaLiquidGlassSurface(.dragHandle)
                 Spacer()
             }
             Spacer()

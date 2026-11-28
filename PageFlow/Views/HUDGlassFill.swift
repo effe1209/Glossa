@@ -12,7 +12,7 @@ import AppKit
 
 struct HUDGlassFill: NSViewRepresentable {
     var cornerRadius: CGFloat = DesignTokens.floatingToolbarCornerRadius
-    var tint: PageFlowGlassTint = .dark
+    var tint: GlossaGlassTint = .dark
     /// Tint opacity applied over the blur (md-preview uses 0.12). The base
     /// color is the same dark gray used by DesignTokens.floatingToolbarBase.
     var tintOpacity: CGFloat = 0.12
@@ -34,8 +34,8 @@ final class HUDGlassFillView: NSView {
     private let visualBackdrop: NSVisualEffectView?
     private let tintOverlay: NSView?
     private var currentCornerRadius: CGFloat?
-    private var currentVariant: PageFlowGlassVariant?
-    private var currentTint: PageFlowGlassTint?
+    private var currentVariant: GlossaGlassVariant?
+    private var currentTint: GlossaGlassTint?
     private var currentTintOpacity: CGFloat?
 
     override init(frame frameRect: NSRect) {
@@ -98,9 +98,9 @@ final class HUDGlassFillView: NSView {
 
     func apply(
         cornerRadius: CGFloat,
-        tint: PageFlowGlassTint,
+        tint: GlossaGlassTint,
         tintOpacity: CGFloat,
-        variant: PageFlowGlassVariant = .regular
+        variant: GlossaGlassVariant = .regular
     ) {
         if currentCornerRadius != cornerRadius {
             layer?.cornerRadius = cornerRadius

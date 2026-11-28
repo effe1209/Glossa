@@ -70,7 +70,7 @@ struct EPUBNoteEditor: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(isOn ? Color.accentColor : Color.secondary)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .help(isOn ? "Show as a highlight" : "Show as an underline")
         .accessibilityLabel("Underline")
         .accessibilityAddTraits(isOn ? .isSelected : [])
