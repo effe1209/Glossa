@@ -1,6 +1,6 @@
 //
 //  URL+PageFlowFileStatus.swift
-//  PageFlow
+//  Glossa
 //
 //  Cheap questions an open asks before reading a file's bytes, and the one
 //  blocking step that brings a cloud-only file's bytes onto the disk.

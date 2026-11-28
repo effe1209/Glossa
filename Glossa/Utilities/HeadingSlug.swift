@@ -1,6 +1,6 @@
 //
 //  HeadingSlug.swift
-//  PageFlow
+//  Glossa
 //
 //  How a link's `#heading` names a heading in any document: a note's, a PDF
 //  outline entry, a book's contents entry.

@@ -1,6 +1,6 @@
 //
 //  LegacyBookmarkInspector.swift
-//  PageFlow
+//  Glossa
 //
 //  Judges one bookmark made under another identity, on its own, without trusting it:
 //  does it resolve, is it current, and can the file really be read with it? It never

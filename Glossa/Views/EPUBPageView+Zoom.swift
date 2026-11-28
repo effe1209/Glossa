@@ -1,6 +1,6 @@
 //
 //  EPUBPageView+Zoom.swift
-//  PageFlow
+//  Glossa
 //
 //  Opening a page's figure or table large: double-click an image, or use
 //  Zoom Image / Zoom Table in the context menu. The table is the chapter's

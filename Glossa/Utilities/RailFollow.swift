@@ -1,6 +1,6 @@
 //
 //  RailFollow.swift
-//  PageFlow
+//  Glossa
 //
 //  Pure "keep the current page visible" decision for the Thumbnails rail.
 //

@@ -1,6 +1,6 @@
 //
 //  WindowRegistry.swift
-//  PageFlow
+//  Glossa
 //
 //  Tracks all (TabManager, NSWindow) pairs across the app for app-level
 //  operations: routing Finder/open events, dirty-document quit prompts,

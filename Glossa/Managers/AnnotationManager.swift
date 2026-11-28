@@ -1,6 +1,6 @@
 //
 //  AnnotationManager.swift
-//  PageFlow
+//  Glossa
 //
 //  Manages creation and editing of markup annotations (highlight/underline).
 //

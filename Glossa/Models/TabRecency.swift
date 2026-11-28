@@ -1,6 +1,6 @@
 //
 //  TabRecency.swift
-//  PageFlow
+//  Glossa
 //
 //  One window's tabs in most-recently-used order, behind Ctrl-Tab. Pure: the
 //  window's TabManager reports what happens, and the keyboard reports when

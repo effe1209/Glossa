@@ -1,6 +1,6 @@
 //
 //  PDFManager.swift
-//  PageFlow
+//  Glossa
 //
 //  Manages PDF document state, navigation, and operations
 //

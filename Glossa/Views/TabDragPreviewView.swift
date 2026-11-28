@@ -1,6 +1,6 @@
 //
 //  TabDragPreviewView.swift
-//  PageFlow
+//  Glossa
 //
 //  Floating preview shown while a tab is dragged across windows.
 //

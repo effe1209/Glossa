@@ -1,6 +1,6 @@
 //
 //  DocumentStateStore.swift
-//  PageFlow
+//  Glossa
 //
 //  App-wide persistence of per-document reading state (last page, scroll, zoom,
 //  Markdown reading position), keyed by canonical file path — the same identity

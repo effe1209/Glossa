@@ -1,6 +1,6 @@
 //
 //  CodeExport.swift
-//  PageFlow
+//  Glossa
 //
 //  Colours a code block for export: the editor's own highlighter, read out as HTML
 //  spans in its light-mode colours, so an exported block looks as the note's does.

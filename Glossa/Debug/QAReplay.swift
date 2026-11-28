@@ -1,6 +1,6 @@
 //
 //  QAReplay.swift
-//  PageFlow
+//  Glossa
 //
 //  DEBUG-only, env-gated scenarios driven inside the REAL app — full
 //  TabManager routing, real settings, real AppKit event delivery — with the

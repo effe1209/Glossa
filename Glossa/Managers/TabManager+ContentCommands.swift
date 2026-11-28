@@ -1,6 +1,6 @@
 //
 //  TabManager+ContentCommands.swift
-//  PageFlow
+//  Glossa
 //
 //  The menu layer's content-aware commands. `activeCommands` is the one switch
 //  over the active tab's content; every gate and action forwards to that

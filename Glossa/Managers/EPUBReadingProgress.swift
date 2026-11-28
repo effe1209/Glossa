@@ -1,6 +1,6 @@
 //
 //  EPUBReadingProgress.swift
-//  PageFlow
+//  Glossa
 //
 //  Progress through the book for the page chip.
 //

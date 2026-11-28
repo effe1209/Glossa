@@ -1,6 +1,6 @@
 //
 //  AppIdentity.swift
-//  PageFlow
+//  Glossa
 //
 //  Who the app is, and who PageFlow was. The old identifier lives here and in the migration
 //  code and nowhere else: it names the one place the old preferences are read from, never a

@@ -1,6 +1,6 @@
 //
 //  TabDeckLayout.swift
-//  PageFlow
+//  Glossa
 //
 //  The pure decision of where each tab sits in the compact tab strip (the
 //  Deck): the focused tab at full width, every other tab tucked under it as a

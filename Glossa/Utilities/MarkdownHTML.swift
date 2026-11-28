@@ -1,6 +1,6 @@
 //
 //  MarkdownHTML.swift
-//  PageFlow
+//  Glossa
 //
 //  A small Markdown-to-HTML converter for exporting: headings, paragraphs,
 //  emphasis, code, links, images, quotes, lists (nested, with task items),

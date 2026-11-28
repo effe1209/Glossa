@@ -1,6 +1,6 @@
 //
 //  TabBarView.swift
-//  PageFlow
+//  Glossa
 //
 //  Pure SwiftUI renderer for one window's tab strip. All drag state lives
 //  in `TabDragController.shared`; this view is a projection of it. Mouse

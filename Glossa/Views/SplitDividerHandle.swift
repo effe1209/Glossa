@@ -1,6 +1,6 @@
 //
 //  SplitDividerHandle.swift
-//  PageFlow
+//  Glossa
 //
 //  The divider between the two panes of a side-by-side window. An AppKit view,
 //  so the left-right resize cursor shows over it whatever the panes beneath

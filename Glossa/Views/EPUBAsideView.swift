@@ -1,6 +1,6 @@
 //
 //  EPUBAsideView.swift
-//  PageFlow
+//  Glossa
 //
 //  The supplement reader: a linear="no" spine item shown in one scrolling
 //  column over the pages, in the reader's typography and theme, with its

@@ -1,6 +1,6 @@
 //
 //  PrintPanel.swift
-//  PageFlow
+//  Glossa
 //
 //  Runs the modal AppKit print panel for a PDF, a note or a book. UI-layer helper
 //  so the document managers stay out of print orchestration.

@@ -1,6 +1,6 @@
 //
 //  EPUBPaginationCache.swift
-//  PageFlow
+//  Glossa
 //
 //  Whole-book page breaks saved per book and text settings, so a reopened
 //  book has its exact page count at once instead of re-paginating in view.

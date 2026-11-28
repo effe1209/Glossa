@@ -1,6 +1,6 @@
 //
 //  LegacyMigrationPlanner.swift
-//  PageFlow
+//  Glossa
 //
 //  Decides, key by key, what of PageFlow's preferences Glossa may take: an explicit
 //  allowlist, each value checked against the type the app reads it as, and each

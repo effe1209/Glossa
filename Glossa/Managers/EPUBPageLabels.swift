@@ -1,6 +1,6 @@
 //
 //  EPUBPageLabels.swift
-//  PageFlow
+//  Glossa
 //
 //  The print edition's page labels ("iv", "123") placed in the book's text,
 //  kept apart from the layout pages, which change with the window and the

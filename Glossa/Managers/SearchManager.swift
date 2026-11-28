@@ -1,6 +1,6 @@
 //
 //  SearchManager.swift
-//  PageFlow
+//  Glossa
 //
 //  Manages PDF search with result navigation and highlighting
 //

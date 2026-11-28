@@ -1,6 +1,6 @@
 //
 //  MarkdownPrompts.swift
-//  PageFlow
+//  Glossa
 //
 //  Modal AppKit prompts for the Markdown lifecycle, kept out of the 1900-line
 //  `TabManager` (peer of `PrintPanel.swift`). Each free `@MainActor` function

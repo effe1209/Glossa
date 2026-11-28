@@ -1,6 +1,6 @@
 //
 //  EPUBNoteEditor.swift
-//  PageFlow
+//  Glossa
 //
 //  The editor a highlight's card opens in the Notes panel: its colour, tint
 //  or underline, and its note in PDF's comment editor (Return commits,

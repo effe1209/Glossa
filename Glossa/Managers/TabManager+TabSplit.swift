@@ -1,6 +1,6 @@
 //
 //  TabManager+TabSplit.swift
-//  PageFlow
+//  Glossa
 //
 //  Two tabs side by side in one window, typically a PDF and the note that
 //  quotes it. The active tab is one of the two; clicking the other pane makes

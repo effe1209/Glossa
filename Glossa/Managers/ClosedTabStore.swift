@@ -1,6 +1,6 @@
 //
 //  ClosedTabStore.swift
-//  PageFlow
+//  Glossa
 //
 //  An app-wide, in-memory ring buffer of recently closed document tabs, so the
 //  Tab Switcher can offer a "Recently Closed" section (Chrome parity). Only tabs

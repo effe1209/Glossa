@@ -1,6 +1,6 @@
 //
 //  ColorWellView.swift
-//  PageFlow
+//  Glossa
 //
 //  NSColorWell wrapper for SwiftUI that opens NSColorPanel with hex input
 //

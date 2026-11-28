@@ -1,6 +1,6 @@
 //
 //  MarkdownTabView.swift
-//  PageFlow
+//  Glossa
 //
 //  The view a Markdown tab mounts — the peer of `PDFTabView` for `.pdf` content.
 //  A Live Preview editor plus the Markdown side of the shared chrome (S7): the

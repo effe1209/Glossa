@@ -1,6 +1,6 @@
 //
 //  TabModel.swift
-//  PageFlow
+//  Glossa
 //
 //  Tab data model for multi-document support
 //

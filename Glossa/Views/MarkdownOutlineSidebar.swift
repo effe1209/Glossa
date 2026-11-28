@@ -1,6 +1,6 @@
 //
 //  MarkdownOutlineSidebar.swift
-//  PageFlow
+//  Glossa
 //
 //  The Markdown side of the document sidebar — the SAME shell as the PDF
 //  `SidebarView` (`GlassSidebarShell`/`GlassSidebarList`, so the chrome cannot

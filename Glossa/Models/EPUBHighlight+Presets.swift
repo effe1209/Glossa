@@ -1,6 +1,6 @@
 //
 //  EPUBHighlight+Presets.swift
-//  PageFlow
+//  Glossa
 //
 //  The colours a mark offers, from Settings. Kept apart from the highlight
 //  model so that the model has no dependency on the settings object.

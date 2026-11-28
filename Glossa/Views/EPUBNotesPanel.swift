@@ -1,6 +1,6 @@
 //
 //  EPUBNotesPanel.swift
-//  PageFlow
+//  Glossa
 //
 //  The book's notes beside the pages, in PDF's comments panel: the note
 //  being written opens here rather than over the text, and the others are

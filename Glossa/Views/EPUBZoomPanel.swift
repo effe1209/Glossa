@@ -1,6 +1,6 @@
 //
 //  EPUBZoomPanel.swift
-//  PageFlow
+//  Glossa
 //
 //  A book's figure or table opened large in a floating panel beside the
 //  reader: pinch, ⌘+ / ⌘− and scroll to zoom and pan, ⌘0 to fit, double-click

@@ -1,6 +1,6 @@
 //
 //  TabSwitcherChevron.swift
-//  PageFlow
+//  Glossa
 //
 //  Chrome's "Search Tabs" chevron, mounted in the top chrome just right of the
 //  traffic lights. Tapping it drops the Tab Switcher below the button.

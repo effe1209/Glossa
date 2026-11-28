@@ -1,6 +1,6 @@
 //
 //  DocumentStatusChip.swift
-//  PageFlow
+//  Glossa
 //
 //  The bottom-trailing chip every document shows (PDF "Page 3 of 12",
 //  Markdown's word count): glass, shown on hover or always per Settings,

@@ -1,6 +1,6 @@
 //
 //  TitlebarDoubleClick.swift
-//  PageFlow
+//  Glossa
 //
 //  The pure decision of what a titlebar double-click performs, from the
 //  user's System Settings choice.

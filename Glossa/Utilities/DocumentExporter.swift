@@ -1,6 +1,6 @@
 //
 //  DocumentExporter.swift
-//  PageFlow
+//  Glossa
 //
 //  Exports a document's Markdown as HTML, a Word document (.docx) or a PDF.
 //  HTML is written as is; a PDF is laid out and printed by WebKit, a Word document by AppKit.

@@ -1,6 +1,6 @@
 //
 //  EPUBZoomTable.swift
-//  PageFlow
+//  Glossa
 //
 //  Finds the table under a point in a chapter's text (the renderer builds
 //  each as an `NSTextTable`) and lays it out at its natural width for the

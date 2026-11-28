@@ -1,6 +1,6 @@
 //
 //  PDFTabView.swift
-//  PageFlow
+//  Glossa
 //
 //  The view a `.pdf` tab mounts — the PDF branch of `TabRender`, peer of
 //  `MarkdownTabView`. Mounted through `TabRenderView`. (Formerly `MainView`.)

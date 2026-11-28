@@ -1,6 +1,6 @@
 //
 //  CommentModel.swift
-//  PageFlow
+//  Glossa
 //
 //  Data model for PDF comments
 //

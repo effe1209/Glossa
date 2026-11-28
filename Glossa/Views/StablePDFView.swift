@@ -1,6 +1,6 @@
 //
 //  StablePDFView.swift
-//  PageFlow
+//  Glossa
 //
 //  PDFView subclass that preserves vertical scroll position during horizontal resize.
 //

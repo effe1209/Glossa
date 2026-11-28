@@ -1,6 +1,6 @@
 //
 //  GoToDialog.swift
-//  PageFlow
+//  Glossa
 //
 //  The ONE jump-dialog for both content types — "Go to Page" (PDF) and
 //  "Go to Line" (Markdown) are the same sheet: headline, a number field,

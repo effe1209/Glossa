@@ -1,6 +1,6 @@
 //
 //  MigrationView.swift
-//  PageFlow
+//  Glossa
 //
 //  The window that offers the import from PageFlow, and the one that asks for access to be
 //  allowed again afterwards. Both only show and ask; the work is in `MigrationSession`

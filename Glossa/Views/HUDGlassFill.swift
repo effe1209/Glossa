@@ -1,6 +1,6 @@
 //
 //  HUDGlassFill.swift
-//  PageFlow
+//  Glossa
 //
 //  AppKit-backed fallback fill for shared Liquid Glass surfaces. On macOS 26
 //  the bridge uses NSGlassEffectView; on older releases it preserves the

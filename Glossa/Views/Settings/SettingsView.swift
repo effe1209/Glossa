@@ -1,6 +1,6 @@
 //
 //  SettingsView.swift
-//  PageFlow
+//  Glossa
 //
 //  The Settings window: a sidebar of panes, with a search across all of them.
 //

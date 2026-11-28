@@ -1,6 +1,6 @@
 //
 //  LegacyMigrationCoordinator.swift
-//  PageFlow
+//  Glossa
 //
 //  Decides whether to offer the import from PageFlow, and carries out the reader's choice.
 //  It is the only code that runs the engine for real (`dryRun: false`), and it does so only

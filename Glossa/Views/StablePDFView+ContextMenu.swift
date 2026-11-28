@@ -1,6 +1,6 @@
 //
 //  StablePDFView+ContextMenu.swift
-//  PageFlow
+//  Glossa
 //
 //  Context menu building for annotations, comments, and page-level actions.
 //

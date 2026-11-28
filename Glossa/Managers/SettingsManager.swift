@@ -1,6 +1,6 @@
 //
 //  SettingsManager.swift
-//  PageFlow
+//  Glossa
 //
 //  Centralized settings state with UserDefaults persistence
 //

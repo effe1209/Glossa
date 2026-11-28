@@ -1,6 +1,6 @@
 //
 //  EPUBChapterCache.swift
-//  PageFlow
+//  Glossa
 //
 //  The styled chapters an EPUB tab draws from: styled off the main thread
 //  (a far page's short chapter on it, when that takes moments), kept within a

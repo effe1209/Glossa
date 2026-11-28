@@ -1,6 +1,6 @@
 //
 //  ContentCommands.swift
-//  PageFlow
+//  Glossa
 //
 //  The command surface the menus and chrome ask of the active tab — zoom,
 //  Back/Forward, Go menu pages, comments, highlights, find, print — with one conformance

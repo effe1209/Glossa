@@ -1,6 +1,6 @@
 //
 //  CombinedMigrationCoordinator.swift
-//  PageFlow
+//  Glossa
 //
 //  One offer for the two independent units:
 //    A  the preferences (`LegacyMigrationCoordinator`: marker and refusal in Glossa's preferences);

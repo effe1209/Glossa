@@ -1,6 +1,6 @@
 //
 //  PDFViewHost.swift
-//  PageFlow
+//  Glossa
 //
 //  Keeps PDFKit out of interactive window resizing.
 //

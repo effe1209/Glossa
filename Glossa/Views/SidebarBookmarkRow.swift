@@ -1,6 +1,6 @@
 //
 //  SidebarBookmarkRow.swift
-//  PageFlow
+//  Glossa
 //
 //  The ONE bookmark row of the glass sidebars (PDF `SidebarView`, EPUB
 //  `EPUBReaderSidebar`): icon, a title that renames in place on click, the

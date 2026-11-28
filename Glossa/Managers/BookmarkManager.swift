@@ -1,6 +1,6 @@
 //
 //  BookmarkManager.swift
-//  PageFlow
+//  Glossa
 //
 //  Manages bookmarks for PDF documents with UserDefaults persistence.
 //

@@ -1,6 +1,6 @@
 //
 //  ShortcutCatalog.swift
-//  PageFlow
+//  Glossa
 //
 //  The single source of truth for every keyboard shortcut: its id, display
 //  title, category, scope and default binding. `ShortcutModel.defaults`, the

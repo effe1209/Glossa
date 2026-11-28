@@ -1,6 +1,6 @@
 //
 //  PDFPageClipboard.swift
-//  PageFlow
+//  Glossa
 //
 //  The app-wide page clipboard behind Copy, Cut and Paste Page, so a page
 //  copied in one PDF can be pasted into another.

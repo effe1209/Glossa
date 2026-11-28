@@ -1,6 +1,6 @@
 //
 //  ZoomRange.swift
-//  PageFlow
+//  Glossa
 //
 //  The one zoom rule every document type steps, gates and clamps by, so a
 //  zoom press and its disabled state behave the same in PDF, Markdown and EPUB.

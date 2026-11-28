@@ -1,6 +1,6 @@
 //
 //  RailPageGeometry.swift
-//  PageFlow
+//  Glossa
 //
 //  What the PDF navigation rail needs to know about where the pages are, kept
 //  independent of how far the reader has scrolled.

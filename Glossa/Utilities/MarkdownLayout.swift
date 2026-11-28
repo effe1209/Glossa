@@ -1,6 +1,6 @@
 //
 //  MarkdownLayout.swift
-//  PageFlow
+//  Glossa
 //
 //  Pure, PDFKit-free pipeline that turns an extracted page into Markdown.
 //

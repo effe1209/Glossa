@@ -1,6 +1,6 @@
 //
 //  EPUBFixedTextLayer.swift
-//  PageFlow
+//  Glossa
 //
 //  The text of a fixed-layout page: each positioned block set on its own, in
 //  page units, drawn scaled to the page. `EPUBPageTextView` hosts it: drawing,

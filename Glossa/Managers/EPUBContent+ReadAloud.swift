@@ -1,6 +1,6 @@
 //
 //  EPUBContent+ReadAloud.swift
-//  PageFlow
+//  Glossa
 //
 //  Where Read Aloud starts in the book, and the pages following it: a page
 //  at a time turns when the voice moves past the pages on screen; the

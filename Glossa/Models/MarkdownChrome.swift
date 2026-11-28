@@ -1,6 +1,6 @@
 //
 //  MarkdownChrome.swift
-//  PageFlow
+//  Glossa
 //
 //  S7b (shared-chrome stage, chrome half): the PURE, content-aware chrome logic
 //  shared by PDF and Markdown tabs. Everything here is a value type with no view,

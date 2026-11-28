@@ -1,6 +1,6 @@
 //
 //  NavigationTrail.swift
-//  PageFlow
+//  Glossa
 //
 //  Back and Forward over a document's jumps, shared by Markdown and EPUB.
 //

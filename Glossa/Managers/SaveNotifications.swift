@@ -1,6 +1,6 @@
 //
 //  Notifications.swift
-//  PageFlow
+//  Glossa
 //
 //  App notification definitions.
 //

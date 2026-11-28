@@ -1,6 +1,6 @@
 //
 //  EPUBPageStackSurface.swift
-//  PageFlow
+//  Glossa
 //
 //  The continuous EPUB layouts: fixed-size pages, one or two per row, stacked
 //  vertically on PDF's viewer background and scrolled like PDF's continuous

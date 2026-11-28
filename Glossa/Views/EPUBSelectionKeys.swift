@@ -1,6 +1,6 @@
 //
 //  EPUBSelectionKeys.swift
-//  PageFlow
+//  Glossa
 //
 //  The keyboard's way of extending a book's selection: the keys
 //  `NSTextView`'s bindings give Markdown, each moving only the selection's

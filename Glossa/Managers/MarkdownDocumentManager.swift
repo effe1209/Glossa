@@ -1,6 +1,6 @@
 //
 //  MarkdownDocumentManager.swift
-//  PageFlow
+//  Glossa
 //
 //  The text-document analogue of PDFManager: load/save a `.md` on disk with
 //  byte-faithful fidelity (ADR-0008), metadata-preserving atomic save-back,

@@ -1,6 +1,6 @@
 //
 //  GlassScroller.swift
-//  PageFlow
+//  Glossa
 //
 //  Custom NSScroller with a visible glass knob over bright PDF pages.
 //

@@ -1,6 +1,6 @@
 //
 //  PDFCitationResolver.swift
-//  PageFlow
+//  Glossa
 //
 //  Finds the PDF a citation points at, in this order:
 //    1. the file at the link's path, when it is the same document;

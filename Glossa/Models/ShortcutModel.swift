@@ -1,6 +1,6 @@
 //
 //  ShortcutModel.swift
-//  PageFlow
+//  Glossa
 //
 //  Keyboard shortcut data model for customization
 //

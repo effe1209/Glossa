@@ -1,6 +1,6 @@
 //
 //  MathExport.swift
-//  PageFlow
+//  Glossa
 //
 //  Typesets a note's formulas for export. `$…$` and `$$…$$` are drawn with SwiftMath, the
 //  same typesetter the app shows them with, and placed in the PDF and HTML as

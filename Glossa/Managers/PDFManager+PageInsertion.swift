@@ -1,6 +1,6 @@
 //
 //  PDFManager+PageInsertion.swift
-//  PageFlow
+//  Glossa
 //
 //  Insert Blank Page and Insert Pages from File. Every insertion is one
 //  Undo step that removes exactly the pages it added.

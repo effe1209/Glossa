@@ -1,6 +1,6 @@
 //
 //  SettingsPane.swift
-//  PageFlow
+//  Glossa
 //
 //  The Settings window's panes and what its search finds in them.
 //

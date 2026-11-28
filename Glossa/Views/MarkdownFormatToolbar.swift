@@ -1,6 +1,6 @@
 //
 //  MarkdownFormatToolbar.swift
-//  PageFlow
+//  Glossa
 //
 //  The Markdown item set for the shared top-chrome toolbar slot, inside the
 //  same `GlassToolbarShell` as the PDF `FloatingToolbar` — identical shell,

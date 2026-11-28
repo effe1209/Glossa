@@ -1,6 +1,6 @@
 //
 //  NSScreen+Geometry.swift
-//  PageFlow
+//  Glossa
 //
 //  Canonical point → screen resolution for window placement.
 //

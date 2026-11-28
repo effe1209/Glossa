@@ -1,6 +1,6 @@
 //
 //  PDFZoomFit.swift
-//  PageFlow
+//  Glossa
 //
 //  Pure fit-to-view scale calculation for PDF pages: Fit Page and Fit Width,
 //  measured on a page's real on-screen size.

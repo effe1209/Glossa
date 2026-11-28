@@ -1,6 +1,6 @@
 //
 //  MarkdownSavePanel.swift
-//  PageFlow
+//  Glossa
 //
 //  The single builder for the Markdown Save-As `NSSavePanel`. Both ⌘⇧S
 //  (`TabManager.saveMarkdownDocumentAs`) and the quit-time path

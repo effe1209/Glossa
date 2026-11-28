@@ -1,6 +1,6 @@
 //
 //  AppEnvironment.swift
-//  PageFlow
+//  Glossa
 //
 //  Environment variables the app reads. `GLOSSA_*` is the canonical namespace;
 //  `PAGEFLOW_*` is a temporary compatibility alias for scripts written before

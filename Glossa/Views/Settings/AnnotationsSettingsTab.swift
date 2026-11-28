@@ -1,6 +1,6 @@
 //
 //  AnnotationsSettingsTab.swift
-//  PageFlow
+//  Glossa
 //
 //  Settings pane for customizing highlight, underline and comment colors
 //

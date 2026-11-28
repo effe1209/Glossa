@@ -1,6 +1,6 @@
 //
 //  ProximityMagnification.swift
-//  PageFlow
+//  Glossa
 //
 //  Dock-style proximity magnification. Elements inside a `proximityField()`
 //  smoothly scale up as the cursor approaches their center, giving the glass

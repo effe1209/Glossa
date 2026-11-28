@@ -1,6 +1,6 @@
 //
 //  EPUBContentsNode.swift
-//  PageFlow
+//  Glossa
 //
 //  A book's contents as the sidebar lists them: its flat, depth-marked entries
 //  nested into sections that collapse, the shape PDF's outline already has.

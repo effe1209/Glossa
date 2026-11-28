@@ -1,6 +1,6 @@
 //
 //  URL+PageFlowDocumentIdentity.swift
-//  PageFlow
+//  Glossa
 //
 //  Canonical file URL helpers for document identity comparisons.
 //

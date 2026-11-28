@@ -1,6 +1,6 @@
 //
 //  EPUBSelection.swift
-//  PageFlow
+//  Glossa
 //
 //  The reader's text selection in a book: from where a drag began to where
 //  it is now, each end a chapter and a UTF-16 offset in its styled text. It

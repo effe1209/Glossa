@@ -1,6 +1,6 @@
 //
 //  EPUBMathTypesetting.swift
-//  PageFlow
+//  Glossa
 //
 //  Book formulas (MathML, converted to LaTeX by EPUBKit) typeset with
 //  SwiftMath, the engine Markdown notes use.

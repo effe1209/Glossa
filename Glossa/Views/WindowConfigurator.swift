@@ -1,6 +1,6 @@
 //
 //  WindowConfigurator.swift
-//  PageFlow
+//  Glossa
 //
 //  Configures the NSWindow to hide system chrome and allow full-bleed content.
 //

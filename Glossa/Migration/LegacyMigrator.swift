@@ -1,6 +1,6 @@
 //
 //  LegacyMigrator.swift
-//  PageFlow
+//  Glossa
 //
 //  Copies the allowed part of PageFlow's preferences into Glossa's, once. Not wired to
 //  the app's launch: only LegacyMigrationCoordinator runs it, when the reader chooses Import.

@@ -1,6 +1,6 @@
 //
 //  EPUBHighlightsExport.swift
-//  PageFlow
+//  Glossa
 //
 //  A book's highlights and notes as Markdown: the title and author, then
 //  each chapter's highlights in reading order as a quote, its page and its

@@ -1,6 +1,6 @@
 //
 //  DesignTokens+EPUBReadingControls.swift
-//  PageFlow
+//  Glossa
 //
 //  Sizes for the EPUB reader's text settings and highlight styles.
 //

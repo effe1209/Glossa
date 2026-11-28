@@ -1,6 +1,6 @@
 //
 //  TopChromeView.swift
-//  PageFlow
+//  Glossa
 //
 //  Window-level top chrome: window-drag strip, traffic lights, tab bar, and
 //  floating toolbar. Rendered once per window so inactive tabs stay isolated.

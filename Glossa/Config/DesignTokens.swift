@@ -1,6 +1,6 @@
 //
 //  DesignTokens.swift
-//  PageFlow
+//  Glossa
 //
 //  Design system - Single source of truth for colors, spacing, and layout constants
 //

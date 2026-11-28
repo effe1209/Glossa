@@ -1,6 +1,6 @@
 //
 //  EPUBReaderState.swift
-//  PageFlow
+//  Glossa
 //
 //  Persisted EPUB reader state: where the user left off (chapter + character
 //  offset), how the book is laid out, and the typography in effect. Carried

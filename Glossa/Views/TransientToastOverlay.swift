@@ -1,6 +1,6 @@
 //
 //  TransientToastOverlay.swift
-//  PageFlow
+//  Glossa
 //
 //  The ONE transient-message pill for a window — "Saved", "Save failed.",
 //  "Couldn't open N files" — mounted once per window (TabContainerView), so

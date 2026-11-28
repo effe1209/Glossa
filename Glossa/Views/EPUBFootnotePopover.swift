@@ -1,6 +1,6 @@
 //
 //  EPUBFootnotePopover.swift
-//  PageFlow
+//  Glossa
 //
 //  Footnote pop-ups: a note reference shows its note beside the link, in
 //  the reader's typography and theme, instead of jumping away from the page.

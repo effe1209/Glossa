@@ -1,6 +1,6 @@
 //
 //  BooksSettingsTab.swift
-//  PageFlow
+//  Glossa
 //
 //  Settings pane for what a new book opens in.
 //

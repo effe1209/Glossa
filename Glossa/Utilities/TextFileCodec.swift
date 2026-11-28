@@ -1,6 +1,6 @@
 //
 //  TextFileCodec.swift
-//  PageFlow
+//  Glossa
 //
 //  Byte-faithful text load/save fidelity for the Markdown editor (ADR-0008).
 //

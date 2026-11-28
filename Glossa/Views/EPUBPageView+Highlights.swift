@@ -1,6 +1,6 @@
 //
 //  EPUBPageView+Highlights.swift
-//  PageFlow
+//  Glossa
 //
 //  How a page shows and edits the reader's highlights: their paint, the note
 //  marker in the margin, a click on a noted highlight, and the context menu.

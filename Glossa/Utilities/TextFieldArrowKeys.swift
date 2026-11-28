@@ -1,6 +1,6 @@
 //
 //  TextFieldArrowKeys.swift
-//  PageFlow
+//  Glossa
 //
 //  The Go menu's page commands sit on ⌘-arrows by default. A menu's key
 //  equivalent reaches the menu before a text field's own handling, so with one

@@ -1,6 +1,6 @@
 //
 //  TabManager+TearOff.swift
-//  PageFlow
+//  Glossa
 //
 //  The movable-tab plumbing: detach a tab (and its session) from this window,
 //  attach a detached tab into another, and the ordered session teardown both

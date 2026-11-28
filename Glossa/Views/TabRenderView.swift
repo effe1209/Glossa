@@ -1,6 +1,6 @@
 //
 //  TabRenderView.swift
-//  PageFlow
+//  Glossa
 //
 //  The ONE mount point for a tab's body — the single `switch TabRender` that
 //  routes a PDF tab to `PDFTabView` and a Markdown tab to `MarkdownTabView`.

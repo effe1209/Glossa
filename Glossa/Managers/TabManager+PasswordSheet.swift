@@ -1,6 +1,6 @@
 //
 //  TabManager+PasswordSheet.swift
-//  PageFlow
+//  Glossa
 //
 //  Window-level presentation over per-session password data: the single sheet's
 //  FIFO queue derivation, prompt/submit/cancel, and the placeholder-window

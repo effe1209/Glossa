@@ -1,6 +1,6 @@
 //
 //  SearchRecolor.swift
-//  PageFlow
+//  Glossa
 //
 //  The pure decision of which search-hit selections to recolor when the
 //  current result changes.

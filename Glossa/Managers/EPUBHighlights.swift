@@ -1,6 +1,6 @@
 //
 //  EPUBHighlights.swift
-//  PageFlow
+//  Glossa
 //
 //  A book's highlights and notes, and the reader's text selection they are
 //  made from. Pages report their selection here and draw what it holds;

@@ -1,6 +1,6 @@
 //
 //  PDFExport.swift
-//  PageFlow
+//  Glossa
 //
 //  Writes a note's HTML as a paginated PDF through WebKit, so the page looks as its
 //  stylesheet says (typography, callouts, code, tables) rather than as AppKit's

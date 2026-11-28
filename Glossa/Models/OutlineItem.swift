@@ -1,6 +1,6 @@
 //
 //  OutlineItem.swift
-//  PageFlow
+//  Glossa
 //
 //  Represents a PDF outline entry for the sidebar.
 //

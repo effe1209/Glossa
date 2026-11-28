@@ -1,6 +1,6 @@
 //
 //  MainActorNotification.swift
-//  PageFlow
+//  Glossa
 //
 //  NotificationCenter observation that hops to the main actor with a Task.
 //

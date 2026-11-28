@@ -1,6 +1,6 @@
 //
 //  GlassToolbar.swift
-//  PageFlow
+//  Glossa
 //
 //  The ONE Liquid Glass toolbar kit shared by every content type's toolbar in
 //  the top-chrome slot (PDF `FloatingToolbar`, Markdown `MarkdownFormatToolbar`,

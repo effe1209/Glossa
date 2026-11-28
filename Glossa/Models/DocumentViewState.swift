@@ -1,6 +1,6 @@
 //
 //  DocumentViewState.swift
-//  PageFlow
+//  Glossa
 //
 //  Persisted per-document reading state: where the user left off (page + exact
 //  scroll point) and their zoom. Restored when a document is reopened, so the

@@ -1,6 +1,6 @@
 //
 //  ToolbarPeek.swift
-//  PageFlow
+//  Glossa
 //
 //  The pure rules of the peek: the folded toolbar springing open over the
 //  tabs while the pointer is on it, and folding again after it leaves.

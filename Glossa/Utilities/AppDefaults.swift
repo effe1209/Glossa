@@ -1,6 +1,6 @@
 //
 //  AppDefaults.swift
-//  PageFlow
+//  Glossa
 //
 //  The one way to the app's preferences.
 //

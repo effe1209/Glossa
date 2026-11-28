@@ -1,6 +1,6 @@
 //
 //  FolderAccessStore.swift
-//  PageFlow
+//  Glossa
 //
 //  The sandbox grants this app a note file the user opened, not the folder
 //  around it. Saving a pasted image beside a note, or reading an image the
