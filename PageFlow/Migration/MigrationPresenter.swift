@@ -17,17 +17,20 @@ import SwiftUI
 @MainActor
 enum MigrationPresenter {
     private static var authorizationWindow: NSWindow?
-    private static let authorizationPromptedKey = "glossa.migration.fromPageFlow.authorizationPrompted.v1"
 
-    static func makeCoordinator(defaults: UserDefaults = AppDefaults.store) -> LegacyMigrationCoordinator {
-        LegacyMigrationCoordinator(
-            source: CFPreferencesDomainSource(domain: AppIdentity.legacyBundleIdentifier),
-            destination: UserDefaultsDestination(defaults: defaults),
-            appVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
-            applicationSupport: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first)
+    static func makeCoordinator(defaults: UserDefaults = AppDefaults.store) -> CombinedMigrationCoordinator {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        let paths = ApplicationSupportPaths.current()
+        return CombinedMigrationCoordinator(
+            preferences: LegacyMigrationCoordinator(
+                source: CFPreferencesDomainSource(domain: AppIdentity.legacyBundleIdentifier),
+                destination: UserDefaultsDestination(defaults: defaults),
+                appVersion: version,
+                applicationSupport: paths.base),
+            files: AppSupportMigrator(paths: paths, appVersion: version))
     }
 
-    /// At launch: the offer if there is one, else the list of permissions to allow again, else nothing.
+    /// At launch: the offer if there is one, then the list of permissions to allow again (once), else nothing.
     /// Called before the previous session is restored, so no document is open and no store has anything
     /// to save while the window is up, and a restart after an import cannot write stale values over it.
     /// True when the app is restarting and the launch must not go on.
@@ -35,23 +38,27 @@ enum MigrationPresenter {
         PendingAuthorizationsModel.shared.configure(recentFiles: recentFiles)
         guard !TestEnvironment.isRunningTests, AppIdentity.isGlossa() else { return false }
         let coordinator = makeCoordinator()
-        if let summary = coordinator.evaluate().summary {
-            return runOffer(summary, coordinator: coordinator)
-        }
-        presentAuthorizations(coordinator: coordinator, recentFiles: recentFiles)
+        // Leftovers of a cut-off copy that no offer will pick up: removed off the main thread (they can be
+        // large). It is a step of its own; deciding what to offer below writes nothing.
+        Task.detached(priority: .utility) { coordinator.tidyOrphanStaging() }
+        let prompt = coordinator.evaluate()
+        if prompt.hasOffer, runOffer(prompt, coordinator: coordinator) { return true }
+        // The offer's window is modal and gone by now (or there was none), so this one never overlaps it:
+        // a reader who postponed the offer still gets the permissions to allow again.
+        presentAuthorizations(coordinator: coordinator)
         return false
     }
 
     @discardableResult
-    private static func runOffer(_ summary: MigrationSummary, coordinator: LegacyMigrationCoordinator) -> Bool {
+    private static func runOffer(_ prompt: MigrationPrompt, coordinator: CombinedMigrationCoordinator) -> Bool {
         var relaunch = false
         var window: NSWindow?
-        let model = MigrationViewModel(summary: summary, coordinator: coordinator) { wantsRelaunch in
+        let session = MigrationSession(prompt: prompt, coordinator: coordinator) { wantsRelaunch in
             relaunch = wantsRelaunch
             NSApp.stopModal()
             window?.orderOut(nil)
         }
-        let controller = NSHostingController(rootView: MigrationView(model: model))
+        let controller = NSHostingController(rootView: MigrationView(session: session))
         let panel = NSWindow(contentViewController: controller)
         panel.title = "Import from PageFlow"
         panel.styleMask = [.titled]
@@ -66,12 +73,9 @@ enum MigrationPresenter {
     }
 
     /// The first launch after an import: the list, once. The paths stay in the list; the menu brings it back.
-    private static func presentAuthorizations(coordinator: LegacyMigrationCoordinator, recentFiles: RecentFilesManager) {
-        let destination = coordinator.destination
+    private static func presentAuthorizations(coordinator: CombinedMigrationCoordinator) {
         PendingAuthorizationsModel.shared.refresh()
-        guard destination.value(forKey: authorizationPromptedKey) == nil,
-              !PendingAuthorizationsModel.shared.items.isEmpty else { return }
-        try? destination.set(true, forKey: authorizationPromptedKey)
+        guard coordinator.takeAuthorizationPrompt(pendingCount: PendingAuthorizationsModel.shared.items.count) else { return }
         showAuthorizationManager()
     }
 
@@ -95,19 +99,20 @@ enum MigrationPresenter {
         panel.makeKeyAndOrderFront(nil)
     }
 
-    /// "Import from PageFlow…": says whether the import is available and, if not, why. It does not
-    /// import: that is offered only at launch, before any document is open, because a running app holds
-    /// copies of its preferences that it would write back over what was imported.
+    /// "Import from PageFlow…": says whether the import is available and, for each part, why not. It does
+    /// not import: that is offered only at launch, before any document is open, because a running app holds
+    /// copies of its preferences and stores that it would write back over what was imported.
     static func importFromMenu() {
         let alert = NSAlert()
         alert.addButton(withTitle: "OK")
-        switch makeCoordinator().evaluate() {
-        case .offer:
+        let prompt = makeCoordinator().evaluate()
+        if prompt.hasOffer {
             alert.messageText = "PageFlow's data can be imported"
             alert.informativeText = "The import is offered when Glossa starts, before any document opens. Quit and open Glossa again to choose."
-        case .notNeeded(let reason):
-            alert.messageText = reason == .sandboxed ? "Importing is not available in this build" : "Nothing to import"
-            alert.informativeText = reason.explanation
+                + (prompt.explanations.isEmpty ? "" : "\n\n" + prompt.explanations.joined(separator: "\n"))
+        } else {
+            alert.messageText = prompt.isBlockedBySandbox ? "Importing is not available in this build" : "Nothing to import"
+            alert.informativeText = prompt.explanations.joined(separator: "\n\n")
         }
         alert.runModal()
     }
@@ -115,7 +120,7 @@ enum MigrationPresenter {
     /// Restarts only once the import is read back from the preferences, marker and every key it wrote.
     /// If it cannot be confirmed the app quits without starting a new copy, and the import is not
     /// recorded as done: the next launch offers it again.
-    private static func restart(coordinator: LegacyMigrationCoordinator) {
+    private static func restart(coordinator: CombinedMigrationCoordinator) {
         let readback = PreferencesReadback(applicationID: AppIdentity.bundleIdentifier)
         guard LegacyMigrationCoordinator.importIsRecorded(in: readback) else {
             let alert = NSAlert()

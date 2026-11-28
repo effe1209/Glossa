@@ -3,7 +3,8 @@
 //  PageFlow
 //
 //  The window that offers the import from PageFlow, and the one that asks for access to be
-//  allowed again afterwards. Both only show and ask; the work is in `LegacyMigrationCoordinator`.
+//  allowed again afterwards. Both only show and ask; the work is in `MigrationSession`
+//  (what each button does) and `CombinedMigrationCoordinator` (what it writes).
 //
 
 import SwiftUI
@@ -11,131 +12,228 @@ import AppKit
 
 // MARK: - Import offer
 
-@MainActor
-@Observable
-final class MigrationViewModel {
-    enum Phase: Equatable {
-        case choosing
-        case running
-        case imported(MigrationSummary)
-        case failed(String)
-    }
-
-    private(set) var phase: Phase = .choosing
-    let summary: MigrationSummary
-    private let coordinator: LegacyMigrationCoordinator
-    /// Called when the window should close; true after an import, which needs a restart.
-    private let finish: (_ relaunch: Bool) -> Void
-
-    init(summary: MigrationSummary, coordinator: LegacyMigrationCoordinator, finish: @escaping (_ relaunch: Bool) -> Void) {
-        self.summary = summary
-        self.coordinator = coordinator
-        self.finish = finish
-    }
-
-    func choose(_ choice: MigrationChoice) {
-        switch choice {
-        case .notNow:
-            _ = coordinator.choose(.notNow)
-            finish(false)
-        case .neverImport:
-            switch coordinator.choose(.neverImport) {
-            case .failed(let reason): phase = .failed(reason)
-            default: finish(false)
-            }
-        case .importNow:
-            phase = .running
-            Task { @MainActor in
-                await Task.yield()
-                switch coordinator.choose(.importNow) {
-                case .imported(let report): phase = .imported(MigrationSummary(report))
-                case .failed(let reason): phase = .failed(reason)
-                default: phase = .failed("the import did not run")
-                }
-            }
-        }
-    }
-
-    func restart() { finish(true) }
-    func close() { finish(false) }
-    func backToChoice() { phase = .choosing }
-}
-
 struct MigrationView: View {
-    @Bindable var model: MigrationViewModel
+    @Bindable var session: MigrationSession
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            switch model.phase {
+            switch session.phase {
             case .choosing: choosing
             case .running: running
-            case .imported(let summary): imported(summary)
+            case .confirmingLargeAttachments(let bytes): confirming(bytes)
+            case .finished(let result): finished(result)
             case .failed(let reason): failed(reason)
+            case .nothingLeft(let text): nothingLeft(text)
             }
         }
         .padding(24)
         .frame(width: 520)
     }
 
+    // MARK: Offer
+
     private var choosing: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Import your data from PageFlow?").font(.title2.bold())
-            Text("Glossa found settings and document data from PageFlow on this Mac. Importing copies them into Glossa. PageFlow's own data is only read: nothing in it is changed, moved or deleted.")
+            Text("Glossa found data from PageFlow on this Mac. Importing copies it into Glossa. PageFlow's own data is only read: nothing in it is changed, moved or deleted.")
                 .fixedSize(horizontal: false, vertical: true)
-            SummaryList(summary: model.summary, heading: "Will be imported")
-            Text("Open sessions, Recovery files, attachments and window positions are not imported. Folder and file permissions are checked one by one; those that no longer work are listed afterwards so you can allow them again.")
-                .font(.callout).foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+            if let summary = session.prompt.preferences.summary {
+                SummaryList(summary: summary, heading: "Settings and document data")
+                Text("Open sessions and window positions are not imported. Folder and file permissions are checked one by one; those that no longer work are listed afterwards so you can allow them again. Glossa restarts once to use the imported settings.")
+                    .font(.callout).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if let offer = session.prompt.files.offer {
+                FilesOfferList(offer: offer)
+                Text("Each file is checked before it is copied; files that are not sound are skipped and listed. Nothing in Glossa's folders is overwritten, and links in your notes are not changed. Copying the files does not need a restart.")
+                    .font(.callout).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             HStack {
-                Button("Don't Import Ever") { model.choose(.neverImport) }
+                Button("Don't Import Ever") { session.choose(.neverImport) }
                 Spacer()
-                Button("Not Now") { model.choose(.notNow) }
-                Button("Import") { model.choose(.importNow) }.keyboardShortcut(.defaultAction)
+                Button("Not Now") { session.choose(.notNow) }
+                Button("Import") { session.choose(.importNow) }.keyboardShortcut(.defaultAction)
             }
         }
     }
 
     private var running: some View {
-        HStack(spacing: 12) {
-            ProgressView().controlSize(.small)
-            Text("Importing…")
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                ProgressView().controlSize(.small)
+                Text(runningText)
+            }
+            if session.isPastPointOfNoReturn {
+                Text("Files are being put in place. This can no longer be cancelled, and it will be done in a moment.")
+                    .font(.callout).foregroundStyle(.secondary)
+            } else if session.prompt.files.offer != nil {
+                HStack {
+                    Spacer()
+                    Button("Cancel") { session.cancel() }.disabled(!session.canCancel)
+                }
+            }
         }
     }
 
-    private func imported(_ summary: MigrationSummary) -> some View {
+    private var runningText: String {
+        if session.isPastPointOfNoReturn { return "Finishing the import…" }
+        return session.isCancelling ? "Cancelling…" : "Importing…"
+    }
+
+    // MARK: Large attachments
+
+    private func confirming(_ bytes: Int64) -> some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Import finished").font(.title2.bold())
-            SummaryList(summary: summary, heading: "Imported")
-            if !summary.authorizations.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("\(summary.authorizations.count) files or folders need your permission again")
-                        .font(.headline)
-                    Text("Their old permissions do not carry over. After the restart Glossa lists them and asks you to allow each one. Their paths are kept until then.")
-                        .font(.callout).foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            Text("Glossa has to restart to use the imported data.")
+            Text("Copy \(FilesResultSummary.mebibytes(bytes)) of attachments?").font(.title2.bold())
+            Text("PageFlow's attachments are larger than 500 MiB. Copying them takes that much room in Glossa's folder, and the originals stay where they are. Nothing has been copied yet.")
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Spacer()
-                Button("Restart Glossa") { model.restart() }.keyboardShortcut(.defaultAction)
+                Button("Not Now") { session.confirmLargeAttachments(false) }
+                Button("Copy") { session.confirmLargeAttachments(true) }.keyboardShortcut(.defaultAction)
+            }
+        }
+    }
+
+    // MARK: Result
+
+    private func finished(_ result: MigrationSession.MigrationResult) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(result.title).font(.title2.bold())
+            if let summary = result.preferences {
+                SummaryList(summary: summary, heading: "Settings and document data imported")
+                if !summary.authorizations.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("\(summary.authorizations.count) files or folders need your permission again")
+                            .font(.headline)
+                        Text("Their old permissions do not carry over. After the restart Glossa lists them and asks you to allow each one. Their paths are kept until then.")
+                            .font(.callout).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+            if let files = result.files { FilesResultList(summary: files) }
+            if result.filesPostponed {
+                Text("The attachments were not copied. Glossa will offer them again the next time it starts.")
+                    .font(.callout).foregroundStyle(.secondary)
+            }
+            if result.needsRestart {
+                Text("Glossa has to restart to use the imported settings.")
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            HStack {
+                Spacer()
+                if result.needsRestart {
+                    Button("Restart Glossa") { session.restart() }.keyboardShortcut(.defaultAction)
+                } else {
+                    Button("Continue") { session.close() }.keyboardShortcut(.defaultAction)
+                }
             }
         }
     }
 
     private func failed(_ reason: String) -> some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("The import could not be completed").font(.title2.bold())
-            Text("Nothing was imported and the import is not recorded as done: \(reason). PageFlow's data was not touched, and you can try again at the next launch.")
-                .fixedSize(horizontal: false, vertical: true)
+            if session.preferencesApplied {
+                Text("Your settings were imported, but the rest could not be completed").font(.title2.bold())
+                Text("\(reason). PageFlow's data was not touched. Glossa has to restart to use the imported settings; what is left will be offered again.")
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
+                Text("The import could not be completed").font(.title2.bold())
+                Text("Nothing was recorded as done: \(reason). PageFlow's data was not touched, and you can try again at the next launch.")
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             HStack {
                 Spacer()
-                Button("Close") { model.close() }
-                Button("Back") { model.backToChoice() }.keyboardShortcut(.defaultAction)
+                if session.preferencesApplied {
+                    Button("Back") { session.backToChoice() }
+                    Button("Restart Glossa") { session.close() }.keyboardShortcut(.defaultAction)
+                } else {
+                    Button("Close") { session.close() }
+                    Button("Back") { session.backToChoice() }.keyboardShortcut(.defaultAction)
+                }
             }
         }
     }
+
+    private func nothingLeft(_ text: String) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Nothing left to import").font(.title2.bold())
+            Text(text).fixedSize(horizontal: false, vertical: true)
+            HStack {
+                Spacer()
+                Button(session.preferencesApplied ? "Restart Glossa" : "Continue") { session.close() }.keyboardShortcut(.defaultAction)
+            }
+        }
+    }
+}
+
+private func categoryTitle(_ category: ApplicationSupportPaths.Category) -> String {
+    switch category {
+    case .recovery: return "Unsaved-note recovery copies"
+    case .attachments: return "Pasted images (attachments)"
+    case .epubAnnotations: return "EPUB highlights, notes and bookmarks"
+    }
+}
+
+private struct FilesOfferList: View {
+    let offer: FilesOffer
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Files to copy").font(.headline)
+            ForEach(offer.lines, id: \.category) { line in
+                HStack {
+                    Text(categoryTitle(line.category))
+                    Spacer()
+                    Text("\(line.files) · \(FilesResultSummary.mebibytes(line.bytes))").foregroundStyle(.secondary).monospacedDigit()
+                }
+            }
+            if !offer.unreadable.isEmpty {
+                Text("Glossa could not read \(offer.unreadable.map(categoryTitle).joined(separator: ", ")) in PageFlow's folder, so it will not be copied now. The rest is copied, the copy is not recorded as done, and it is offered again at the next start, so it can be tried once the permissions are fixed.")
+                    .font(.callout).foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if offer.interrupted {
+                Text("An earlier copy was interrupted. It starts again from the beginning; nothing is resumed silently.")
+                    .font(.callout).foregroundStyle(.secondary)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+    }
+}
+
+private struct FilesResultList: View {
+    let summary: FilesResultSummary
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(summary.completed && summary.copiedFiles + summary.identical > 0 ? "Files copied" : "Files").font(.headline)
+            ForEach(summary.lines, id: \.category) { line in
+                HStack {
+                    Text(categoryTitle(line.category))
+                    Spacer()
+                    Text("\(line.copied) copied · \(FilesResultSummary.mebibytes(line.bytes))").foregroundStyle(.secondary).monospacedDigit()
+                }
+            }
+            if summary.identical > 0 { note("\(summary.identical) already in Glossa, identical.") }
+            if summary.conflicts > 0 { note("\(summary.conflicts) differ from what Glossa already has; Glossa's were kept.") }
+            if summary.invalid > 0 { note("\(summary.invalid) were not sound and were skipped.") }
+            if summary.overJSONLimit > 0 { note("\(summary.overJSONLimit) were over the 64 MiB limit for JSON files and were skipped.") }
+            if summary.completed, summary.copiedFiles + summary.identical == 0, summary.invalid > 0 {
+                note("Nothing was sound enough to copy, so nothing was copied. This is recorded, and it will not be offered again.")
+            }
+            if let problem = summary.problem { Text(problem).font(.callout).foregroundStyle(.orange) }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func note(_ text: String) -> some View { Text(text).font(.callout).foregroundStyle(.secondary) }
 }
 
 private struct SummaryList: View {
@@ -251,37 +349,6 @@ struct AuthorizationView: View {
     let close: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Files and folders to allow again").font(.title2.bold())
-            Text("After the import from PageFlow, these could not keep their permission. Allow each one you still use. Glossa does not read them until you do; their paths are kept in the meantime.")
-                .fixedSize(horizontal: false, vertical: true)
-            if model.items.isEmpty {
-                Text("Nothing left to allow.").foregroundStyle(.secondary)
-            } else {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(model.items, id: \.path) { item in
-                            HStack(alignment: .firstTextBaseline) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(URL(fileURLWithPath: item.path).lastPathComponent).font(.body)
-                                    Text(item.path).font(.caption).foregroundStyle(.secondary)
-                                        .lineLimit(1).truncationMode(.middle)
-                                }
-                                Spacer()
-                                Button(item.isFolder ? "Allow Folder…" : "Allow File…") { model.allow(item) }
-                            }
-                        }
-                    }
-                }
-                .frame(maxHeight: 260)
-            }
-            if let message = model.message { Text(message).font(.callout).foregroundStyle(.orange) }
-            HStack {
-                Spacer()
-                Button(model.items.isEmpty ? "Done" : "Later") { close() }.keyboardShortcut(.defaultAction)
-            }
-        }
-        .padding(24)
-        .frame(width: 520)
+        AuthorizationContent(items: model.items, message: model.message, allow: { model.allow($0) }, close: close)
     }
 }

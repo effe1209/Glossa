@@ -25,11 +25,11 @@ nonisolated enum AppIdentity {
 
 /// Where the app keeps files under Application Support.
 nonisolated enum ApplicationSupportLocations {
-    static let glossaFolderName = "Glossa"
-    static let legacyFolderName = "PageFlow"
+    static let glossaFolderName = ApplicationSupportPaths.glossaFolderName
+    static let legacyFolderName = ApplicationSupportPaths.legacyFolderName
 
-    static func glossa(in base: URL) -> URL { base.appendingPathComponent(glossaFolderName, isDirectory: true) }
-    static func legacy(in base: URL) -> URL { base.appendingPathComponent(legacyFolderName, isDirectory: true) }
+    static func glossa(in base: URL) -> URL { ApplicationSupportPaths(base: base).glossaRoot }
+    static func legacy(in base: URL) -> URL { ApplicationSupportPaths(base: base).legacyRoot }
 
     /// Creates Glossa's folder, empty, when it is not there. It does not look inside PageFlow's
     /// folder and copies nothing: Recovery, Attachments and EPUB Annotations are a separate step.

@@ -137,7 +137,7 @@ final class SandboxTests: XCTestCase {
         let presenter = try String(contentsOf: root().appendingPathComponent("PageFlow/Migration/MigrationPresenter.swift"), encoding: .utf8)
         XCTAssertTrue(presenter.contains("static func importFromMenu()"))
         XCTAssertTrue(presenter.contains("Importing is not available in this build"))
-        XCTAssertTrue(presenter.contains("reason.explanation"))
+        XCTAssertTrue(presenter.contains("prompt.explanations"))
         let app = try String(contentsOf: root().appendingPathComponent("PageFlow/PageFlowApp.swift"), encoding: .utf8)
         XCTAssertTrue(app.contains("Button(\"Import from PageFlow…\") { MigrationPresenter.importFromMenu() }"))
     }
@@ -145,7 +145,7 @@ final class SandboxTests: XCTestCase {
     func testTheLaunchPromptStaysSilentWhenTheImportIsNotAvailable() throws {
         // Only an offer opens a window at launch; "not needed" (including sandboxed) opens none.
         let presenter = try String(contentsOf: root().appendingPathComponent("PageFlow/Migration/MigrationPresenter.swift"), encoding: .utf8)
-        XCTAssertTrue(presenter.contains("if let summary = coordinator.evaluate().summary"))
+        XCTAssertTrue(presenter.contains("if prompt.hasOffer"))
     }
 }
 
@@ -279,7 +279,7 @@ final class AuthorizationManagerTests: XCTestCase {
 
     func testTheLaunchPromptIsShownOnceAndTheMenuBringsTheListBack() throws {
         let presenter = try String(contentsOf: root().appendingPathComponent("PageFlow/Migration/MigrationPresenter.swift"), encoding: .utf8)
-        XCTAssertTrue(presenter.contains("authorizationPromptedKey) == nil"), "the first launch after an import asks once")
+        XCTAssertTrue(presenter.contains("takeAuthorizationPrompt(pendingCount:"), "the first launch after an import asks once (the rule is the coordinator's)")
         XCTAssertTrue(presenter.contains("PendingAuthorizationsModel.shared.refresh()"), "the list is read from the preferences, so it is the same after any restart")
     }
 }
