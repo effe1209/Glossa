@@ -24,13 +24,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		00985C9A2EE4A10600E48813 /* Exceptions for "PageFlow" folder in "PageFlow" target */ = {
+		00985C9A2EE4A10600E48813 /* Exceptions for "PageFlow" folder in "Glossa" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"PageFlow-Direct-Info.plist",
 				"PageFlow-Info.plist",
 			);
-			target = 00985C632EE4A10500E48813 /* PageFlow */;
+			target = 00985C632EE4A10500E48813 /* Glossa */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -38,7 +38,7 @@
 		00985C662EE4A10500E48813 /* PageFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				00985C9A2EE4A10600E48813 /* Exceptions for "PageFlow" folder in "PageFlow" target */,
+				00985C9A2EE4A10600E48813 /* Exceptions for "PageFlow" folder in "Glossa" target */,
 			);
 			path = PageFlow;
 			sourceTree = "<group>";
@@ -90,9 +90,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		00985C632EE4A10500E48813 /* PageFlow */ = {
+		00985C632EE4A10500E48813 /* Glossa */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00985C852EE4A10600E48813 /* Build configuration list for PBXNativeTarget "PageFlow" */;
+			buildConfigurationList = 00985C852EE4A10600E48813 /* Build configuration list for PBXNativeTarget "Glossa" */;
 			buildPhases = (
 				00985C602EE4A10500E48813 /* Sources */,
 				00985C612EE4A10500E48813 /* Frameworks */,
@@ -106,7 +106,7 @@
 			fileSystemSynchronizedGroups = (
 				00985C662EE4A10500E48813 /* PageFlow */,
 			);
-			name = PageFlow;
+			name = Glossa;
 			packageProductDependencies = (
 				00MATH0012F1A00000000002 /* SwiftMath */,
 				0013A9A92FE6801F00C44F8F /* MarkdownEngine */,
@@ -115,7 +115,7 @@
 				0013A9AF2FE6801F00C44F8F /* MarkdownEngineMermaid */,
 				00EPUB0003FE6801F00C44F8F /* EPUBKit */,
 			);
-			productName = PageFlow;
+			productName = Glossa;
 			productReference = 00985C642EE4A10500E48813 /* Glossa.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -134,7 +134,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 00985C5F2EE4A10500E48813 /* Build configuration list for PBXProject "PageFlow" */;
+			buildConfigurationList = 00985C5F2EE4A10500E48813 /* Build configuration list for PBXProject "Glossa" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -153,7 +153,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				00985C632EE4A10500E48813 /* PageFlow */,
+				00985C632EE4A10500E48813 /* Glossa */,
 			);
 		};
 /* End PBXProject section */
@@ -507,7 +507,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		00985C5F2EE4A10500E48813 /* Build configuration list for PBXProject "PageFlow" */ = {
+		00985C5F2EE4A10500E48813 /* Build configuration list for PBXProject "Glossa" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00985C832EE4A10600E48813 /* Debug */,
@@ -517,7 +517,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		00985C852EE4A10600E48813 /* Build configuration list for PBXNativeTarget "PageFlow" */ = {
+		00985C852EE4A10600E48813 /* Build configuration list for PBXNativeTarget "Glossa" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00985C862EE4A10600E48813 /* Debug */,
