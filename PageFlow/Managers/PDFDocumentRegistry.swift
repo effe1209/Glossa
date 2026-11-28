@@ -13,6 +13,7 @@
 //
 
 import Foundation
+import os.log
 
 nonisolated struct PDFDocumentRecord: Codable, Equatable, Sendable {
     var id: String
@@ -37,7 +38,26 @@ nonisolated struct PDFLocatedFile: Equatable, Sendable {
 nonisolated final class PDFDocumentRegistry: @unchecked Sendable {
     static let shared = PDFDocumentRegistry()
 
-    static let storageKey = "pdfDocumentRegistry.v1"
+    /// Where the registry lives now, and where it lived before it was named for Glossa.
+    /// - The new key, when it holds a registry, is the registry.
+    /// - When the new key is missing, the old one is read (and never written or removed).
+    /// - When the new key is there but unreadable, the old one is **not** used in its place:
+    ///   both are kept as they are, `issue` says so, and nothing is written over the unreadable
+    ///   value until `recoverFromLegacy()` is asked for explicitly.
+    static let storageKey = "glossa.pdfDocumentRegistry.v1"
+    static let legacyStorageKey = "pdfDocumentRegistry.v1"
+    /// Where an unreadable registry is set aside by `recoverFromLegacy()`, with the time appended.
+    static let unreadableKeyPrefix = storageKey + ".unreadable."
+    private static let logger = Logger(subsystem: "com.pageflow", category: "PDFDocumentRegistry")
+
+    enum Issue: Equatable, Sendable {
+        /// `glossa.pdfDocumentRegistry.v1` exists and is not a registry. The registry is empty for
+        /// this launch and is not saved, so the unreadable value stays where it is.
+        case unreadable
+    }
+
+    /// Set when the saved registry could not be used; read-only for everyone but `recoverFromLegacy()`.
+    private(set) var issue: Issue?
     /// Oldest records go first beyond this.
     static let capacity = 400
     static let notesPerDocument = 50
@@ -52,12 +72,55 @@ nonisolated final class PDFDocumentRegistry: @unchecked Sendable {
     init(defaults: UserDefaults = AppDefaults.store, scoped: Bool = true) {
         self.defaults = defaults
         self.scoped = scoped
-        if let data = defaults.data(forKey: Self.storageKey),
-           let decoded = try? JSONDecoder().decode([String: PDFDocumentRecord].self, from: data) {
-            records = decoded
+        if let current = defaults.object(forKey: Self.storageKey) {
+            if let data = current as? Data, let decoded = Self.decode(data) {
+                records = decoded
+            } else {
+                // Present but not a registry: no quiet fallback to the older one, no overwriting.
+                records = [:]
+                issue = .unreadable
+                Self.logger.error("The saved PDF registry (\(Self.storageKey, privacy: .public)) is unreadable; it and \(Self.legacyStorageKey, privacy: .public) are left as they are and nothing is saved until it is recovered.")
+            }
         } else {
-            records = [:]
+            records = defaults.data(forKey: Self.legacyStorageKey).flatMap(Self.decode) ?? [:]
         }
+    }
+
+    private static func decode(_ data: Data) -> [String: PDFDocumentRecord]? {
+        try? JSONDecoder().decode([String: PDFDocumentRecord].self, from: data)
+    }
+
+    /// The explicit way out of `.unreadable`, which nothing calls on its own: the unreadable value
+    /// is set aside under `unreadableKeyPrefix` + the time (kept, never deleted), the registry
+    /// becomes the older one, and it is saved under the Glossa key. The older key is not touched.
+    /// False, and nothing changed, when there is no issue, the older registry is not readable, or
+    /// the recovered registry cannot be encoded and read back: the new registry is built and checked
+    /// first, and only then is anything written; if a write fails the unreadable value is put back
+    /// under the Glossa key, the set-aside copy stays, and the registry stays `.unreadable`.
+    @discardableResult
+    func recoverFromLegacy(now: Date = Date(),
+                           encode: ([String: PDFDocumentRecord]) throws -> Data = { try JSONEncoder().encode($0) }) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        guard issue == .unreadable,
+              var older = defaults.data(forKey: Self.legacyStorageKey).flatMap(Self.decode),
+              let unreadable = defaults.object(forKey: Self.storageKey) else { return false }
+        if older.count > Self.capacity {
+            for record in older.values.sorted(by: { $0.updatedAt < $1.updatedAt }).prefix(older.count - Self.capacity) { older[record.id] = nil }
+        }
+        guard let data = try? encode(older), Self.decode(data) == older else { return false }
+
+        var setAside = Self.unreadableKeyPrefix + String(Int(now.timeIntervalSince1970))
+        while defaults.object(forKey: setAside) != nil { setAside += "x" }
+        defaults.set(unreadable, forKey: setAside)
+        guard defaults.object(forKey: setAside) != nil else { return false }
+        defaults.set(data, forKey: Self.storageKey)
+        guard let saved = defaults.data(forKey: Self.storageKey), Self.decode(saved) == older else {
+            defaults.set(unreadable, forKey: Self.storageKey)   // put the original back; the copy stays
+            return false
+        }
+        records = older
+        issue = nil
+        return true
     }
 
     // MARK: Documents
@@ -147,12 +210,13 @@ nonisolated final class PDFDocumentRegistry: @unchecked Sendable {
         return try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil)
     }
 
-    /// Caller holds the lock.
+    /// Caller holds the lock. With an unreadable saved registry it changes memory only.
     private func pruneAndSave() {
         if records.count > Self.capacity {
             let drop = records.values.sorted { $0.updatedAt < $1.updatedAt }.prefix(records.count - Self.capacity)
             for record in drop { records[record.id] = nil }
         }
+        guard issue == nil else { return }
         if let data = try? JSONEncoder().encode(records) { defaults.set(data, forKey: Self.storageKey) }
     }
 }
