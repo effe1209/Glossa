@@ -40,3 +40,6 @@ listofdownloads.csv
 # Release artifacts (DMGs, Organizer exports)
 dist/
 PageFlow 20*/
+
+# Per-developer signing settings (own certificate and team; see Config/Local.xcconfig.example)
+Config/Local.xcconfig

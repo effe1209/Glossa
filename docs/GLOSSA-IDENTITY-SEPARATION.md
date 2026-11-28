@@ -73,7 +73,7 @@ Dominio preferenze: `~/Library/Preferences/com.raccoontechnologies.PageFlow.plis
 
 **Cosa cambia con esso**
 - `PRODUCT_BUNDLE_IDENTIFIER` nelle tre configurazioni del target (`project.pbxproj`). `Info.plist` lo legge da lì.
-- Squadra di firma: oggi `DEVELOPMENT_TEAM` è quella del progetto di origine. Una nuova identità richiede la tua squadra, un nuovo profilo e, per la distribuzione sul Mac App Store, un nuovo record dell'app.
+- Squadra di firma: il `DEVELOPMENT_TEAM` del progetto di origine è stato tolto (PR 2); la firma è ad hoc (`Config/Glossa-AdHoc.xcconfig`) e chi vuole il proprio certificato gratuito usa `Config/Local.xcconfig`. Per la distribuzione sul Mac App Store servirebbero un account a pagamento, un profilo e un record dell'app, fuori dagli obiettivi attuali.
 - Gli identificatori dei test in `Debug/*QA.swift` (`<id>.RecoveryQA.`, `<id>.RestoreQA.`) vanno derivati dal nuovo.
 - Il sottosistema dei log (`com.pageflow`) è indipendente e si può lasciare.
 - Il sandbox crea un container nuovo e vuoto: tutto ciò che sta nelle preferenze e in Application Support riparte da zero (da qui il resto del documento).
