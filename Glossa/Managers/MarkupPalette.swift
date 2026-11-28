@@ -11,7 +11,7 @@
 //  touching anyone's customisations, and "reset" is simply an empty layer.
 //
 //  Pure Foundation and AppKit: no settings object, no views, so it is testable
-//  on its own. Storage is injected as a `UserDefaults`.
+//  on its own. Storage is injected (`PaletteStorage`; `UserDefaults` in the app).
 //
 
 import AppKit
@@ -169,10 +169,22 @@ nonisolated enum HexColor {
 
 // MARK: - Storage
 
+/// Where a `PaletteStore` keeps its keys: `UserDefaults` in the app, and an in-memory store in
+/// tests, so that a test never writes to the reader's real preferences.
+nonisolated protocol PaletteStorage {
+    func data(forKey defaultName: String) -> Data?
+    func string(forKey defaultName: String) -> String?
+    func object(forKey defaultName: String) -> Any?
+    func set(_ value: Any?, forKey defaultName: String)
+    func removeObject(forKey defaultName: String)
+}
+
+extension UserDefaults: PaletteStorage {}
+
 /// Saves and reads a palette's layer, and brings an older install's colour
 /// lists across once. Writes only its own keys; never deletes anything.
 nonisolated struct PaletteStore {
-    let defaults: UserDefaults
+    let defaults: any PaletteStorage
 
     static func layerKey(_ kind: MarkupKind) -> String { "glossa.markup.layer.\(kind.rawValue).v\(PaletteLayer.currentSchema)" }
     static func backupKey(_ kind: MarkupKind) -> String { "glossa.markup.layer.\(kind.rawValue).backup" }
