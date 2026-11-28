@@ -16,7 +16,7 @@ import MarkdownEngine
 
 /// The tab content a URL opens as, decided by file extension — the single
 /// authority the open paths branch on so a `.md` never reaches the PDF
-/// firewall. Classified by `URL.pageFlowIsMarkdown` (`pageFlowMarkdownExtensions`).
+/// firewall. Classified by `URL.glossaIsMarkdown` (`glossaMarkdownExtensions`).
 private enum DocumentKind {
     case pdf
     case markdown
@@ -253,7 +253,7 @@ extension TabManager {
         postTransientToast("Downloading “\(name)”…")
         let task = Task { [weak self] in
             let downloaded = await Task.detached(priority: .userInitiated) {
-                url.pageFlowDownloadContents(isSecurityScoped: isSecurityScoped)
+                url.glossaDownloadContents(isSecurityScoped: isSecurityScoped)
             }.value
             guard let self else { return }
             self.downloadingURLs.remove(url)
@@ -271,7 +271,7 @@ extension TabManager {
             let selectionChanged = selectionOwner?.selectionChanged(in: self) ?? false
             // A re-drop can share an older batch's download. The newest batch
             // that requested this URL owns its insertion and selection.
-            let claimedByNewest = selectionOwner?.urls.contains(url.pageFlowCanonicalDocumentURL) == true
+            let claimedByNewest = selectionOwner?.urls.contains(url.glossaCanonicalDocumentURL) == true
             let alreadyOpen = self.tabID(for: url) != nil
             let pending = self.openDocument(url: url, isSecurityScoped: isSecurityScoped, replaceCurrent: replaceCurrent,
                                             bringsToFront: bringsToFront && NSApp.isActive && !selectionChanged, pdfPageIndex: linkedPageIndex)
@@ -577,7 +577,7 @@ extension TabManager {
             postTransientToast("Couldn’t find “\(target.lastPathComponent)”")
             return nil
         }
-        if target.pageFlowIsOpenableDocument {
+        if target.glossaIsOpenableDocument {
             let pageIndex = target.pathExtension.lowercased() == "pdf" ? PDFPageLink.pageIndex(in: link.fragment) : nil
             // A file reachable only through a folder the user allowed opens scoped.
             let scoped = FileManager.default.isReadableFile(atPath: target.path) ? nil : folderAccess.scopedURL(for: target)
@@ -672,7 +672,7 @@ extension TabManager {
     @discardableResult
     func openDroppedDocuments(_ urls: [URL]) -> Int {
         guard !urls.isEmpty else { return 0 }
-        let batch = DroppedDocumentBatch(urls: urls.map(\.pageFlowCanonicalDocumentURL))
+        let batch = DroppedDocumentBatch(urls: urls.map(\.glossaCanonicalDocumentURL))
         currentDropBatch = batch
         let isElsewhere = { [self] (url: URL) in tabID(for: url) == nil && WindowRegistry.shared.isDocumentOpen(url) }
         let elsewhere = batch.urls.filter(isElsewhere)
@@ -721,12 +721,12 @@ extension TabManager {
             // An admitted note's placeholder becomes a fresh session on read
             // completion. Its pending URL preserves selection identity across
             // that controlled replacement, unlike a new untitled document.
-            (owner.activeTab?.documentURL ?? owner.activeSession?.pendingMarkdownOpen?.url)?.pageFlowCanonicalDocumentURL
+            (owner.activeTab?.documentURL ?? owner.activeSession?.pendingMarkdownOpen?.url)?.glossaCanonicalDocumentURL
         }
     }
 
     private func positionDroppedTab(_ tabID: UUID, url: URL, in batch: DroppedDocumentBatch) {
-        guard let rank = batch.order.firstIndex(of: url.pageFlowCanonicalDocumentURL),
+        guard let rank = batch.order.firstIndex(of: url.glossaCanonicalDocumentURL),
               let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
         let next = batch.order.dropFirst(rank + 1).compactMap { self.tabID(for: $0) }.first
         let previous = batch.order.prefix(rank).reversed().compactMap { self.tabID(for: $0) }.first
@@ -757,7 +757,7 @@ extension TabManager {
             openAfterDownloading(url, isSecurityScoped: false, replaceCurrent: false, bringsToFront: true, dropBatch: batch)
             return true
         }
-        if url.pageFlowIsMarkdown {
+        if url.glossaIsMarkdown {
             activeSession?.content.markdown?.reconcileLiveText()
             if let id = activeTabID, let session = sessions[id], session.canReplaceWithoutPrompt,
                !isAwaitingPassword(for: id) {
@@ -768,7 +768,7 @@ extension TabManager {
             }
             return true
         }
-        if url.pageFlowIsEPUB {
+        if url.glossaIsEPUB {
             openDocument(url: url, isSecurityScoped: false)
             return true
         }
@@ -911,11 +911,11 @@ extension TabManager {
 
     private func documentKind(for url: URL) -> DocumentKind {
         // Classified off the single shared Markdown predicate. The open gate
-        // (`URL.pageFlowIsOpenableDocument`) guarantees every URL reaching here is
+        // (`URL.glossaIsOpenableDocument`) guarantees every URL reaching here is
         // an openable document — PDF or Markdown — so a non-Markdown extension is
         // necessarily a PDF; this is a binary split, not an "assume PDF for unknown".
-        if url.pageFlowIsMarkdown { return .markdown }
-        if url.pageFlowIsEPUB { return .epub }
+        if url.glossaIsMarkdown { return .markdown }
+        if url.glossaIsEPUB { return .epub }
         return .pdf
     }
 

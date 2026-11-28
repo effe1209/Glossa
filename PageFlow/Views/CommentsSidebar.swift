@@ -31,7 +31,7 @@ struct CommentsSidebar: View {
             }
         }
         .frame(width: DesignTokens.pdfCommentsPanelWidth)
-        .pageFlowLiquidGlassPanel(.sidebar)
+        .glossaLiquidGlassPanel(.sidebar)
     }
 
     // MARK: - Header

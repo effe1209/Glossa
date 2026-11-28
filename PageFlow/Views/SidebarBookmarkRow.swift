@@ -58,7 +58,7 @@ struct SidebarBookmarkRow: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .pageFlowClickCursor(when: editingID == nil)
+            .glossaClickCursor(when: editingID == nil)
 
             Button(action: onRemove) {
                 Image(systemName: "xmark")
@@ -67,7 +67,7 @@ struct SidebarBookmarkRow: View {
                     .frame(width: DesignTokens.tabCloseButtonSize, height: DesignTokens.tabCloseButtonSize)
             }
             .buttonStyle(.plain)
-            .pageFlowClickCursor()
+            .glossaClickCursor()
             .opacity(0.6)
             .help("Remove bookmark")
             .accessibilityLabel("Remove Bookmark")

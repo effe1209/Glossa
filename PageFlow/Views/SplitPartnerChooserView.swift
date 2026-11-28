@@ -57,7 +57,7 @@ struct SplitPartnerChooserView: View {
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
-                            .pageFlowClickCursor()
+                            .glossaClickCursor()
                         }
                     }
                 }
@@ -90,7 +90,7 @@ struct SplitPartnerChooserView: View {
             Task { @MainActor in
                 var urls: [URL] = []
                 for provider in fileProviders {
-                    if let url = await provider.loadDroppedFileURL(), url.pageFlowIsOpenableDocument { urls.append(url) }
+                    if let url = await provider.loadDroppedFileURL(), url.glossaIsOpenableDocument { urls.append(url) }
                 }
                 if !urls.isEmpty { manager.splitOpenDropped(urls) }
             }
@@ -110,7 +110,7 @@ struct SplitPartnerChooserView: View {
                     .frame(width: 24, height: 24).contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .pageFlowClickCursor()
+            .glossaClickCursor()
             .help("Close the side-by-side view")
         }
     }
@@ -122,10 +122,10 @@ struct SplitPartnerChooserView: View {
     private func actionButton(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) { Label(title, systemImage: systemImage) }
             .buttonStyle(.plain)
-            .pageFlowClickCursor()
+            .glossaClickCursor()
             .padding(.horizontal, DesignTokens.spacingMD)
             .padding(.vertical, DesignTokens.spacingSM)
-            .pageFlowLiquidGlassPanel(.primaryButton)
+            .glossaLiquidGlassPanel(.primaryButton)
     }
 
     private func card(_ tab: TabModel) -> some View {
@@ -142,7 +142,7 @@ struct SplitPartnerChooserView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
     }
 
     @ViewBuilder

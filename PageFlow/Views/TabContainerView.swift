@@ -193,7 +193,7 @@ struct TabContainerView: View {
             }
         }
         .onOpenURL { url in
-            guard url.pageFlowIsOpenableDocument else { return }
+            guard url.glossaIsOpenableDocument else { return }
             tabManager.closeFilePicker()
             tabManager.openDocument(url: url, isSecurityScoped: false)
         }

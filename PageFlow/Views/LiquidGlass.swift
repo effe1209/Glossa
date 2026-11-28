@@ -8,12 +8,12 @@
 import AppKit
 import SwiftUI
 
-enum PageFlowGlassVariant: Equatable {
+enum GlossaGlassVariant: Equatable {
     case regular
     case clear
 }
 
-enum PageFlowGlassTint: Equatable {
+enum GlossaGlassTint: Equatable {
     case dark
     case light
 
@@ -38,12 +38,12 @@ enum PageFlowGlassTint: Equatable {
 
 extension View {
     @ViewBuilder
-    func pageFlowLiquidGlassSurface(
+    func glossaLiquidGlassSurface(
         cornerRadius: CGFloat,
-        tint: PageFlowGlassTint = .dark,
+        tint: GlossaGlassTint = .dark,
         tintOpacity: CGFloat = 0.12,
         interactive: Bool = false,
-        variant: PageFlowGlassVariant = .regular,
+        variant: GlossaGlassVariant = .regular,
         strokeOpacity: Double = 0.22
     ) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -59,7 +59,7 @@ extension View {
                     ZStack {
                         Color.clear
                             .glassEffect(
-                                pageFlowGlass(variant: variant, tint: tint, tintOpacity: tintOpacity, interactive: interactive),
+                                glossaGlass(variant: variant, tint: tint, tintOpacity: tintOpacity, interactive: interactive),
                                 in: shape
                             )
                         if tintOpacity >= DesignTokens.legibleGlassBaseTint {
@@ -85,17 +85,17 @@ extension View {
         }
     }
 
-    func pageFlowLiquidGlassPanel(
+    func glossaLiquidGlassPanel(
         cornerRadius: CGFloat = DesignTokens.floatingToolbarCornerRadius,
-        tint: PageFlowGlassTint = .dark,
+        tint: GlossaGlassTint = .dark,
         tintOpacity: CGFloat = 0.12,
         interactive: Bool = false,
-        variant: PageFlowGlassVariant = .regular,
+        variant: GlossaGlassVariant = .regular,
         strokeOpacity: Double = 0.22,
         shadowRadius: CGFloat = 10,
         shadowY: CGFloat = 5
     ) -> some View {
-        pageFlowLiquidGlassSurface(
+        glossaLiquidGlassSurface(
             cornerRadius: cornerRadius,
             tint: tint,
             tintOpacity: tintOpacity,
@@ -108,9 +108,9 @@ extension View {
 }
 
 @available(macOS 26.0, *)
-private func pageFlowGlass(
-    variant: PageFlowGlassVariant,
-    tint: PageFlowGlassTint,
+private func glossaGlass(
+    variant: GlossaGlassVariant,
+    tint: GlossaGlassTint,
     tintOpacity: CGFloat,
     interactive: Bool
 ) -> Glass {
@@ -125,21 +125,21 @@ private func pageFlowGlass(
 // MARK: - Named Glass Styles
 
 /// A named bundle of the glass-surface parameters, so call sites read
-/// `.pageFlowLiquidGlassPanel(.toolbar)` instead of repeating an opaque tuple of
+/// `.glossaLiquidGlassPanel(.toolbar)` instead of repeating an opaque tuple of
 /// magic numbers. Presets are exposed as static members (see the extension
 /// below), mirroring how SwiftUI surfaces `.bordered` / `.plain` styles.
 ///
-/// Defaults mirror the underlying `pageFlowLiquidGlassSurface` / `Panel`
+/// Defaults mirror the underlying `glossaLiquidGlassSurface` / `Panel`
 /// modifier defaults exactly, so a preset that omits a field reproduces the same
 /// value the call site would have gotten by omitting that argument. `shadowRadius`
 /// / `shadowY` are only consumed by the panel overload; the surface overload
 /// ignores them.
 struct GlassStyle {
     var cornerRadius: CGFloat
-    var tint: PageFlowGlassTint = .dark
+    var tint: GlossaGlassTint = .dark
     var tintOpacity: CGFloat = 0.12
     var interactive: Bool = false
-    var variant: PageFlowGlassVariant = .regular
+    var variant: GlossaGlassVariant = .regular
     var strokeOpacity: Double = 0.22
     var shadowRadius: CGFloat = 10
     var shadowY: CGFloat = 5
@@ -152,10 +152,10 @@ struct GlassStyle {
     /// minting a whole new named style.
     func with(
         cornerRadius: CGFloat? = nil,
-        tint: PageFlowGlassTint? = nil,
+        tint: GlossaGlassTint? = nil,
         tintOpacity: CGFloat? = nil,
         interactive: Bool? = nil,
-        variant: PageFlowGlassVariant? = nil,
+        variant: GlossaGlassVariant? = nil,
         strokeOpacity: Double? = nil,
         shadowRadius: CGFloat? = nil,
         shadowY: CGFloat? = nil
@@ -237,12 +237,12 @@ extension GlassStyle {
 
 extension View {
     /// Applies a named glass surface. `shadowRadius` / `shadowY` are unused here.
-    func pageFlowLiquidGlassSurface(_ style: GlassStyle) -> some View {
+    func glossaLiquidGlassSurface(_ style: GlassStyle) -> some View {
         modifier(LegibleGlass(style: style, panel: false))
     }
 
     /// Applies a named glass panel (surface + elevation shadow).
-    func pageFlowLiquidGlassPanel(_ style: GlassStyle) -> some View {
+    func glossaLiquidGlassPanel(_ style: GlassStyle) -> some View {
         modifier(LegibleGlass(style: style, panel: true))
     }
 }
@@ -266,13 +266,13 @@ private struct LegibleGlass: ViewModifier {
     func body(content: Content) -> some View {
         let style = resolved
         if panel {
-            content.pageFlowLiquidGlassPanel(
+            content.glossaLiquidGlassPanel(
                 cornerRadius: style.cornerRadius, tint: style.tint, tintOpacity: style.tintOpacity,
                 interactive: style.interactive, variant: style.variant, strokeOpacity: style.strokeOpacity,
                 shadowRadius: style.shadowRadius, shadowY: style.shadowY
             )
         } else {
-            content.pageFlowLiquidGlassSurface(
+            content.glossaLiquidGlassSurface(
                 cornerRadius: style.cornerRadius, tint: style.tint, tintOpacity: style.tintOpacity,
                 interactive: style.interactive, variant: style.variant, strokeOpacity: style.strokeOpacity
             )
@@ -294,6 +294,6 @@ struct ChromeGlassIcon: View {
             .font(.system(size: pointSize, weight: .semibold))
             .foregroundStyle(.primary.opacity(0.78))
             .frame(width: DesignTokens.chromeIconSize, height: DesignTokens.chromeIconSize)
-            .pageFlowLiquidGlassSurface(.newTabButton)
+            .glossaLiquidGlassSurface(.newTabButton)
     }
 }

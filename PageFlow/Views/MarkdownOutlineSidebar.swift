@@ -57,7 +57,7 @@ struct MarkdownOutlineSidebar: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .accessibilityAddTraits(isCurrent ? .isSelected : [])
     }
 }

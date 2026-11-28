@@ -9,7 +9,7 @@ import AppKit
 import EPUBKit
 import SwiftUI
 
-enum PageFlowWindowIdentifiers {
+enum GlossaWindowIdentifiers {
     static let userCreated = NSUserInterfaceItemIdentifier("GlossaUserCreatedWindow")
 }
 
@@ -69,8 +69,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func enqueuePendingURLs(_ urls: [URL], isSecurityScoped: Bool = false) {
         let documentURLs = urls
-            .filter(\.pageFlowIsOpenableDocument)
-            .map(\.pageFlowCanonicalDocumentURL)
+            .filter(\.glossaIsOpenableDocument)
+            .map(\.glossaCanonicalDocumentURL)
         pendingDocumentOpens.append(contentsOf: documentURLs.map {
             PendingDocumentOpen(url: $0, isSecurityScoped: isSecurityScoped)
         })
@@ -107,7 +107,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // here at construction so the window never flashes a solid titlebar
         // before WindowChromeController installs via the SwiftUI content.
         WindowChromeController.applyHiddenTitlebarChrome(to: window)
-        window.identifier = PageFlowWindowIdentifiers.userCreated
+        window.identifier = GlossaWindowIdentifiers.userCreated
         return window
     }
 
@@ -287,7 +287,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// build) it falls back to the canonical path.
     private func resolveRestoreTab(_ tab: RestoreTab) -> ResolvedRestoreURL? {
         guard let bookmark = tab.bookmark else {
-            let url = URL(fileURLWithPath: tab.path).pageFlowCanonicalDocumentURL
+            let url = URL(fileURLWithPath: tab.path).glossaCanonicalDocumentURL
             guard FileManager.default.fileExists(atPath: url.path) else { return nil }
             return ResolvedRestoreURL(url: url, isSecurityScoped: false, scopedURL: nil)
         }
@@ -302,7 +302,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return nil
         }
 
-        let canonical = resolved.pageFlowCanonicalDocumentURL
+        let canonical = resolved.glossaCanonicalDocumentURL
         guard canonical.startAccessingSecurityScopedResource() else { return nil }
         guard FileManager.default.fileExists(atPath: canonical.path) else {
             canonical.stopAccessingSecurityScopedResource()
@@ -364,7 +364,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if let front { makeRestoredWindowKey(front) }
             return
         }
-        fullScreenRestoreObservers = [NSWindow.didEnterFullScreenNotification, .pageFlowWindowDidFailToEnterFullScreen].map { name in
+        fullScreenRestoreObservers = [NSWindow.didEnterFullScreenNotification, .glossaWindowDidFailToEnterFullScreen].map { name in
             NotificationCenter.default.addMainActorObserver(forName: name, object: window) { [weak self] in
                 self?.enterFullScreen(Array(windows.dropFirst()), thenRaising: front)
             }
@@ -383,7 +383,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         var unavailable: [RestoreTab] = []
         guard let reopenable = window.filteringReopenable({ tab in
             guard let resolved = resolveRestoreTab(tab) else {
-                if URL(fileURLWithPath: tab.path).pageFlowVolumeIsOffline { unavailable.append(tab) }
+                if URL(fileURLWithPath: tab.path).glossaVolumeIsOffline { unavailable.append(tab) }
                 return false
             }
             resolvedByPath[tab.path] = resolved
@@ -426,8 +426,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func application(_ application: NSApplication, open urls: [URL]) {
         let documentURLs = urls
-            .filter(\.pageFlowIsOpenableDocument)
-            .map(\.pageFlowCanonicalDocumentURL)
+            .filter(\.glossaIsOpenableDocument)
+            .map(\.glossaCanonicalDocumentURL)
         guard !documentURLs.isEmpty else { return }
 
         var reroutedIntoExistingWindow = false

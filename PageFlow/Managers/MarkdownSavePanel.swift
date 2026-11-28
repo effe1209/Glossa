@@ -20,7 +20,7 @@ enum MarkdownSavePanel {
     /// destination URL, or `nil` if the user cancelled. `defaultName` is offered
     /// in the name field with a Markdown extension appended when it lacks one — so
     /// a `notes.markdown` default is preserved, while an extensionless `Untitled`
-    /// becomes `Untitled.md`. Allowed types come from `URL.pageFlowMarkdownExtensions`,
+    /// becomes `Untitled.md`. Allowed types come from `URL.glossaMarkdownExtensions`,
     /// the single authority, so they can't drift from the open gate.
     static func runModal(defaultName: String) -> URL? {
         let panel = NSSavePanel()
@@ -33,14 +33,14 @@ enum MarkdownSavePanel {
 
     /// What a Markdown file may be saved as, here and in EPUB's highlight export.
     static var allowedContentTypes: [UTType] {
-        URL.pageFlowMarkdownExtensions.compactMap { UTType(filenameExtension: $0) }
+        URL.glossaMarkdownExtensions.compactMap { UTType(filenameExtension: $0) }
     }
 
     /// Appends a `.md` extension to `name` unless it already ends in any of the
     /// Markdown family extensions — the one consistent rule both call sites share.
     static func markdownFileName(for name: String) -> String {
         let lower = name.lowercased()
-        let hasMarkdownExt = URL.pageFlowMarkdownExtensions.contains { lower.hasSuffix(".\($0)") }
+        let hasMarkdownExt = URL.glossaMarkdownExtensions.contains { lower.hasSuffix(".\($0)") }
         return hasMarkdownExt ? name : "\(name).md"
     }
 }

@@ -131,7 +131,7 @@ struct EPUBSearchResultsList: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .accessibilityElement(children: .combine)
         .accessibilityLabel(excerpt.map { $0.before + $0.match + $0.after } ?? "Match")
         .accessibilityValue("Page \(page)")

@@ -21,7 +21,7 @@ extension View {
     /// tab passes `hintsImagesGoInTheNote`: images dropped here, outside the
     /// note's text (over the top chrome), add nothing and say where they go;
     /// over the text the editor takes them (doc 26 §9.1).
-    func pageFlowFileDropTarget(tabManager: TabManager, hintsImagesGoInTheNote: Bool = false) -> some View {
+    func glossaFileDropTarget(tabManager: TabManager, hintsImagesGoInTheNote: Bool = false) -> some View {
         modifier(FileDropTarget(tabManager: tabManager, hintsImagesGoInTheNote: hintsImagesGoInTheNote))
     }
 }
@@ -67,7 +67,7 @@ private struct FileDropTarget: ViewModifier {
             var droppedImages = carriesImageData
             for provider in fileProviders {
                 guard let url = await provider.loadDroppedFileURL() else { continue }
-                if url.pageFlowIsOpenableDocument {
+                if url.glossaIsOpenableDocument {
                     urls.append(url)
                 } else if hintsImages, PastedImageStore.isImage(url) {
                     droppedImages = true

@@ -240,7 +240,7 @@ struct TabBarView: View {
             half(trailing)
         }
         .clipShape(shape)
-        .pageFlowLiquidGlassSurface(.tab(active: true))
+        .glossaLiquidGlassSurface(.tab(active: true))
         .overlay(shape.strokeBorder(Color.accentColor, lineWidth: 1).allowsHitTesting(false))
         .shadow(color: .black.opacity(DesignTokens.glassElevationShadowOpacity * 0.5), radius: 2, y: -1)
         .allowsHitTesting(false)

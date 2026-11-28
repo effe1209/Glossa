@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 import MarkdownEngine
 
 @main
-struct PageFlowApp: App {
+struct GlossaApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     private var recentFilesManager: RecentFilesManager { appDelegate.recentFilesManager }
     @State private var settingsManager = SettingsManager.shared

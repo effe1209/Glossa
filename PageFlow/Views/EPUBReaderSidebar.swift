@@ -115,7 +115,7 @@ struct EPUBReaderSidebar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .help("Show \(section.next.title)")
         .accessibilityLabel("Show \(section.next.title)")
     }
@@ -271,7 +271,7 @@ struct EPUBContentsRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .help(title)
         .accessibilityAddTraits(accent == .current ? .isSelected : [])
     }
@@ -313,7 +313,7 @@ struct EPUBHighlightRow: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .pageFlowClickCursor()
+            .glossaClickCursor()
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(highlight.style.passageLabel): \(highlight.excerpt)" + (highlight.hasNote ? ", note: \(highlight.note ?? "")" : ""))
             .accessibilityValue("Page \(pageLabel)")
@@ -325,7 +325,7 @@ struct EPUBHighlightRow: View {
                     .frame(width: DesignTokens.tabCloseButtonSize, height: DesignTokens.tabCloseButtonSize)
             }
             .buttonStyle(.plain)
-            .pageFlowClickCursor()
+            .glossaClickCursor()
             .opacity(0.6)
             .help(highlight.style.removalTitle)
             .accessibilityLabel(highlight.style.removalTitle)

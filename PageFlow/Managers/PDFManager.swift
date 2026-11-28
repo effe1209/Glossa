@@ -640,12 +640,12 @@ final class PDFManager {
     /// The pending target travels with the PDF manager through a window transfer.
     func followPageLink(_ pageIndex: Int, for url: URL) {
         guard pageIndex >= 0 else { return }
-        let target = url.pageFlowCanonicalDocumentURL
-        if pendingLockedURL?.pageFlowCanonicalDocumentURL == target {
+        let target = url.glossaCanonicalDocumentURL
+        if pendingLockedURL?.glossaCanonicalDocumentURL == target {
             pendingLockedPageIndex = pageIndex
             return
         }
-        guard documentURL?.pageFlowCanonicalDocumentURL == target,
+        guard documentURL?.glossaCanonicalDocumentURL == target,
               let document, pageIndex < document.pageCount,
               let page = document.page(at: pageIndex) else { return }
         let bounds = page.bounds(for: .mediaBox)

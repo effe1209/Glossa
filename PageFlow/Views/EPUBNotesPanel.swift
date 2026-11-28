@@ -53,7 +53,7 @@ struct EPUBNotesPanel: View {
             }
         }
         .frame(width: DesignTokens.commentSidebarWidth)
-        .pageFlowLiquidGlassPanel(.sidebar)
+        .glossaLiquidGlassPanel(.sidebar)
         .onChange(of: highlights.editingRevision, initial: true) { startDraft(highlights.editingID) }
     }
 

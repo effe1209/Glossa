@@ -14,8 +14,8 @@ import os.log
 @Observable
 @MainActor
 final class CommentManager {
-    private static let pageFlowTypeKey = PDFAnnotationKey(rawValue: "PageFlowType")
-    private static let pageFlowCommentValue = "pageflow-comment"
+    private static let glossaTypeKey = PDFAnnotationKey(rawValue: "PageFlowType")
+    private static let glossaCommentValue = "pageflow-comment"
     private let logger = Logger(subsystem: "com.pageflow", category: "CommentManager")
 
     deinit {
@@ -130,7 +130,7 @@ final class CommentManager {
 
         let commentID = UUID()
         highlight.userName = commentID.uuidString
-        highlight.setValue(Self.pageFlowCommentValue, forAnnotationKey: Self.pageFlowTypeKey)
+        highlight.setValue(Self.glossaCommentValue, forAnnotationKey: Self.glossaTypeKey)
         highlight.modificationDate = Date()
         // What the highlight holds is what gets saved: the list is only read from it.
         if !text.isEmpty { highlight.contents = text }
@@ -527,7 +527,7 @@ final class CommentManager {
         }
 
         // Secondary: annotation has PageFlowType key
-        return annotation.value(forAnnotationKey: Self.pageFlowTypeKey) as? String == Self.pageFlowCommentValue
+        return annotation.value(forAnnotationKey: Self.glossaTypeKey) as? String == Self.glossaCommentValue
     }
 
     private func removeOrphanedComment(at index: Int, id: UUID) {

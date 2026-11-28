@@ -43,7 +43,7 @@ struct SidebarHeaderView: View {
                         .foregroundStyle(.primary)
                 }
                 .buttonStyle(.plain)
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .help(pin.isPinned ? "Unpin the sidebar" : "Keep the sidebar open")
                 .accessibilityLabel(pin.isPinned ? "Unpin Sidebar" : "Pin Sidebar")
             }
@@ -75,7 +75,7 @@ struct SidebarHeaderView: View {
                 .foregroundStyle(.primary)
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .accessibilityLabel(isEditingPages ? "Done" : "Edit Pages")
     }
 
@@ -96,7 +96,7 @@ struct SidebarHeaderView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .help(modeHelpText)
         .accessibilityLabel(modeHelpText)
     }

@@ -58,9 +58,9 @@ final class ClosedTabStore {
     /// The same for a tab closed before its document arrived: a note still
     /// reading, or a PDF at its password prompt, has only the URL it was opening.
     func record(url: URL, title: String, isSecurityScoped: Bool) {
-        let canonical = url.pageFlowCanonicalDocumentURL
+        let canonical = url.glossaCanonicalDocumentURL
 
-        records.removeAll { $0.url.pageFlowCanonicalDocumentURL == canonical }
+        records.removeAll { $0.url.glossaCanonicalDocumentURL == canonical }
         records.insert(
             Record(url: url, title: title, isSecurityScoped: isSecurityScoped),
             at: 0
@@ -78,7 +78,7 @@ final class ClosedTabStore {
     /// `url` has settled: it opened, by whatever route, or it can't open. Until
     /// then an open can still be abandoned, so its record stays on the stack.
     func documentSettled(_ url: URL) {
-        let canonical = url.pageFlowCanonicalDocumentURL
-        records.removeAll { $0.url.pageFlowCanonicalDocumentURL == canonical }
+        let canonical = url.glossaCanonicalDocumentURL
+        records.removeAll { $0.url.glossaCanonicalDocumentURL == canonical }
     }
 }

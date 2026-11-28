@@ -306,7 +306,7 @@ final class BookmarkManager {
     }
 
     private func storageKey(for url: URL) -> String? {
-        let path = url.pageFlowCanonicalDocumentURL.path
+        let path = url.glossaCanonicalDocumentURL.path
         guard !path.isEmpty else { return nil }
         return keyPrefix + path
     }

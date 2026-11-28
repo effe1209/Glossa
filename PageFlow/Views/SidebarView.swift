@@ -88,7 +88,7 @@ struct SidebarView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .disabled(item.pageIndex == nil)
         .contextMenu {
             if item.pageIndex != nil, pdfManager.permissions.copy {

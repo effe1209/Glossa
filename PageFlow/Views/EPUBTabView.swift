@@ -118,7 +118,7 @@ struct EPUBTabView: View {
                     .padding(.top, topChromeHeight + DesignTokens.spacingXS)
                     .padding(.bottom, DesignTokens.spacingMD)
                     .padding(.trailing, DesignTokens.spacingXS)
-                    .pageFlowPanelTransition(edge: .trailing)
+                    .glossaPanelTransition(edge: .trailing)
                 }
             }
             .animation(.easeInOut(duration: DesignTokens.animationFast), value: content.highlights.isPanelShown)
@@ -141,7 +141,7 @@ struct EPUBTabView: View {
                     .padding(.top, topChromeHeight + DesignTokens.spacingXS)
                     .padding(.bottom, DesignTokens.spacingMD)
                     .padding(.leading, DesignTokens.spacingXS)
-                    .pageFlowPanelTransition(edge: .leading)
+                    .glossaPanelTransition(edge: .leading)
                 }
             }
             .animation(.easeInOut(duration: DesignTokens.animationFast), value: showingContents)
@@ -190,7 +190,7 @@ struct EPUBTabView: View {
             )
             .environment(\.colorScheme, chromeScheme)
         }
-        .pageFlowFileDropTarget(tabManager: tabManager)
+        .glossaFileDropTarget(tabManager: tabManager)
     }
 
     private var backgroundColor: Color { Color(nsColor: DesignTokens.viewerBackground) }

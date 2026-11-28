@@ -24,7 +24,7 @@ struct SettingsView: View {
         .frame(width: DesignTokens.settingsWindowWidth, height: DesignTokens.settingsWindowHeight)
         .containerBackground(for: .window) {
             Color.clear
-                .pageFlowLiquidGlassSurface(.sidebar.with(cornerRadius: 0, strokeOpacity: 0))
+                .glossaLiquidGlassSurface(.sidebar.with(cornerRadius: 0, strokeOpacity: 0))
                 .background(SettingsWindowAccessor())
         }
         .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)

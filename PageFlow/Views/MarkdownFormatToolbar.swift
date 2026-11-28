@@ -80,7 +80,7 @@ struct MarkdownFormatToolbar: View {
                 GlassToolbarLabel(icon: "plus", interactive: true, magnifies: false)
             }
             .menuStyle(.borderlessButton)
-            .pageFlowClickCursor()
+            .glossaClickCursor()
             .menuIndicator(.hidden)
             .fixedSize()
             .proximityMagnified()
@@ -101,7 +101,7 @@ struct MarkdownFormatToolbar: View {
             GlassToolbarLabel(icon: "square.and.arrow.up", interactive: content.canExport, magnifies: false)
         }
         .menuStyle(.borderlessButton)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .menuIndicator(.hidden)
         .fixedSize()
         .proximityMagnified()

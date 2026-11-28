@@ -111,7 +111,7 @@ extension TabManager {
     /// The tab whose session is awaiting a password for the given canonical URL.
     func tabAwaitingPassword(for canonicalURL: URL) -> UUID? {
         sessions.first { _, session in
-            session.pendingUnlock?.url.pageFlowCanonicalDocumentURL == canonicalURL
+            session.pendingUnlock?.url.glossaCanonicalDocumentURL == canonicalURL
         }?.key
     }
 

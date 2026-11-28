@@ -34,8 +34,8 @@ struct TransientToastOverlay: View {
                     .font(.caption)
                     .padding(.horizontal, DesignTokens.spacingMD)
                     .padding(.vertical, DesignTokens.spacingXS)
-                    .pageFlowLiquidGlassPanel(.glassPanel)
-                    .pageFlowPanelTransition(edge: .bottom)
+                    .glossaLiquidGlassPanel(.glassPanel)
+                    .glossaPanelTransition(edge: .bottom)
                     // Above the bottom strip, clear of the status chip and Find.
                     .padding(.bottom, TopChromeView.height(toolbarScale: SettingsManager.shared.toolbarScale)
                         + DesignTokens.spacingXS)

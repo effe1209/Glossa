@@ -49,13 +49,13 @@ struct PasswordDialogView: View {
                 Button("Cancel") {
                     onCancel()
                 }
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .keyboardShortcut(.cancelAction)
 
                 Button(submitTitle) {
                     submitPassword()
                 }
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .keyboardShortcut(.defaultAction)
                 .disabled(password.isEmpty)
             }

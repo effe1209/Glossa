@@ -14,7 +14,7 @@ struct RecentFile: Identifiable, Codable, Hashable {
     let securityScopedBookmarkData: Data?
 
     var id: String {
-        url.pageFlowCanonicalDocumentURL.path
+        url.glossaCanonicalDocumentURL.path
     }
 
     var displayName: String {
@@ -44,15 +44,15 @@ final class RecentFilesManager {
     }
 
     func addRecentFile(_ url: URL, isSecurityScoped: Bool = false) {
-        guard url.pageFlowIsOpenableDocument else { return }
+        guard url.glossaIsOpenableDocument else { return }
 
-        let canonicalURL = url.pageFlowCanonicalDocumentURL
+        let canonicalURL = url.glossaCanonicalDocumentURL
         let recentFile = RecentFile(
             url: url,
             securityScopedBookmarkData: bookmarkData(for: url, isSecurityScoped: isSecurityScoped)
         )
 
-        var updatedFiles = recentFiles.filter { $0.url.pageFlowCanonicalDocumentURL != canonicalURL }
+        var updatedFiles = recentFiles.filter { $0.url.glossaCanonicalDocumentURL != canonicalURL }
         updatedFiles.insert(recentFile, at: 0)
 
         if updatedFiles.count > maxRecentFiles {
@@ -77,7 +77,7 @@ final class RecentFilesManager {
                     options: [.withSecurityScope, .withoutUI],
                     relativeTo: nil,
                     bookmarkDataIsStale: &isStale
-                ).pageFlowCanonicalDocumentURL
+                ).glossaCanonicalDocumentURL
 
                 // In the sandbox a path answers only inside its scope.
                 let scoped = resolvedURL.startAccessingSecurityScopedResource()
@@ -99,7 +99,7 @@ final class RecentFilesManager {
             }
         }
 
-        let resolvedURL = recentFile.url.pageFlowCanonicalDocumentURL
+        let resolvedURL = recentFile.url.glossaCanonicalDocumentURL
         guard FileManager.default.fileExists(atPath: resolvedURL.path) else {
             removeIfGone(recentFile)
             return nil
@@ -110,7 +110,7 @@ final class RecentFilesManager {
 
     /// A file on a volume that isn't mounted now may be back: it keeps its entry.
     private func removeIfGone(_ recentFile: RecentFile) {
-        if !recentFile.url.pageFlowVolumeIsOffline { removeRecentFile(recentFile) }
+        if !recentFile.url.glossaVolumeIsOffline { removeRecentFile(recentFile) }
     }
 
     private func loadRecentFiles() {
@@ -123,7 +123,7 @@ final class RecentFilesManager {
             do {
                 let legacyURLs = try JSONDecoder().decode([URL].self, from: data)
                 recentFiles = legacyURLs
-                    .map { RecentFile(url: $0.pageFlowCanonicalDocumentURL, securityScopedBookmarkData: nil) }
+                    .map { RecentFile(url: $0.glossaCanonicalDocumentURL, securityScopedBookmarkData: nil) }
                     .filter { FileManager.default.fileExists(atPath: $0.url.path) }
                 saveRecentFiles()
             } catch {

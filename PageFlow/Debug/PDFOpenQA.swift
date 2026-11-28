@@ -8,7 +8,7 @@ enum PDFOpenQA {
     static func run() async {
         let env = AppEnvironment.current
         guard let path = env.value("QA_PDF_URL"), let output = env.value("QA_OUTPUT_DIR") else { exit(2) }
-        let url = URL(fileURLWithPath: path).pageFlowCanonicalDocumentURL
+        let url = URL(fileURLWithPath: path).glossaCanonicalDocumentURL
         let directory = URL(fileURLWithPath: output, isDirectory: true)
         let mode = env.value("QA_PDF_MODE") ?? "warm"
         var checks: [String: Bool] = [:]
@@ -31,7 +31,7 @@ enum PDFOpenQA {
         var rendered: PDFView?
         while Date() < deadline {
             if let manager = WindowRegistry.shared.anyTabManager(), let pdf = manager.activePDFManager,
-               pdf.documentURL?.pageFlowCanonicalDocumentURL == url, let document = pdf.document,
+               pdf.documentURL?.glossaCanonicalDocumentURL == url, let document = pdf.document,
                let window = WindowRegistry.shared.window(for: manager), window.isVisible,
                let content = window.contentView, let view = findPDF(in: content, document: document),
                view.currentPage != nil, view.scaleFactor > 0, !view.isHiddenOrHasHiddenAncestor,

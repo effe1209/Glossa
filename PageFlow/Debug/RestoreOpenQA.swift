@@ -51,8 +51,8 @@ enum RestoreOpenQA {
             let sources = [shared: "# Shared restore\n\nExact e\u{301} 😀\t  \n",
                            distinct: "# Distinct control\n\nIndependent é 🐾\t  \n"]
             for (url, source) in sources { try Data(source.utf8).write(to: url, options: .atomic) }
-            let sharedTab = RestoreTab(path: shared.pageFlowCanonicalDocumentURL.path, bookmark: nil)
-            let distinctTab = RestoreTab(path: distinct.pageFlowCanonicalDocumentURL.path, bookmark: nil)
+            let sharedTab = RestoreTab(path: shared.glossaCanonicalDocumentURL.path, bookmark: nil)
+            let distinctTab = RestoreTab(path: distinct.glossaCanonicalDocumentURL.path, bookmark: nil)
             let state = SessionRestoreState(windows: [
                 WindowSessionState(tabs: [sharedTab], activeIndex: 0),
                 WindowSessionState(tabs: scenario == "distinct" ? [distinctTab] : [sharedTab, distinctTab], activeIndex: 0),
@@ -77,7 +77,7 @@ enum RestoreOpenQA {
                            errors: ["Launch hook occurred after a manager registered; pending-Finder scenario is unqualified"])
                 }
                 delegate.application(NSApp, open: [shared])
-                preconditions["realDelegateQueuedFinderURL"] = delegate.pendingURLs == [shared.pageFlowCanonicalDocumentURL]
+                preconditions["realDelegateQueuedFinderURL"] = delegate.pendingURLs == [shared.glossaCanonicalDocumentURL]
             }
             let frozenPreconditions = preconditions
             Task { await observe(delegate: delegate, scenario: scenario, sources: sources,
@@ -108,18 +108,18 @@ enum RestoreOpenQA {
         let groups = WindowRegistry.shared.allOpenTabs()
         let visible = groups.filter { $0.window.isVisible }
         let sessions = groups.flatMap { $0.tabManager.sessions.values }
-        let canonicalSources = Dictionary(uniqueKeysWithValues: sources.map { ($0.key.pageFlowCanonicalDocumentURL, $0.value) })
+        let canonicalSources = Dictionary(uniqueKeysWithValues: sources.map { ($0.key.glossaCanonicalDocumentURL, $0.value) })
         let checks: [String: Bool] = [
             "restoreBufferDrained": delegate.pendingRestoreWindows.isEmpty,
             "pendingFinderURLsDrained": delegate.pendingURLs.isEmpty,
             "stableWindowSet": Date().timeIntervalSince(stableSince) >= 0.5,
             "twoDistinctDocumentWindows": visible.count == 2 && visible.allSatisfy { $0.tabs.count == 1 },
             "oneSessionPerCanonicalDocument": canonicalSources.keys.allSatisfy { url in
-                sessions.filter { $0.content.markdown?.documentManager.documentURL?.pageFlowCanonicalDocumentURL == url }.count == 1
+                sessions.filter { $0.content.markdown?.documentManager.documentURL?.glossaCanonicalDocumentURL == url }.count == 1
             },
             "exactDocumentSource": sessions.count == 2 && sessions.allSatisfy { session in
                 guard let manager = session.content.markdown?.documentManager,
-                      let url = manager.documentURL?.pageFlowCanonicalDocumentURL,
+                      let url = manager.documentURL?.glossaCanonicalDocumentURL,
                       let expected = canonicalSources[url] else { return false }
                 return manager.text.utf16.elementsEqual(expected.utf16)
             },
@@ -137,7 +137,7 @@ enum RestoreOpenQA {
         WindowRegistry.shared.allOpenTabs().map { group in
             WindowState(number: group.window.windowNumber, visible: group.window.isVisible,
                         tabIDs: group.tabs.map { $0.id.uuidString },
-                        paths: group.tabs.compactMap { $0.documentURL?.pageFlowCanonicalDocumentURL.path })
+                        paths: group.tabs.compactMap { $0.documentURL?.glossaCanonicalDocumentURL.path })
         }.sorted { $0.number < $1.number }
     }
 

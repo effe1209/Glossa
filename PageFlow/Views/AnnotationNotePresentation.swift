@@ -29,7 +29,7 @@ struct AnnotationNoteCard<Content: View>: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .pageFlowClickCursor()
+            .glossaClickCursor()
             ZStack(alignment: .topTrailing) {
                 VStack(alignment: .leading, spacing: DesignTokens.spacingSM) {
                     if let excerpt, !excerpt.isEmpty {
@@ -70,7 +70,7 @@ struct AnnotationNoteCard<Content: View>: View {
                         ClickCatcher(onSingleClick: onSelect, onDoubleClick: { if canEdit { onEdit() } })
                     }
                 }
-                .pageFlowClickCursor(when: !isEditing)
+                .glossaClickCursor(when: !isEditing)
                 .contextMenu {
                     Button("Edit", action: onEdit).disabled(!canEdit)
                     Button("Go to Page", action: onSelect)
@@ -89,7 +89,7 @@ struct AnnotationNoteCard<Content: View>: View {
                         .frame(width: DesignTokens.tabCloseButtonSize, height: DesignTokens.tabCloseButtonSize)
                 }
                 .buttonStyle(.plain)
-                .pageFlowClickCursor()
+                .glossaClickCursor()
                 .padding(.top, DesignTokens.spacingXS)
                 .padding(.trailing, DesignTokens.spacingXS)
                 .help(deleteLabel)
@@ -179,7 +179,7 @@ struct AnnotationNoteColorSwatch: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .help(preset.name)
         .accessibilityLabel(preset.name)
         .accessibilityAddTraits(isSelected ? .isSelected : [])

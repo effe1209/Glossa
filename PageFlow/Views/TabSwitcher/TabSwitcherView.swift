@@ -81,7 +81,7 @@ struct TabSwitcherView: View {
             listBody
         }
         .frame(width: TabSwitcherMetrics.panelWidth)
-        .pageFlowLiquidGlassPanel(.tabSwitcher)
+        .glossaLiquidGlassPanel(.tabSwitcher)
         .padding(TabSwitcherMetrics.shadowPadding)
         .onAppear { selection = defaultSelection }
         .onChange(of: query) { _, _ in
@@ -363,7 +363,7 @@ struct TabSwitcherView: View {
             }
         }
         .onTapGesture(perform: action)
-        .pageFlowClickCursor()
+        .glossaClickCursor()
         .id(id)
     }
 
