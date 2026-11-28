@@ -39,7 +39,7 @@ Principi, in ordine di importanza:
 | `glossa.markdown.pageMeasure` | larghezza della pagina Markdown |
 
 - `settings.tabScale` e `settings.markdownPageMeasure` (scritte dalle build precedenti di Glossa) si **leggono ancora come ripiego** se la chiave `glossa.*` non esiste, e non si scrivono più.
-- Le liste dei colori vecchie (`settings.highlightPresets`, `settings.underlinePresets`) e `settings.markupPaletteVersion` sono **lasciate intatte** e lette una sola volta dalla migrazione dei colori (`PaletteStore.migrateIfNeeded`). Glossa non scrive mai in quelle chiavi.
+- Le liste dei colori vecchie (`settings.highlightPresets`, `settings.underlinePresets`) sono **lasciate intatte** e lette una sola volta dalla migrazione dei colori (`PaletteStore.migrateIfNeeded`). Glossa non scrive mai in quelle chiavi. `settings.markupPaletteVersion` non è usata dal codice di Glossa (le palette vivono nei livelli `glossa.markup.layer.*.v1`): non viene letta e **non viene migrata**.
 - I segnalibri dei PDF sono scritti nel file (voce dell'indice «Glossa Bookmarks»), non in chiavi dell'app. La voce «PageFlow Bookmarks» si legge ancora.
 
 ### Inventario di ciò che l'app salva
@@ -89,7 +89,7 @@ Dominio preferenze: `~/Library/Preferences/com.raccoontechnologies.PageFlow.plis
 - Build con sandbox: l'app non può leggere il dominio di un'altra app. Due strade: (a) l'utente indica il file `…/com.raccoontechnologies.PageFlow.plist` con un pannello di apertura e l'app lo legge come dizionario (file chiesto, nessuna eccezione al sandbox); (b) una eccezione temporanea di sola lettura (`com.apple.security.temporary-exception.shared-preference.read-only`), che il Mac App Store di norma non accetta. Si consiglia la strada (a).
 
 **Cosa si importa: un elenco consentito, non tutto**
-- Si importano le chiavi `settings.*` (tranne le sostituite da `glossa.*`), `documentViewStates.v2` e `bookmarks:*`.
+- Si importano le chiavi `settings.*` che il codice usa davvero e che sono ammesse esplicitamente (tranne le sostituite da `glossa.*`), `documentViewStates.v2` e `bookmarks:*`. Una chiave `settings.*` non presente nell'elenco non si importa, qualunque sia il suo tipo (per esempio `settings.markupPaletteVersion`, che il codice non usa).
 - Le liste dei colori vecchie si importano **così come sono** nelle chiavi vecchie del nuovo dominio, e poi la migrazione dei colori esistente (`PaletteStore`) le classifica: se coincidono con quelle di fabbrica o con `pastel-1` danno un livello vuoto, altrimenti diventano preset dell'utente accanto ai predefiniti Glossa.
 - Non si importano: `hasShownDefaultPDFPrompt`, le chiavi `NS*` e le posizioni delle finestre, `sessionRestore.v1` (vedi §4).
 

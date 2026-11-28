@@ -123,7 +123,7 @@ codesign -d --entitlements - Glossa.app
 codesign --verify --deep --strict Glossa.app
 ```
 
-The `Tests` folder holds five Swift packages. Run each with `swift test`:
+The `Tests` folder holds six Swift packages. Run each with `swift test`:
 
 ```bash
 cd Tests/TabWidthLayoutTests && swift test
@@ -131,6 +131,7 @@ cd Tests/MarkupPaletteTests && swift test
 cd Tests/MarkdownFormattingTests && swift test
 cd Tests/PDFZoomFitTests && swift test
 cd Tests/PDFCitationTests && swift test
+cd Tests/LegacyMigrationTests && swift test
 ```
 
 ## Privacy
