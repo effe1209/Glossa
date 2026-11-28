@@ -1,0 +1,22 @@
+//
+//  Local.xcconfig.example
+//
+//  Copy this file to Config/Local.xcconfig (which Git ignores) to sign with your own
+//  free "Apple Development" certificate (a Personal Team) instead of ad hoc.
+//  A stable identity keeps the permissions macOS gave the app (Files and Folders) from
+//  one build to the next, which an ad hoc signature, different at every build, does not.
+//
+//  Put your own values here and never commit this file: no team ID, certificate or
+//  e-mail belongs in the repository.
+//
+//  Find your Team ID in Xcode > Settings > Accounts > your Apple ID > Personal Team,
+//  or with:  security find-identity -v -p codesigning
+//
+//  This file is a template: its lines are commented out until you uncomment them.
+//
+
+// CODE_SIGN_STYLE = Automatic
+// CODE_SIGN_IDENTITY = Apple Development
+// DEVELOPMENT_TEAM = YOURTEAMID
+// ENABLE_HARDENED_RUNTIME = YES
+// OTHER_CODE_SIGN_FLAGS =

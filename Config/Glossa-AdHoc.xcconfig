@@ -1,0 +1,28 @@
+//
+//  Glossa-AdHoc.xcconfig
+//
+//  Free, local signing for Glossa: an ad hoc signature, no certificate, no team.
+//  It is what the project builds with unless Config/Local.xcconfig says otherwise.
+//
+//  An ad hoc signature is not a developer identity. It lets the app run on the Mac
+//  that built it (and on others after "Open" in the Finder's context menu); it is not
+//  notarized, and Gatekeeper warns about a copy downloaded from elsewhere.
+//
+//  Hardened Runtime is off here: without notarization it protects nothing, and a
+//  developer identity can turn it back on in Local.xcconfig. The entitlements files
+//  are the project's own and are not touched by this file.
+//
+
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = -
+DEVELOPMENT_TEAM =
+ENABLE_HARDENED_RUNTIME = NO
+OTHER_CODE_SIGN_FLAGS = --timestamp=none
+
+// Xcode adds the debugger entitlement (get-task-allow) to anything signed to run
+// locally. A Release build, sandboxed or not, carries exactly the entitlements in its
+// own entitlements file and nothing more; Debug keeps it so Xcode can attach.
+CODE_SIGN_INJECT_BASE_ENTITLEMENTS[config=Release*] = NO
+
+// Per-developer overrides (not in the repository). Included last, so it wins.
+#include? "Local.xcconfig"

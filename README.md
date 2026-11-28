@@ -96,10 +96,32 @@ Glossa is not distributed as a prebuilt download yet. The [releases page](https:
 ```bash
 git clone https://github.com/effe1209/Glossa.git
 cd Glossa
-xcodebuild -project PageFlow.xcodeproj -scheme "PageFlow Direct" -configuration Release-Direct CODE_SIGNING_ALLOWED=NO build
+xcodebuild -project PageFlow.xcodeproj -scheme "PageFlow Direct" -configuration Release-Direct build
 ```
 
 The Xcode project and its schemes keep their original `PageFlow` names; the app they build is **Glossa.app**. The `PageFlow` scheme builds the sandboxed configuration and `PageFlow Direct` the non-sandboxed one. Xcode resolves the Swift Package Manager dependencies on the first build.
+
+### Signing, for free
+
+You do not need an Apple Developer account to build and run Glossa on your own Mac. The project signs ad hoc by default (`Config/Glossa-AdHoc.xcconfig`): no certificate, no team, nothing to set up. The three configurations differ like this:
+
+| Configuration | Sandbox | Entitlements in the signed app |
+|---|---|---|
+| `Release-Direct` (the one to use) | no | none |
+| `Release` | yes | the sandbox set in `PageFlow/PageFlow.entitlements` |
+| `Debug` | yes | the same, plus Xcode's debugger entitlement |
+
+Hardened Runtime is off in the ad hoc configuration, and the app is **not notarized**: there is no Developer ID behind it. An app you built yourself opens normally. A copy you download or send to someone else shows a Gatekeeper warning: open it with a right-click, **Open**, or run `xattr -dr com.apple.quarantine Glossa.app`.
+
+To sign with your own free *Apple Development* certificate (a Personal Team) instead, copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig`, uncomment its lines and put your team ID in it. Git ignores that file, so your team and certificate never reach the repository. A stable identity keeps the Files and Folders permissions macOS gave the app from one build to the next; an ad hoc signature changes at every build, so macOS may ask again.
+
+Check what a build carries with:
+
+```bash
+codesign -dvv Glossa.app
+codesign -d --entitlements - Glossa.app
+codesign --verify --deep --strict Glossa.app
+```
 
 The `Tests` folder holds five Swift packages. Run each with `swift test`:
 
