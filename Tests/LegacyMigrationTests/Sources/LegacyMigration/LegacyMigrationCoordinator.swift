@@ -1,1 +1,1 @@
-../../../../PageFlow/Migration/LegacyMigrationCoordinator.swift
+../../../../Glossa/Migration/LegacyMigrationCoordinator.swift

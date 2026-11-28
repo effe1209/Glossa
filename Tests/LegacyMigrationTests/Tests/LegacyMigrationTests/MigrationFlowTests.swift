@@ -85,7 +85,7 @@ final class IdentityTests: XCTestCase {
 
     func testTheInfoPlistsTakeTheIdentifierFromTheBuildSettingsNotFromALiteral() throws {
         for name in ["PageFlow-Info.plist", "PageFlow-Direct-Info.plist"] {
-            let text = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/\(name)"), encoding: .utf8)
+            let text = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/\(name)"), encoding: .utf8)
             XCTAssertTrue(text.contains("$(PRODUCT_BUNDLE_IDENTIFIER)"), name)
             XCTAssertFalse(text.contains("raccoontechnologies"), name)
         }
@@ -99,18 +99,18 @@ final class IdentityTests: XCTestCase {
     }
 
     func testThePageFlowIdentifierAppearsOnlyAsTheMigrationSourceAndInQAHarnesses() throws {
-        let app = repositoryRoot().appendingPathComponent("PageFlow")
+        let app = repositoryRoot().appendingPathComponent("Glossa")
         for url in swiftFiles(under: app) {
             let text = try String(contentsOf: url, encoding: .utf8)
             guard text.contains("com.raccoontechnologies.PageFlow") else { continue }
             let path = url.path
-            let allowed = path.contains("/PageFlow/Migration/") || path.contains("/PageFlow/Debug/")
+            let allowed = path.contains("/Glossa/Migration/") || path.contains("/Glossa/Debug/")
             XCTAssertTrue(allowed, "\(url.lastPathComponent) names PageFlow's identifier outside the migration code")
         }
     }
 
     func testTheOldDomainIsNeverOpenedThroughUserDefaultsSuiteName() throws {
-        for url in swiftFiles(under: repositoryRoot().appendingPathComponent("PageFlow/Migration")) {
+        for url in swiftFiles(under: repositoryRoot().appendingPathComponent("Glossa/Migration")) {
             let text = try String(contentsOf: url, encoding: .utf8)
             XCTAssertFalse(text.contains("UserDefaults(suiteName"), url.lastPathComponent)
             XCTAssertFalse(text.contains("removePersistentDomain"), url.lastPathComponent)
@@ -121,7 +121,7 @@ final class IdentityTests: XCTestCase {
 
     func testTheDomainOfTheAppIsThatOfItsBundleIdentifier() {
         // `UserDefaults.standard` is the domain of the bundle identifier; AppDefaults hands that out outside tests.
-        let source = try? String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Utilities/AppDefaults.swift"), encoding: .utf8)
+        let source = try? String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Utilities/AppDefaults.swift"), encoding: .utf8)
         XCTAssertTrue(source?.contains("return .standard") == true)
         XCTAssertFalse(source?.contains("raccoontechnologies") == true)
     }
@@ -411,7 +411,7 @@ final class BookmarkAuthorizationTests: XCTestCase {
 
 final class ConsentTests: XCTestCase {
     func testTheEngineRunsForRealOnlyInsideTheCoordinator() throws {
-        let app = repositoryRoot().appendingPathComponent("PageFlow")
+        let app = repositoryRoot().appendingPathComponent("Glossa")
         for url in swiftFiles(under: app) {
             let text = try String(contentsOf: url, encoding: .utf8)
             if text.contains("dryRun: false") {
@@ -421,7 +421,7 @@ final class ConsentTests: XCTestCase {
     }
 
     func testOnlyTheImportButtonAsksTheCoordinatorToImport() throws {
-        let app = repositoryRoot().appendingPathComponent("PageFlow")
+        let app = repositoryRoot().appendingPathComponent("Glossa")
         for url in swiftFiles(under: app) {
             let text = try String(contentsOf: url, encoding: .utf8)
             if text.contains("coordinator.choose(.importNow)") {
@@ -434,7 +434,7 @@ final class ConsentTests: XCTestCase {
     }
 
     func testTheOfferIsNotShownInATestHostOrToAnotherIdentity() throws {
-        let presenter = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Migration/MigrationPresenter.swift"), encoding: .utf8)
+        let presenter = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Migration/MigrationPresenter.swift"), encoding: .utf8)
         XCTAssertTrue(presenter.contains("!TestEnvironment.isRunningTests, AppIdentity.isGlossa()"))
     }
 }

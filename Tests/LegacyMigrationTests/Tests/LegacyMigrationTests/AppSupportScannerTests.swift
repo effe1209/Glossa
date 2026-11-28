@@ -393,7 +393,7 @@ final class ScannerReadOnlyTests: XCTestCase {
     }
 
     func testTheScannerNamesNoWritingCall() throws {
-        let text = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Migration/AppSupportScanner.swift"), encoding: .utf8)
+        let text = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Migration/AppSupportScanner.swift"), encoding: .utf8)
         // The header comment says what it does not do; look at code lines only.
         let code = text.components(separatedBy: "\n").filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }.joined(separator: "\n")
         for call in ["createDirectory", "copyItem", "moveItem", "removeItem", "setAttributes", "createFile", ".write(", "O_WRONLY", "O_RDWR", "O_CREAT",
@@ -404,7 +404,7 @@ final class ScannerReadOnlyTests: XCTestCase {
     }
 
     func testNothingInTheAppCallsTheScannerYet() throws {
-        let app = repositoryRoot().appendingPathComponent("PageFlow")
+        let app = repositoryRoot().appendingPathComponent("Glossa")
         var callers: [String] = []
         if let files = FileManager.default.enumerator(at: app, includingPropertiesForKeys: nil) {
             for case let url as URL in files where url.pathExtension == "swift" && !["AppSupportScanner.swift", "AppSupportMigrator.swift"].contains(url.lastPathComponent) {
@@ -416,11 +416,11 @@ final class ScannerReadOnlyTests: XCTestCase {
 
     func testTheValidationsMatchTheFieldsTheStoresDeclare() throws {
         // The scanner mirrors the stores' record types (they cannot be built outside the app).
-        let recovery = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Managers/MarkdownRecoveryStore.swift"), encoding: .utf8)
+        let recovery = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Managers/MarkdownRecoveryStore.swift"), encoding: .utf8)
         for field in ["var id: UUID", "var title: String", "var originalURL: URL?", "var source: String", "var commentBlock: String?", "var updatedAt: Date"] {
             XCTAssertTrue(recovery.contains(field), "MarkdownRecoveryStore.Record no longer has `\(field)`: update the scanner")
         }
-        let epub = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow/Managers/EPUBAnnotationStore.swift"), encoding: .utf8)
+        let epub = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa/Managers/EPUBAnnotationStore.swift"), encoding: .utf8)
         for field in ["var identifier: String?", "var path: String", "var highlights: [EPUBHighlight]", "var bookmarks: [EPUBBookmark]", "var updatedAt: Date"] {
             XCTAssertTrue(epub.contains(field), "EPUBAnnotationStore.Record no longer has `\(field)`: update the scanner")
         }

@@ -24,7 +24,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		00985C9A2EE4A10600E48813 /* Exceptions for "PageFlow" folder in "Glossa" target */ = {
+		00985C9A2EE4A10600E48813 /* Exceptions for "Glossa" folder in "Glossa" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"PageFlow-Direct-Info.plist",
@@ -35,12 +35,12 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		00985C662EE4A10500E48813 /* PageFlow */ = {
+		00985C662EE4A10500E48813 /* Glossa */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				00985C9A2EE4A10600E48813 /* Exceptions for "PageFlow" folder in "Glossa" target */,
+				00985C9A2EE4A10600E48813 /* Exceptions for "Glossa" folder in "Glossa" target */,
 			);
-			path = PageFlow;
+			path = Glossa;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -74,7 +74,7 @@
 			isa = PBXGroup;
 			children = (
 				7A1C0A020E5D4B2300A1B2C4 /* Config */,
-				00985C662EE4A10500E48813 /* PageFlow */,
+				00985C662EE4A10500E48813 /* Glossa */,
 				00985C652EE4A10500E48813 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -104,7 +104,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				00985C662EE4A10500E48813 /* PageFlow */,
+				00985C662EE4A10500E48813 /* Glossa */,
 			);
 			name = Glossa;
 			packageProductDependencies = (
@@ -349,7 +349,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = PageFlow/PageFlow.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Glossa/PageFlow.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 72;
 				DEAD_CODE_STRIPPING = YES;
@@ -357,7 +357,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "PageFlow/PageFlow-Info.plist";
+				INFOPLIST_FILE = "Glossa/PageFlow-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -383,7 +383,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = PageFlow/PageFlow.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Glossa/PageFlow.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 72;
 				DEAD_CODE_STRIPPING = YES;
@@ -391,7 +391,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "PageFlow/PageFlow-Info.plist";
+				INFOPLIST_FILE = "Glossa/PageFlow-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -475,7 +475,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "PageFlow/PageFlow-Direct.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Glossa/PageFlow-Direct.entitlements";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 72;
 				DEAD_CODE_STRIPPING = YES;
@@ -483,7 +483,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = NO;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "PageFlow/PageFlow-Direct-Info.plist";
+				INFOPLIST_FILE = "Glossa/PageFlow-Direct-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (

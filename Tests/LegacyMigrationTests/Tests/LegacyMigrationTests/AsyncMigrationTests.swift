@@ -162,7 +162,7 @@ final class ThresholdBeforeScanTests: XCTestCase {
     }
 
     func testTheCheckOnWhatTheScanFoundSoundStaysAsASafetyNet() throws {
-        let text = try source("PageFlow/Migration/AppSupportMigrator.swift")
+        let text = try source("Glossa/Migration/AppSupportMigrator.swift")
         XCTAssertTrue(text.contains("The same check on what the scan found sound"))
         let early = try XCTUnwrap(text.range(of: "counter.lines()"))
         let scan = try XCTUnwrap(text.range(of: "let scan = scanner.scan()"))
@@ -429,12 +429,12 @@ final class AsyncSessionTests: XCTestCase {
     }
 
     func testTheSessionHandsTheWorkToABackgroundTaskAndOnlyItChangesThePhase() throws {
-        let text = try source("PageFlow/Migration/MigrationSession.swift")
+        let text = try source("Glossa/Migration/MigrationSession.swift")
         XCTAssertTrue(text.contains("@MainActor\n@Observable\nfinal class MigrationSession"))
         XCTAssertTrue(text.contains("Task.detached(priority: .userInitiated)"))
         XCTAssertTrue(text.contains("withTaskCancellationHandler"))
         XCTAssertTrue(text.contains("deinit { work?.cancel() }"))
-        let view = try source("PageFlow/Views/MigrationView.swift")
+        let view = try source("Glossa/Views/MigrationView.swift")
         XCTAssertTrue(view.contains("Button(\"Cancel\") { session.cancel() }"))
     }
 }
@@ -661,7 +661,7 @@ final class SessionReentrancyTests: XCTestCase {
     }
 
     func testTheCoordinatorIsOnlyUsedByTheJobWhileItRuns() throws {
-        let text = try source("PageFlow/Migration/MigrationSession.swift")
+        let text = try source("Glossa/Migration/MigrationSession.swift")
         // Every place the session touches the coordinator is behind a guard on `jobInFlight` or runs inside the job.
         XCTAssertEqual(text.components(separatedBy: "!jobInFlight").count - 1, 6, "choose, confirm, restart, close, backToChoice and perform's guard")
         XCTAssertTrue(text.contains("guard !jobInFlight else { return }"))
@@ -859,12 +859,12 @@ final class PointOfNoReturnEngineTests: XCTestCase {
     }
 
     func testTheWindowSaysItCanNoLongerBeCancelled() throws {
-        let view = try source("PageFlow/Views/MigrationView.swift")
+        let view = try source("Glossa/Views/MigrationView.swift")
         XCTAssertTrue(view.contains("session.isPastPointOfNoReturn"))
         XCTAssertTrue(view.contains("Finishing the import…"))
         XCTAssertTrue(view.contains("can no longer be cancelled"))
         XCTAssertTrue(view.contains("Button(\"Cancel\") { session.cancel() }.disabled(!session.canCancel)"))
-        let engine = try source("PageFlow/Migration/AppSupportMigrator.swift")
+        let engine = try source("Glossa/Migration/AppSupportMigrator.swift")
         let last = try XCTUnwrap(engine.range(of: "if isCancelled() { return cancelled(&report, staging: staging) }\n\n        // Move into place"))
         let signal = try XCTUnwrap(engine.range(of: "pointOfNoReturn()\n        for file in staged"))
         XCTAssertLessThan(last.lowerBound, signal.lowerBound, "the signal comes after the last cancel check, not before it")

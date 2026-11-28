@@ -589,7 +589,7 @@ final class MarkupPaletteTests: XCTestCase {
     func testOnlyTheEditingCodePathsAssignAnAnnotationsColour() throws {
         let root = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .deletingLastPathComponent().appendingPathComponent("PageFlow")
+            .deletingLastPathComponent().appendingPathComponent("Glossa")
         // New markup, a selected annotation's colour change (and its undo), a comment's colour,
         // and an EPUB highlight's `setColor`. Nothing that reacts to a palette change.
         let expected: [String: Int] = ["AnnotationManager.swift": 3, "CommentManager.swift": 2, "EPUBHighlights.swift": 1]
@@ -610,7 +610,7 @@ final class MarkupPaletteTests: XCTestCase {
     func testTheLegacyRenderFallbackIsOnlyUsedToDrawStoredHighlights() throws {
         let root = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .deletingLastPathComponent().appendingPathComponent("PageFlow")
+            .deletingLastPathComponent().appendingPathComponent("Glossa")
         var users: Set<String> = []
         let files = FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil)!
         for case let url as URL in files where url.pathExtension == "swift" {
@@ -626,7 +626,7 @@ final class MarkupPaletteTests: XCTestCase {
     func testNoOldDefaultColoursRemainInTheSources() throws {
         let root = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .deletingLastPathComponent().appendingPathComponent("PageFlow")
+            .deletingLastPathComponent().appendingPathComponent("Glossa")
         // Where an old colour is meant: the lists of earlier versions, and the unreadable-colour fallback.
         let allowed: Set<String> = ["MarkupPalette.swift", "DesignTokens.swift", "ColorWellView.swift"]
         var offenders: [String] = []

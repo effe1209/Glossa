@@ -1,1 +1,1 @@
-../../../../PageFlow/Views/AuthorizationContent.swift
+../../../../Glossa/Views/AuthorizationContent.swift

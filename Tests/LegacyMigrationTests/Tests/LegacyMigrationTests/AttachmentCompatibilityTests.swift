@@ -134,7 +134,7 @@ final class MigratedAttachmentsStayUsableTests: XCTestCase {
     }
 
     func testRecognisingJudgesAPathAndReadsNoFolderAndWritesNothing() throws {
-        let text = try codeLines("PageFlow/Migration/AttachmentLinkRecognizer.swift").joined(separator: "\n")
+        let text = try codeLines("Glossa/Migration/AttachmentLinkRecognizer.swift").joined(separator: "\n")
         for call in ["contentsOfDirectory", "enumerator", "Data(contentsOf", "copyItem", "moveItem", "removeItem", "createDirectory", ".write(",
                      "createFile", "UserDefaults", "FileHandle"] {
             XCTAssertFalse(text.contains(call), "the recogniser uses \(call)")
@@ -152,7 +152,7 @@ private enum TestImages {
 
 final class AdoptionWiringTests: XCTestCase {
     func testAdoptFallbackImagesRecognisesBothFoldersThroughTheRecogniser() throws {
-        let text = try source("PageFlow/Managers/PastedImageStore.swift")
+        let text = try source("Glossa/Managers/PastedImageStore.swift")
         XCTAssertTrue(text.contains("attachmentLinks.canAdopt(file)"))
         XCTAssertFalse(text.contains("hasPrefix(prefix)"), "the old single-prefix test is gone")
         XCTAssertTrue(text.contains("AttachmentLinkRecognizer(folders: [fallbackFolder] + (legacyFallbackFolder.map { [$0] } ?? []))"))
@@ -160,7 +160,7 @@ final class AdoptionWiringTests: XCTestCase {
     }
 
     func testPageFlowsFolderIsOnlyRecognisedNeverSavedIntoOrChanged() throws {
-        let lines = try codeLines("PageFlow/Managers/PastedImageStore.swift")
+        let lines = try codeLines("Glossa/Managers/PastedImageStore.swift")
         let legacyUses = lines.filter { $0.contains("legacy") || $0.contains("Legacy") }
         // The parameter, its default, the recogniser and the static that names the folder: nothing else.
         XCTAssertEqual(legacyUses.count, 4, legacyUses.joined(separator: "\n"))
@@ -172,7 +172,7 @@ final class AdoptionWiringTests: XCTestCase {
     }
 
     func testAdoptionCopiesAndKeepsTheOriginalWithoutOverwriting() throws {
-        let text = try source("PageFlow/Managers/PastedImageStore.swift")
+        let text = try source("Glossa/Managers/PastedImageStore.swift")
         let start = try XCTUnwrap(text.range(of: "func adoptFallbackImages"))
         let end = try XCTUnwrap(text.range(of: "private static let imageLinkPattern", range: start.upperBound..<text.endIndex))
         let body = String(text[start.lowerBound..<end.lowerBound])
@@ -183,7 +183,7 @@ final class AdoptionWiringTests: XCTestCase {
     }
 
     func testThePasteStoreStillSavesNewImagesOnlyUnderGlossa() throws {
-        let text = try source("PageFlow/Managers/PastedImageStore.swift")
+        let text = try source("Glossa/Managers/PastedImageStore.swift")
         XCTAssertTrue(text.contains("ApplicationSupportPaths.current().attachments"))
         XCTAssertFalse(text.contains("\"PageFlow/"))
     }
@@ -191,9 +191,9 @@ final class AdoptionWiringTests: XCTestCase {
 
 final class EPUBAnnotationsUseGlossasFolderTests: XCTestCase {
     func testTheStoreTakesItsFolderFromTheCentralPathsAndHasNoMigrationOfItsOwn() throws {
-        let text = try source("PageFlow/Managers/EPUBAnnotationStore.swift")
+        let text = try source("Glossa/Managers/EPUBAnnotationStore.swift")
         XCTAssertTrue(text.contains("ApplicationSupportPaths.current().epubAnnotations"))
-        let code = try codeLines("PageFlow/Managers/EPUBAnnotationStore.swift").joined(separator: "\n")
+        let code = try codeLines("Glossa/Managers/EPUBAnnotationStore.swift").joined(separator: "\n")
         for word in ["legacy", "Legacy", "AppSupportMigrator", "AppSupportScanner", "migrat", "Migrat", "PageFlow/", "applicationSupportDirectory"] {
             XCTAssertFalse(code.contains(word), "EPUBAnnotationStore mentions \(word): a second migration or a path of its own")
         }
@@ -201,7 +201,7 @@ final class EPUBAnnotationsUseGlossasFolderTests: XCTestCase {
 
     func testTheFolderNameIsWrittenOnceInTheWholeApp() throws {
         var literals: [String] = []
-        let app = repositoryRoot().appendingPathComponent("PageFlow")
+        let app = repositoryRoot().appendingPathComponent("Glossa")
         if let files = FileManager.default.enumerator(at: app, includingPropertiesForKeys: nil) {
             for case let url as URL in files where url.pathExtension == "swift" {
                 let code = try String(contentsOf: url, encoding: .utf8).components(separatedBy: "\n")
@@ -213,7 +213,7 @@ final class EPUBAnnotationsUseGlossasFolderTests: XCTestCase {
     }
 
     func testTheTestHostStillUsesATemporaryFolder() throws {
-        let text = try source("PageFlow/Managers/EPUBAnnotationStore.swift")
+        let text = try source("Glossa/Managers/EPUBAnnotationStore.swift")
         XCTAssertTrue(text.contains("TestEnvironment.isRunningTests"))
         XCTAssertTrue(text.contains("temporaryDirectory.appendingPathComponent(\"PageFlow-EPUB-Annotations-"))
     }

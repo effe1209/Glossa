@@ -191,7 +191,7 @@ final class AllowlistTests: XCTestCase {
         // migrated, or forgotten, without this test saying so.
         var root = URL(fileURLWithPath: #filePath)
         for _ in 0..<5 { root.deleteLastPathComponent() }
-        let appSources = root.appendingPathComponent("PageFlow")
+        let appSources = root.appendingPathComponent("Glossa")
         let regex = try NSRegularExpression(pattern: #""(settings\.[A-Za-z0-9_.]+)""#)
         var used = Set<String>()
         let files = try XCTUnwrap(FileManager.default.enumerator(at: appSources, includingPropertiesForKeys: nil))
@@ -642,7 +642,7 @@ final class RegistryKeyTests: XCTestCase {
 
         // ...and no code of the app calls it yet: only the definition mentions it.
         let root = URL(fileURLWithPath: #filePath)
-        let appSources = (0..<5).reduce(root) { url, _ in url.deletingLastPathComponent() }.appendingPathComponent("PageFlow")
+        let appSources = (0..<5).reduce(root) { url, _ in url.deletingLastPathComponent() }.appendingPathComponent("Glossa")
         var callers: [String] = []
         if let files = FileManager.default.enumerator(at: appSources, includingPropertiesForKeys: nil) {
             for case let url as URL in files where url.pathExtension == "swift" && url.lastPathComponent != "PDFDocumentRegistry.swift" {

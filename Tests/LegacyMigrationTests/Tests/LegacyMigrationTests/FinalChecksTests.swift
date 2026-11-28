@@ -130,13 +130,13 @@ final class RestartAfterImportTests: XCTestCase {
     }
 
     func testTheOfferComesBeforeTheSessionIsRestoredAndTheRestartIsConfirmed() throws {
-        let delegate = try source("PageFlow/AppDelegate.swift")
+        let delegate = try source("Glossa/AppDelegate.swift")
         let offer = try XCTUnwrap(delegate.range(of: "MigrationPresenter.presentIfNeeded(recentFiles: recentFilesManager)"))
         let restore = try XCTUnwrap(delegate.range(of: "        restorePreviousSessionIfNeeded()\n"))
         XCTAssertLessThan(offer.lowerBound, restore.lowerBound, "no document is restored while the window is up")
         XCTAssertTrue(delegate.contains("{ return }"), "a restarting launch goes no further")
 
-        let presenter = try source("PageFlow/Migration/MigrationPresenter.swift")
+        let presenter = try source("Glossa/Migration/MigrationPresenter.swift")
         let check = try XCTUnwrap(presenter.range(of: "importIsRecorded(in: readback)"))
         let open = try XCTUnwrap(presenter.range(of: "NSWorkspace.shared.openApplication"))
         XCTAssertLessThan(check.lowerBound, open.lowerBound, "no new copy before the import is read back")
@@ -144,7 +144,7 @@ final class RestartAfterImportTests: XCTestCase {
     }
 
     func testTheMenuNeverImportsBecauseARunningAppWouldWriteItsOldCopiesBack() throws {
-        let presenter = try source("PageFlow/Migration/MigrationPresenter.swift")
+        let presenter = try source("Glossa/Migration/MigrationPresenter.swift")
         let start = try XCTUnwrap(presenter.range(of: "static func importFromMenu()"))
         let end = try XCTUnwrap(presenter.range(of: "private static func restart", range: start.upperBound..<presenter.endIndex))
         XCTAssertFalse(presenter[start.lowerBound..<end.lowerBound].contains("choose("))
@@ -332,10 +332,10 @@ final class MenuFollowsTheListTests: XCTestCase {
     }
 
     func testTheMenuAndTheWindowReadTheSameState() throws {
-        let app = try source("PageFlow/PageFlowApp.swift")
+        let app = try source("Glossa/PageFlowApp.swift")
         XCTAssertTrue(app.contains("@State private var pendingAuthorizations = PendingAuthorizationsModel.shared"))
         XCTAssertTrue(app.contains(".disabled(pendingAuthorizations.items.isEmpty)"))
-        let view = try source("PageFlow/Views/MigrationView.swift")
+        let view = try source("Glossa/Views/MigrationView.swift")
         XCTAssertTrue(view.contains("var items: [PendingAuthorization] { state.items }"), "the model's items are the observable state's")
         XCTAssertTrue(view.contains("func refresh() { state.refresh() }"))
         XCTAssertTrue(view.contains("        refresh()\n    }\n\n    private func service()"), "the list is read again after every attempt")

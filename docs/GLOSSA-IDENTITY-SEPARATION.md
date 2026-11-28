@@ -182,7 +182,7 @@ Altre salvaguardie:
 
 ## Stato dopo la PR 6: variabili d'ambiente e identificatori interni
 
-**Variabili d'ambiente.** `GLOSSA_*` è il nome canonico, `PAGEFLOW_*` un alias temporaneo di compatibilità (da rimuovere in una versione successiva). La risoluzione sta in `AppEnvironment` (`PageFlow/Utilities/AppEnvironment.swift`), con l'ambiente iniettato nei test. Regole:
+**Variabili d'ambiente.** `GLOSSA_*` è il nome canonico, `PAGEFLOW_*` un alias temporaneo di compatibilità (da rimuovere in una versione successiva). La risoluzione sta in `AppEnvironment` (`Glossa/Utilities/AppEnvironment.swift`), con l'ambiente iniettato nei test. Regole:
 - decide la **presenza**, non il contenuto: se `GLOSSA_X` esiste, vince, anche se è vuota (il valore vuoto si restituisce com'è, senza ripiego sull'alias); `PAGEFLOW_X` conta solo se `GLOSSA_X` manca;
 - per i controlli di sola presenza (`isSet`) basta una delle due;
 - il rilevamento dei QA (`hasQAVariable`) guarda i nomi che iniziano per `GLOSSA_` o `PAGEFLOW_` e contengono `QA`;

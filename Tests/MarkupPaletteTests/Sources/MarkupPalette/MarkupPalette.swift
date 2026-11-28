@@ -1,1 +1,1 @@
-../../../../PageFlow/Managers/MarkupPalette.swift
+../../../../Glossa/Managers/MarkupPalette.swift
