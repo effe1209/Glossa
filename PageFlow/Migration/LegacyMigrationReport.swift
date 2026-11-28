@@ -5,7 +5,7 @@
 //  What an import from PageFlow's preferences would do, or did, key by key. The report
 //  holds no values, only keys, kinds and reasons, so it is safe to show or log.
 //
-//  Nothing in `Migration/` is wired to the app's launch yet.
+//  Only LegacyMigrationCoordinator runs the engine for real, and only on the reader's choice.
 //
 
 import Foundation

@@ -1,6 +1,6 @@
 # Glossa: separazione dall'identità di PageFlow
 
-Documento tecnico di migrazione. **Descrive un lavoro futuro**: nulla di quanto sotto è implementato, salvo la parte «Cosa è già stato fatto». L'identificatore resta `com.raccoontechnologies.PageFlow`; non si cambiano firma, entitlements, percorsi di Application Support né dati esistenti.
+Documento tecnico di migrazione. **Descrive un lavoro futuro**: nulla di quanto sotto è implementato, salvo la parte «Cosa è già stato fatto». **Aggiornamento (PR 4):** l'identificatore è ora `io.github.effe1209.Glossa` e l'importazione dalle preferenze di PageFlow è proposta esplicitamente (Importa / Non ora / Non importare mai); i percorsi di Application Support di PageFlow non sono toccati e la copia di Recovery, Attachments ed EPUB Annotations resta una fase separata. Il testo qui sotto è la pianificazione originale.
 
 ## Decisioni prese (28 novembre 2026)
 
@@ -102,6 +102,10 @@ Dominio preferenze: `~/Library/Preferences/com.raccoontechnologies.PageFlow.plis
 **Comunicazione.** Un foglio al primo avvio: cosa verrà copiato (impostazioni, posizioni di lettura, colori, file recenti), «copia, non sposta», e tre scelte: «Importa», «Non ora» (si richiede dal menu e al prossimo avvio) e «Non importare mai» (scrive il marcatore con `skipped`). Un comando permanente nel menu: «Importa da PageFlow…».
 
 ## 3. Copia di Application Support, senza cancellare l'originale
+
+**Stato dopo la PR 4.** La cartella `Application Support/Glossa` viene predisposta (vuota) quando un'importazione si completa. Gli store di Recovery, Allegati e annotazioni EPUB continuano temporaneamente a usare `Application Support/PageFlow`: la copia e la separazione completa dei percorsi sono rimandate alla PR successiva. Nessun dato originale viene spostato, rinominato o cancellato.
+
+**Limite delle build con sandbox.** `Debug` e `Release` hanno il sandbox attivo e non possono leggere il dominio delle preferenze di PageFlow: non propongono l'importazione e, se richiesta dal menu, ne spiegano il motivo. Gli entitlements non si modificano per aggirare il limite; l'importazione si fa con `Release-Direct`.
 
 **Sorgente:** `~/Library/Application Support/PageFlow/{Recovery, Attachments, "EPUB Annotations"}` (o nel container se la build è con sandbox). **Destinazione:** `~/Library/Application Support/Glossa/…` (la cartella nuova va decisa insieme al nuovo identificatore).
 

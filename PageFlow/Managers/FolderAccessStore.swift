@@ -85,6 +85,26 @@ nonisolated final class FolderAccessStore: @unchecked Sendable {
             .map { ($0.key, $0.value) }
     }
 
+    /// Whether a stored grant covering `url` really works: its bookmark resolves with its scope and the
+    /// path can be read through it. A grant that is merely present is not enough.
+    func hasWorkingAccess(to url: URL) -> Bool {
+        guard let (_, bookmark) = grant(covering: url) else { return false }
+        var stale = false
+        guard let folder = try? URL(resolvingBookmarkData: bookmark, options: .withSecurityScope,
+                                    relativeTo: nil, bookmarkDataIsStale: &stale) else { return false }
+        let opened = folder.startAccessingSecurityScopedResource()
+        defer { if opened { folder.stopAccessingSecurityScopedResource() } }
+        return FileManager.default.isReadableFile(atPath: url.path)
+    }
+
+    /// Stores the grant for a folder the reader chose in an open panel of their own (the one that
+    /// asks to allow a folder again after an import). Returns whether it now covers `folder`.
+    @discardableResult
+    func allow(_ chosen: URL, covering folder: URL) -> Bool {
+        remember(chosen)
+        return grant(covering: folder) != nil
+    }
+
     private func remember(_ folder: URL) {
         guard let bookmark = try? folder.bookmarkData(options: .withSecurityScope,
                                                       includingResourceValuesForKeys: nil, relativeTo: nil) else { return }

@@ -3,7 +3,7 @@
 //  PageFlow
 //
 //  Copies the allowed part of PageFlow's preferences into Glossa's, once. Not wired to
-//  the app's launch: nothing calls it yet, and no interface for it exists.
+//  the app's launch: only LegacyMigrationCoordinator runs it, when the reader chooses Import.
 //
 //  The source is read-only by construction: it can only produce a snapshot. The
 //  destination wins: a key that already has a value is left as it is. The marker is
@@ -118,6 +118,12 @@ nonisolated struct LegacyMigrator {
             for planned in toWrite {
                 try destination.set(planned.value, forKey: planned.destinationKey)
                 written.append(planned.destinationKey)
+            }
+            // What could not carry its access over is kept, with its path, until the reader allows it again.
+            let pending = PendingAuthorizationList.make(from: plan.findings)
+            if !pending.isEmpty, destination.value(forKey: PendingAuthorizationList.key) == nil {
+                try destination.set(try PendingAuthorizationList.encode(pending), forKey: PendingAuthorizationList.key)
+                written.append(PendingAuthorizationList.key)
             }
             let marker = MigrationMarker(version: MigrationMarker.currentVersion, status: .completed,
                                          completedAt: ISO8601DateFormatter().string(from: now),
