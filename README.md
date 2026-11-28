@@ -96,10 +96,10 @@ Glossa is not distributed as a prebuilt download yet. The [releases page](https:
 ```bash
 git clone https://github.com/effe1209/Glossa.git
 cd Glossa
-xcodebuild -project PageFlow.xcodeproj -scheme "PageFlow Direct" -configuration Release-Direct build
+xcodebuild -project Glossa.xcodeproj -scheme "Glossa Direct" -configuration Release-Direct build
 ```
 
-The Xcode project and its schemes keep their original `PageFlow` names; the app they build is **Glossa.app**. The `PageFlow` scheme builds the sandboxed configuration and `PageFlow Direct` the non-sandboxed one. Xcode resolves the Swift Package Manager dependencies on the first build.
+The Xcode project is `Glossa.xcodeproj` and the app it builds is **Glossa.app**. The `Glossa` scheme builds the sandboxed configuration and `Glossa Direct` the non-sandboxed one. The source folder is still called `PageFlow/`. Xcode resolves the Swift Package Manager dependencies on the first build.
 
 ### Signing, for free
 

@@ -75,7 +75,7 @@ private func swiftFiles(under folder: URL) -> [URL] {
 final class IdentityTests: XCTestCase {
     func testTheBundleIdentifierIsTheAgreedOneInEveryConfiguration() throws {
         XCTAssertEqual(AppIdentity.bundleIdentifier, "io.github.effe1209.Glossa")
-        let project = try String(contentsOf: repositoryRoot().appendingPathComponent("PageFlow.xcodeproj/project.pbxproj"), encoding: .utf8)
+        let project = try String(contentsOf: repositoryRoot().appendingPathComponent("Glossa.xcodeproj/project.pbxproj"), encoding: .utf8)
         let identifiers = project.components(separatedBy: "\n").filter { $0.contains("PRODUCT_BUNDLE_IDENTIFIER") }
         // Debug and Release of the app, and Release-Direct.
         XCTAssertEqual(identifiers.count, 3)

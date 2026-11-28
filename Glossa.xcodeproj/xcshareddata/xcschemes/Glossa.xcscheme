@@ -17,8 +17,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00985C632EE4A10500E48813"
                BuildableName = "Glossa.app"
-               BlueprintName = "PageFlow"
-               ReferencedContainer = "container:PageFlow.xcodeproj">
+               BlueprintName = "Glossa"
+               ReferencedContainer = "container:Glossa.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -48,8 +48,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "00985C632EE4A10500E48813"
             BuildableName = "Glossa.app"
-            BlueprintName = "PageFlow"
-            ReferencedContainer = "container:PageFlow.xcodeproj">
+            BlueprintName = "Glossa"
+            ReferencedContainer = "container:Glossa.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <EnvironmentVariables>
@@ -72,8 +72,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "00985C632EE4A10500E48813"
             BuildableName = "Glossa.app"
-            BlueprintName = "PageFlow"
-            ReferencedContainer = "container:PageFlow.xcodeproj">
+            BlueprintName = "Glossa"
+            ReferencedContainer = "container:Glossa.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
