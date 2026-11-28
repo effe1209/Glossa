@@ -2,20 +2,21 @@ import XCTest
 import PDFKit
 @testable import MarkupPalette
 
+/// An in-memory stand-in for the preferences: nothing reaches the disk, `UserDefaults` or the
+/// reader's real preferences domain.
+private final class MemoryDefaults: PaletteStorage {
+    private var values: [String: Any] = [:]
+    func data(forKey defaultName: String) -> Data? { values[defaultName] as? Data }
+    func string(forKey defaultName: String) -> String? { values[defaultName] as? String }
+    func object(forKey defaultName: String) -> Any? { values[defaultName] }
+    func set(_ value: Any?, forKey defaultName: String) { values[defaultName] = value }
+    func removeObject(forKey defaultName: String) { values[defaultName] = nil }
+    func dictionaryRepresentation() -> [String: Any] { values }
+}
+
 final class MarkupPaletteTests: XCTestCase {
-    private var suites: [String] = []
-
-    /// A throwaway preferences domain, so no test touches real preferences.
-    private func makeDefaults() -> UserDefaults {
-        let name = "glossa.tests.\(UUID().uuidString)"
-        suites.append(name)
-        return UserDefaults(suiteName: name)!
-    }
-
-    override func tearDown() {
-        for name in suites { UserDefaults().removePersistentDomain(forName: name) }
-        suites = []
-    }
+    /// A throwaway in-memory store, so no test touches real preferences.
+    private func makeDefaults() -> MemoryDefaults { MemoryDefaults() }
 
     private func color(_ hex: String) -> NSColor { HexColor.color(fromHex: hex)! }
     private let white = NSColor(srgbRed: 1, green: 1, blue: 1, alpha: 1)
@@ -401,7 +402,7 @@ final class MarkupPaletteTests: XCTestCase {
     // MARK: Migration: the rest of the cases
 
     /// Every key in the domain except the ones Glossa itself writes.
-    private func legacySnapshot(_ defaults: UserDefaults) -> [String: Data] {
+    private func legacySnapshot(_ defaults: MemoryDefaults) -> [String: Data] {
         var out: [String: Data] = [:]
         for (key, value) in defaults.dictionaryRepresentation() where !key.hasPrefix("glossa.") {
             if let data = value as? Data { out[key] = data } else if let text = value as? String { out[key] = Data(text.utf8) }
