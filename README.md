@@ -148,10 +148,32 @@ The sandboxed build also carries the `com.apple.security.network.client` entitle
 
 ### Importing from PageFlow
 
-On first launch Glossa can import PageFlow's settings and document data (Import, Not Now, Don't Import Ever); it only reads PageFlow's data. **Glossa → Import from PageFlow…** says whether the import is available and why not when it is not (the import itself is offered only at launch, before any document opens, and Glossa restarts once it is done); and **Glossa → Manage Authorizations to Restore…** lists the files and folders whose permission has to be allowed again.
+On first launch Glossa can import PageFlow's data. There are two independent parts, offered in one window (Import, Not Now, Don't Import Ever); both only read PageFlow's data and never import without that choice:
 
-- **Limitation: the sandboxed builds cannot import.** `Debug` and `Release` run inside the macOS sandbox, which does not let an app read another app's preferences, so they cannot see PageFlow's settings. They do not offer the import and, when asked from the menu, say why. The entitlements are not changed to get around this. Use `Release-Direct` (not sandboxed) to import.
-- **Application Support.** `~/Library/Application Support/Glossa` is created when an import completes, empty. Recovery, Attachments and EPUB Annotations still use `~/Library/Application Support/PageFlow` for now; copying them and separating the paths completely is a later change. Nothing in PageFlow's folder is moved, renamed or deleted.
+- **Settings and document data**, from PageFlow's preferences. Glossa restarts once to use them.
+- **Files**, from `~/Library/Application Support/PageFlow`: the recovery copies of unsaved notes (`Recovery`), pasted images (`Attachments`) and EPUB highlights, notes and bookmarks (`EPUB Annotations`). No restart is needed.
+
+**Where Glossa keeps its data.** Glossa uses only `~/Library/Application Support/Glossa` (with `Recovery`, `Attachments` and `EPUB Annotations` inside). It does not read PageFlow's folder in its ordinary work, and never falls back to it.
+
+**How the file copy works.**
+- It copies, never moves. Nothing in PageFlow's folder is changed, renamed or deleted.
+- Each file is checked first (a recovery copy or annotation file has to be valid JSON of the shape the app stores, with the name the app would give it; an attachment has to open as an image). A file that is not sound, hidden files, symbolic links and subfolders are skipped and listed. JSON files over **64 MiB** are skipped too.
+- Each file goes through a staging folder inside Glossa's, is compared by SHA-256 with the original, and is moved into place without replacing anything. If Glossa already has a file of that name, **Glossa's wins**: the same content counts as identical, other content as a conflict, and PageFlow's file stays where it is.
+- A cut-off copy leaves a staging folder (`.import-staging-…`) in Glossa's folder and is offered again. Glossa removes those folders, and only those (real folders inside Glossa's own folder, never links, never anything of PageFlow's), when you choose **Don't Import Ever** for the files or when a new run finds nothing sound to copy. It never does so once the copy is recorded as done, and looking at the offer deletes nothing. At launch Glossa also removes such leftovers when no offer will ever use them (nothing to copy, only links, or the files were refused), only if they have not been touched for an hour; with an offer, or a recorded copy, it removes nothing.
+- If the attachments add up to more than **500 MiB** (binary: 1 MiB = 1,048,576 bytes), Glossa asks for confirmation before copying anything. The size comes from a count of the files that opens none of them, so the question comes before any file is read or hashed; it is an upper bound, since it also counts files that a later check may reject.
+- If PageFlow has files but none is sound (damaged JSON, not an image…) and nothing is unreadable, the copy is recorded as done with the list of what was skipped, and it is not offered again. If there are no files at all, nothing is recorded.
+- If a folder of PageFlow's, or a single file in it, cannot be read (permissions), Glossa copies what it can read but does **not** record the copy as done: it is offered again at the next start, and what was already copied is recognised as identical. The window says which folder could not be read.
+- While files are being copied the window has a **Cancel** button. Up to the moment files start being moved into Glossa's folders, cancelling is clean: nothing is left in Glossa's folders, no record of a copy is written, and the import is offered again. Past that moment the window says so ("Finishing the import…", Cancel withdrawn) and the copy runs to the end; the result says what was done.
+- If PageFlow's folder, or the folder of one of the three kinds, is a link to somewhere else, Glossa does not follow it and says so (instead of "nothing to import").
+- The copy is recorded only at the end, by the marker file `Glossa/.migration-appsupport-v1.json`, written last. A copy that is cut off leaves no marker and is offered again at the next launch; it is never resumed silently.
+- Links in your notes to images in PageFlow's `Attachments` folder are not rewritten. Glossa recognises images in either folder when a note is saved, and the originals stay.
+- Recovery copies are copies: PageFlow may still show the same unsaved notes if you open it.
+
+**Choices are recorded separately for each part.** Settings: a marker and a refusal in Glossa's preferences. Files: the marker file above and the refusal `glossa.migration.appSupport.declined.v1`. The files are offered even if you imported the settings earlier. If you chose Don't Import Ever for the settings, the files are not offered either. Not Now writes nothing, and the offer returns at the next launch.
+
+**Menus.** **Glossa → Import from PageFlow…** says whether the import is available and, if not, why (the import itself is offered only at launch, before any document opens). **Glossa → Manage Authorizations to Restore…** lists the files and folders whose permission has to be allowed again. The list also opens once at launch when there is something to allow, after the import window if one was shown, never at the same time as it.
+
+**Limitation: the sandboxed builds cannot import.** `Debug` and `Release` run inside the macOS sandbox, which does not let an app read another app's preferences or its Application Support folder, so they cannot see PageFlow's data. They do not offer the import and, when asked from the menu, say why. The entitlements are not changed to get around this. Use `Release-Direct` (not sandboxed) to import.
 
 ## Keyboard shortcuts
 

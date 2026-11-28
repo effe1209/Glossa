@@ -17,9 +17,7 @@ nonisolated final class MarkdownRecoveryStore: @unchecked Sendable {
         #if DEBUG
         if let directory = RecoveryQA.directory { return MarkdownRecoveryStore(directory: directory) }
         #endif
-        return MarkdownRecoveryStore(directory: FileManager.default.urls(
-            for: .applicationSupportDirectory, in: .userDomainMask
-        )[0].appendingPathComponent("PageFlow/Recovery", isDirectory: true))
+        return MarkdownRecoveryStore(directory: ApplicationSupportPaths.current().recovery)
     }()
 
     let directory: URL

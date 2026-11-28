@@ -143,7 +143,7 @@ nonisolated struct LegacyMigrationCoordinator {
     }
 }
 
-extension MigrationOffer.Reason {
+nonisolated extension MigrationOffer.Reason {
     /// What to tell the reader when they ask for the import and it is not available, and why.
     var explanation: String {
         switch self {

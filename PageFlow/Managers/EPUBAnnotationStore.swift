@@ -27,8 +27,7 @@ struct EPUBAnnotations: Codable, Equatable, Sendable {
 final class EPUBAnnotationStore {
     static let shared = EPUBAnnotationStore(directory: TestEnvironment.isRunningTests
         ? FileManager.default.temporaryDirectory.appendingPathComponent("PageFlow-EPUB-Annotations-\(UUID().uuidString)")
-        : FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("PageFlow/EPUB Annotations", isDirectory: true))
+        : ApplicationSupportPaths.current().epubAnnotations)
 
     /// Which book a file belongs to: its identifier when it has one, else
     /// the canonical path of the file it was read from.

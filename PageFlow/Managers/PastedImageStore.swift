@@ -36,15 +36,19 @@ final class PastedImageStore: @unchecked Sendable {
     private let defaults: UserDefaults
     private let folderAccess: FolderAccessStore
     private let fallbackFolder: URL
+    /// The attachment folders whose absolute links are adopted: Glossa's, and PageFlow's where reachable.
+    private let attachmentLinks: AttachmentLinkRecognizer
     private let lock = NSLock()
     /// Absolute path → security-scoped bookmark, newest last. Guarded by `lock`.
     nonisolated(unsafe) private var bookmarks: [(path: String, bookmark: Data)]
 
     init(defaults: UserDefaults = AppDefaults.store, folderAccess: FolderAccessStore = .shared,
-         fallbackFolder: URL = PastedImageStore.fallbackAttachmentsFolder) {
+         fallbackFolder: URL = PastedImageStore.fallbackAttachmentsFolder,
+         legacyFallbackFolder: URL? = PastedImageStore.legacyFallbackAttachmentsFolder) {
         self.defaults = defaults
         self.folderAccess = folderAccess
         self.fallbackFolder = fallbackFolder
+        attachmentLinks = AttachmentLinkRecognizer(folders: [fallbackFolder] + (legacyFallbackFolder.map { [$0] } ?? []))
         let stored = defaults.array(forKey: Self.storageKey) as? [[String: Any]] ?? []
         bookmarks = stored.compactMap { entry in
             guard let path = entry["path"] as? String, let bookmark = entry["bookmark"] as? Data else { return nil }
@@ -333,9 +337,14 @@ final class PastedImageStore: @unchecked Sendable {
     /// Where pasted image data goes for a note without a folder, or when the
     /// note's folder was not allowed.
     static var fallbackAttachmentsFolder: URL {
-        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? FileManager.default.temporaryDirectory
-        return support.appendingPathComponent("PageFlow/Attachments", isDirectory: true)
+        ApplicationSupportPaths.current().attachments
+    }
+
+    /// PageFlow's attachments folder, which notes written before Glossa still link to; nil where it
+    /// cannot be reached (a sandboxed build). Used only to recognise those links, never to save into.
+    static var legacyFallbackAttachmentsFolder: URL? {
+        let paths = ApplicationSupportPaths.current()
+        return paths.legacyIsReachable ? paths.legacyDirectory(for: .attachments) : nil
     }
 
     /// Obsidian's timestamped base name; saving adds a numeric suffix on collision.
@@ -366,12 +375,13 @@ final class PastedImageStore: @unchecked Sendable {
     /// behind absolute links, which name the user's home and break on any
     /// other Mac. Once the note is saved at `noteURL`, each moves into the
     /// `attachments` folder beside it; returns the link edits for `text`
-    /// (alt text kept), empty when nothing moved.
+    /// (alt text kept), empty when nothing moved. The folder is Glossa's or,
+    /// for notes written before, PageFlow's: a link names one file, which is
+    /// copied if it is a plain file that is there, and the original stays.
     @MainActor
     func adoptFallbackImages(in text: String, savedAt noteURL: URL, whileApproved: () -> Bool = { true }) -> [(range: NSRange, link: String)] {
         guard whileApproved() else { return [] }
         let source = text as NSString
-        let prefix = fallbackFolder.standardizedFileURL.path + "/"
         let folder = noteURL.deletingLastPathComponent()
         let attachments = folder.appendingPathComponent(Self.attachmentsFolderName, isDirectory: true)
         var edits: [(range: NSRange, link: String)] = []
@@ -381,7 +391,7 @@ final class PastedImageStore: @unchecked Sendable {
             var destination = source.substring(with: match.range(at: 2))
             if destination.hasPrefix("<"), destination.hasSuffix(">") { destination = String(destination.dropFirst().dropLast()) }
             let file = URL(fileURLWithPath: destination.removingPercentEncoding ?? destination).standardizedFileURL
-            guard file.path.hasPrefix(prefix) else { continue }
+            guard attachmentLinks.canAdopt(file) else { continue }
             let moved: URL
             if let existing = adopted[file] {
                 moved = existing

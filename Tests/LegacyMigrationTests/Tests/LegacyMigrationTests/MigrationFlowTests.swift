@@ -424,8 +424,11 @@ final class ConsentTests: XCTestCase {
         let app = repositoryRoot().appendingPathComponent("PageFlow")
         for url in swiftFiles(under: app) {
             let text = try String(contentsOf: url, encoding: .utf8)
-            if text.contains(".choose(.importNow)") {
-                XCTAssertEqual(url.lastPathComponent, "MigrationView.swift", "\(url.lastPathComponent) imports without the reader asking")
+            if text.contains("coordinator.choose(.importNow)") {
+                XCTAssertEqual(url.lastPathComponent, "MigrationSession.swift", "\(url.lastPathComponent) imports without the reader asking")
+            }
+            if text.contains("session.choose(.importNow)") {
+                XCTAssertEqual(url.lastPathComponent, "MigrationView.swift", "only the Import button asks the session to import")
             }
         }
     }
