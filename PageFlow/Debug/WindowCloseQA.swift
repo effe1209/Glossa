@@ -1,8 +1,8 @@
 // DEBUG-only semantic close probe. Run in an isolated app sandbox with
-// PAGEFLOW_QA_WINDOW_CLOSE=markdown or pdf. Uses scratch documents, keeps a
+// GLOSSA_QA_WINDOW_CLOSE=markdown or pdf. Uses scratch documents, keeps a
 // clean sentinel window open, writes window-close.json, then exits 0/1/2 for
 // pass/qualified failure/invalid fixture. Normal launches never enter this code.
-// PAGEFLOW_QA_WINDOW_CLOSE_SCENARIO defaults to cancel; other scenarios are
+// GLOSSA_QA_WINDOW_CLOSE_SCENARIO defaults to cancel; other scenarios are
 // dont-save, save, save-failure, save-as-cancel and mixed-cancel (last two Markdown only).
 
 #if DEBUG
@@ -12,7 +12,7 @@ import PDFKit
 @MainActor
 enum WindowCloseQA {
     static var isRequested: Bool {
-        ProcessInfo.processInfo.environment["PAGEFLOW_QA_WINDOW_CLOSE"] != nil
+        AppEnvironment.current.value("QA_WINDOW_CLOSE") != nil
     }
 
     static func startIfRequested() {
@@ -214,9 +214,9 @@ enum WindowCloseQA {
     }
 
     private static func run() async {
-        let env = ProcessInfo.processInfo.environment
-        let kindName = env["PAGEFLOW_QA_WINDOW_CLOSE"] ?? ""
-        let scenarioName = env["PAGEFLOW_QA_WINDOW_CLOSE_SCENARIO"] ?? "cancel"
+        let env = AppEnvironment.current
+        let kindName = env.value("QA_WINDOW_CLOSE") ?? ""
+        let scenarioName = env.value("QA_WINDOW_CLOSE_SCENARIO") ?? "cancel"
         guard let kind = Kind(rawValue: kindName), let scenario = Scenario(rawValue: scenarioName),
               (kind == .markdown || (scenario != .saveAsCancel && scenario != .mixedCancel)), !TestEnvironment.isRunningTests,
               !QAReplay.isRequested else {
@@ -591,14 +591,14 @@ enum WindowCloseQA {
     }
 
     private static func finish(kind: String, cases: [CaseReport], errors: [String]) -> Never {
-        let env = ProcessInfo.processInfo.environment
-        let runID = env["PAGEFLOW_QA_RUN_ID"] ?? UUID().uuidString
-        let directory = env["PAGEFLOW_QA_OUTPUT_DIR"].map { URL(fileURLWithPath: $0, isDirectory: true) }
+        let env = AppEnvironment.current
+        let runID = env.value("QA_RUN_ID") ?? UUID().uuidString
+        let directory = env.value("QA_OUTPUT_DIR").map { URL(fileURLWithPath: $0, isDirectory: true) }
             ?? FileManager.default.temporaryDirectory.appendingPathComponent("pageflow-close-qa/\(runID)", isDirectory: true)
         let qualifiedFailure = cases.contains { $0.outcome == "failed" }
         let passed = errors.isEmpty && cases.count == 2 && cases.allSatisfy { $0.outcome == "passed" }
         let exitStatus: Int32 = passed ? 0 : (qualifiedFailure ? 1 : 2)
-        let report = RunReport(runID: runID, kind: kind, scenario: env["PAGEFLOW_QA_WINDOW_CLOSE_SCENARIO"] ?? "cancel",
+        let report = RunReport(runID: runID, kind: kind, scenario: env.value("QA_WINDOW_CLOSE_SCENARIO") ?? "cancel",
                                status: passed ? "passed" : (qualifiedFailure ? "failed" : "invalid"),
                                exitStatus: exitStatus, cases: cases, errors: errors)
         do {

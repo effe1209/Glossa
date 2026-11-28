@@ -21,7 +21,7 @@ nonisolated final class MarkdownRecoveryStore: @unchecked Sendable {
     }()
 
     let directory: URL
-    private let queue = DispatchQueue(label: "com.pageflow.markdown-recovery", qos: .utility)
+    private let queue = DispatchQueue(label: "io.github.effe1209.Glossa.markdown-recovery", qos: .utility)
     private enum Pending {
         case checkpoint(Record, (@Sendable (String) -> Void)?)
         case remove

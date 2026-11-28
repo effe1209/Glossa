@@ -5,7 +5,7 @@ import MarkdownEngine
 /// Equal adjacent blank lines cannot be distinguished by comparing save snapshots alone.
 @MainActor
 final class NativeMixedLineEndings {
-    private static let separator = NSAttributedString.Key("PageFlowPhysicalLineEnding")
+    private static let separator = NSAttributedString.Key("GlossaPhysicalLineEnding")
     private let body: NSMutableAttributedString
     private let defaultEnding: LineEnding
     private weak var undoManager: UndoManager?

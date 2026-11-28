@@ -180,6 +180,20 @@ Altre salvaguardie:
 - registro dettagliato con `os_log` (nessun dato personale nel testo);
 - le copie di riserva già previste per i colori (`glossa.markup.layer.*.backup`) valgono anche dopo l'importazione.
 
+## Stato dopo la PR 6: variabili d'ambiente e identificatori interni
+
+**Variabili d'ambiente.** `GLOSSA_*` è il nome canonico, `PAGEFLOW_*` un alias temporaneo di compatibilità (da rimuovere in una versione successiva). La risoluzione sta in `AppEnvironment` (`PageFlow/Utilities/AppEnvironment.swift`), con l'ambiente iniettato nei test. Regole:
+- decide la **presenza**, non il contenuto: se `GLOSSA_X` esiste, vince, anche se è vuota (il valore vuoto si restituisce com'è, senza ripiego sull'alias); `PAGEFLOW_X` conta solo se `GLOSSA_X` manca;
+- per i controlli di sola presenza (`isSet`) basta una delle due;
+- il rilevamento dei QA (`hasQAVariable`) guarda i nomi che iniziano per `GLOSSA_` o `PAGEFLOW_` e contengono `QA`;
+- i nomi di `QA_*` (`QA_BACKGROUND`, `QA_PDF_URL`, `QA_OUTPUT_DIR`, `QA_PDF_MODE`, `QA_OPEN_DOCUMENT`, `QA_RESTORE_OPEN`, `QA_RUN_ID`, `QA_RECOVERY`, `QA_WINDOW_CLOSE`, `QA_WINDOW_CLOSE_SCENARIO`, `QA_SCENARIO`, `QA_DOC`, `QA_EXIT`) esistono solo nelle build Debug (`#if DEBUG`); le build Release non li contengono;
+- in `Vendor/swift-markdown-engine` le tre variabili di tracciamento (`PERF_TRACE`, `SCROLL_TRACE`, `ANCHOR_TRACE`) sono lette con un alias minimo sul posto (il pacchetto non vede il target dell'app): basta una delle due. Il pacchetto resta per il resto invariato.
+- Gli identificatori dei bundle dei cloni QA (`<id>.RecoveryQA.<runID>`, `<id>.RestoreQA.<runID>`) si accettano sia con `io.github.effe1209.Glossa` sia, come alias, con `com.raccoontechnologies.PageFlow`.
+
+**Identificatori privati rinominati** (non persistiti, non scambiati con altri processi): label delle code (`io.github.effe1209.Glossa.markdown-recovery`, `…thumbnail-render`, `Glossa.MarkdownWikiLinkPresence`), identificatori di finestra e voce di menu (`GlossaUserCreatedWindow`, `Glossa.contextMenuPrefix`), notifiche interne (`Glossa.shortcutsDidChange`, `GlossaWindowDidFailToEnterFullScreen`), spazio di coordinate (`glossa.proximityField`), chiave di attributo temporanea (`GlossaPhysicalLineEnding`), prefisso dei file audio temporanei EPUB (`Glossa-EPUBAudio-`) e file di prova dei permessi (`.glossa-<uuid>`).
+
+**Rimasto com'è di proposito:** sottosistema dei log `com.pageflow`, marker e chiavi dei formati dei documenti, pasteboard type e UTI `com.pageflow.*` del motore Markdown, schema `pageflow-epub`, cartelle di cache e temporanee del codice vendorizzato, percorsi temporanei delle prove QA (`pageflow-*-qa-…`, letti da script esterni) e la suite `pageflow.tests…` degli host di test. I simboli Swift `PageFlow*`/`pageFlow*` sono della PR 7.
+
 ## Piano di realizzazione, per PR piccole e indipendenti
 
 Prima di ogni PR: build Debug, Release e Release-Direct e tutti i pacchetti di test. Al termine di ogni PR ci si ferma per la revisione.

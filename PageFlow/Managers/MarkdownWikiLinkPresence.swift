@@ -21,7 +21,7 @@ nonisolated final class MarkdownWikiLinkPresence: WikiLinkResolver, @unchecked S
     private let noteFolder: @Sendable () -> URL?
     private let lookUp: LookUp
     private let onChange: @Sendable () -> Void
-    private let queue = DispatchQueue(label: "PageFlow.MarkdownWikiLinkPresence", qos: .utility)
+    private let queue = DispatchQueue(label: "Glossa.MarkdownWikiLinkPresence", qos: .utility)
 
     private struct Key: Hashable {
         let folder: String

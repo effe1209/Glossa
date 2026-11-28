@@ -35,7 +35,7 @@ extension StablePDFView {
 
     // MARK: - System Items
 
-    private static let appContextMenuPrefixID = NSUserInterfaceItemIdentifier("PageFlow.contextMenuPrefix")
+    private static let appContextMenuPrefixID = NSUserInterfaceItemIdentifier("Glossa.contextMenuPrefix")
 
     /// PDFKit's root owns the context of its native items and custom views.
     /// Only fresh app items move between menus; native items stay in place.

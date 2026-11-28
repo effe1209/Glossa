@@ -73,7 +73,7 @@ protocol EPUBNarrationPlaying: EPUBSpeechEngine {
 nonisolated final class EPUBExtractedAudio: Sendable {
     /// One file at a time, so a whole audiobook never sits on disk.
     static let sizeLimit = 1024 * 1024 * 1024
-    private static let prefix = "PageFlow-EPUBAudio-"
+    private static let prefix = "Glossa-EPUBAudio-"
     /// A quit or crash leaves its copy behind; the next run clears it.
     static let staleCopiesCleared: Void = {
         let manager = FileManager.default

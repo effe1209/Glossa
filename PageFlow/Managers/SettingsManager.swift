@@ -241,7 +241,7 @@ final class SettingsManager {
     }
 
     /// Posted when a shortcut changes, for the open editors to rebind live.
-    static let shortcutsDidChange = Notification.Name("PageFlow.shortcutsDidChange")
+    static let shortcutsDidChange = Notification.Name("Glossa.shortcutsDidChange")
 
     /// A deliberate Settings save chooses one binding across the old content
     /// contexts. Bulk loads/imports keep both original values for disclosure.

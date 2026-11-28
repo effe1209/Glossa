@@ -16,12 +16,13 @@ import os
 
 #if DEBUG
 // Debug-only viewport-anchor tracing. Entirely opt-in: when the environment
-// variable PAGEFLOW_ANCHOR_TRACE is unset (release builds and normal dev runs)
+// variable GLOSSA_ANCHOR_TRACE (or the legacy alias PAGEFLOW_ANCHOR_TRACE) is unset (release builds and normal dev runs)
 // every probe below short-circuits on `anchorTraceEnabled` BEFORE building any
 // string, so the click hot path stays O(1) and allocation-free. Launch with
-// `PAGEFLOW_ANCHOR_TRACE=1` and read the trace in Console.app (subsystem
+// `GLOSSA_ANCHOR_TRACE=1` and read the trace in Console.app (subsystem
 // com.pageflow.MarkdownEngine, category AnchorTrace).
-private let anchorTraceEnabled = ProcessInfo.processInfo.environment["PAGEFLOW_ANCHOR_TRACE"] != nil
+private let anchorTraceEnabled = ProcessInfo.processInfo.environment["GLOSSA_ANCHOR_TRACE"] != nil
+    || ProcessInfo.processInfo.environment["PAGEFLOW_ANCHOR_TRACE"] != nil
 private let anchorTraceLog = OSLog(subsystem: "com.pageflow.MarkdownEngine", category: "AnchorTrace")
 
 @inline(__always)

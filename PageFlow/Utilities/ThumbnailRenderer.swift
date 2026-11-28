@@ -19,7 +19,7 @@ final class ThumbnailRenderer {
 
     private let gate: AsyncSemaphore
     private let queue = DispatchQueue(
-        label: "com.pageflow.thumbnail-render",
+        label: "io.github.effe1209.Glossa.thumbnail-render",
         qos: .userInitiated,
         attributes: .concurrent
     )

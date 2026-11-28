@@ -30,11 +30,12 @@ enum RestoreOpenQA {
     /// Seeds only a uniquely identified disposable process, immediately before
     /// the ordinary launch restore reads its persisted session.
     static func prepareIfRequested(delegate: AppDelegate) {
-        let env = ProcessInfo.processInfo.environment
-        guard let scenario = env["PAGEFLOW_QA_RESTORE_OPEN"] else { return }
-        guard let runID = env["PAGEFLOW_QA_RUN_ID"], !runID.isEmpty,
-              Bundle.main.bundleIdentifier == "com.raccoontechnologies.PageFlow.RestoreQA." + runID,
-              let output = env["PAGEFLOW_QA_OUTPUT_DIR"], output.hasPrefix("/"),
+        let env = AppEnvironment.current
+        guard let scenario = env.value("QA_RESTORE_OPEN") else { return }
+        guard let runID = env.value("QA_RUN_ID"), !runID.isEmpty,
+              [AppIdentity.bundleIdentifier, AppIdentity.legacyBundleIdentifier]  // legacy: alias for harnesses that predate Glossa
+                  .contains(where: { Bundle.main.bundleIdentifier == $0 + ".RestoreQA." + runID }),
+              let output = env.value("QA_OUTPUT_DIR"), output.hasPrefix("/"),
               ["duplicate", "distinct", "finder"].contains(scenario),
               !TestEnvironment.isRunningTests, !QAReplay.isRequested,
               !WindowCloseQA.isRequested, !OpenDocumentQA.isRequested else {
@@ -147,17 +148,17 @@ enum RestoreOpenQA {
 
     private static func finish(scenario: String, preconditions: [String: Bool], checks: [String: Bool],
                                elapsed: Double, errors: [String]) -> Never {
-        let env = ProcessInfo.processInfo.environment
+        let env = AppEnvironment.current
         let qualified = !preconditions.isEmpty && preconditions.values.allSatisfy { $0 } && errors.isEmpty
         let passed = qualified && !checks.isEmpty && checks.values.allSatisfy { $0 }
         let code: Int32 = passed ? 0 : (qualified ? 1 : 2)
-        let report = Report(runID: env["PAGEFLOW_QA_RUN_ID"] ?? "missing",
+        let report = Report(runID: env.value("QA_RUN_ID") ?? "missing",
                             bundleID: Bundle.main.bundleIdentifier ?? "missing", scenario: scenario,
                             status: passed ? "passed" : (qualified ? "failed" : "invalid"), exitStatus: code,
                             qualified: qualified, passed: passed, preconditions: preconditions, checks: checks,
                             windows: snapshot(), visibleNativeWindowNumbers: nativeWindows(),
                             observationMilliseconds: elapsed, errors: errors)
-        guard let output = env["PAGEFLOW_QA_OUTPUT_DIR"], output.hasPrefix("/") else { exit(2) }
+        guard let output = env.value("QA_OUTPUT_DIR"), output.hasPrefix("/") else { exit(2) }
         do {
             let directory = URL(fileURLWithPath: output, isDirectory: true)
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

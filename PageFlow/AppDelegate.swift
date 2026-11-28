@@ -10,7 +10,7 @@ import EPUBKit
 import SwiftUI
 
 enum PageFlowWindowIdentifiers {
-    static let userCreated = NSUserInterfaceItemIdentifier("PageFlowUserCreatedWindow")
+    static let userCreated = NSUserInterfaceItemIdentifier("GlossaUserCreatedWindow")
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {

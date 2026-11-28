@@ -1,15 +1,15 @@
 // DEBUG-only external-open probe. Run an isolated app with
-// PAGEFLOW_QA_OPEN_DOCUMENT=1; scratch files only, no user clipboard or drafts.
+// GLOSSA_QA_OPEN_DOCUMENT=1; scratch files only, no user clipboard or drafts.
 #if DEBUG
 import AppKit
 
 @MainActor
 enum OpenDocumentQA {
-    static var isRequested: Bool { ProcessInfo.processInfo.environment["PAGEFLOW_QA_OPEN_DOCUMENT"] != nil }
+    static var isRequested: Bool { AppEnvironment.current.value("QA_OPEN_DOCUMENT") != nil }
 
     static func startIfRequested() {
         guard isRequested else { return }
-        if ProcessInfo.processInfo.environment["PAGEFLOW_QA_PDF_MODE"] != nil {
+        if AppEnvironment.current.value("QA_PDF_MODE") != nil {
             Task { await PDFOpenQA.run() }
         } else {
             Task { await run() }
@@ -253,15 +253,15 @@ enum OpenDocumentQA {
     private static func sleep(_ seconds: Double) async { try? await Task.sleep(for: .seconds(seconds)) }
 
     private static func finish(_ cases: [CaseReport], errors: [String]) -> Never {
-        let env = ProcessInfo.processInfo.environment
+        let env = AppEnvironment.current
         let passed = errors.isEmpty && cases.count == 2 && cases.allSatisfy(\.passed)
         let failed = cases.contains { $0.qualified && !$0.passed }
         let code: Int32 = passed ? 0 : (failed ? 1 : 2)
-        let report = Report(runID: env["PAGEFLOW_QA_RUN_ID"] ?? UUID().uuidString,
+        let report = Report(runID: env.value("QA_RUN_ID") ?? UUID().uuidString,
                             bundleID: Bundle.main.bundleIdentifier ?? "unknown", executable: Bundle.main.bundlePath,
                             processID: ProcessInfo.processInfo.processIdentifier,
                             status: passed ? "passed" : (failed ? "failed" : "invalid"), exitStatus: code, cases: cases, errors: errors)
-        let directory = env["PAGEFLOW_QA_OUTPUT_DIR"].map { URL(fileURLWithPath: $0, isDirectory: true) }
+        let directory = env.value("QA_OUTPUT_DIR").map { URL(fileURLWithPath: $0, isDirectory: true) }
             ?? FileManager.default.temporaryDirectory.appendingPathComponent("pageflow-open-report-\(report.runID)", isDirectory: true)
         do {
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

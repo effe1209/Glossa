@@ -10,14 +10,14 @@
 //  measures what the reader would see.
 //
 //  Environment:
-//    PAGEFLOW_QA_SCENARIO  scroll-read | click-sweep | zoom-steps | switch-restore
+//    GLOSSA_QA_SCENARIO    scroll-read | click-sweep | zoom-steps | switch-restore
 //                          | type-burst | math-edit | format-burst | undo-check
 //                          | table-nav | table-wrap-type | selection-bar | image-select | all
-//    PAGEFLOW_QA_DOC       document to open (must be readable by the sandboxed app,
+//    GLOSSA_QA_DOC         document to open (must be readable by the sandboxed app,
 //                          e.g. inside the container's tmp directory)
-//    PAGEFLOW_QA_EXIT      "1" exits 0 on pass, 1 on failure
-//    PAGEFLOW_QA_RUN_ID    receipt identity for this replay
-//    PAGEFLOW_QA_OUTPUT_DIR report destination (default: a unique temp directory)
+//    GLOSSA_QA_EXIT        "1" exits 0 on pass, 1 on failure
+//    GLOSSA_QA_RUN_ID      receipt identity for this replay
+//    GLOSSA_QA_OUTPUT_DIR report destination (default: a unique temp directory)
 //
 //  Output: complete JSON reports, a run manifest and a summary. Missing probes,
 //  correctness failures and report-write errors fail the run. Inert in Release.
@@ -30,7 +30,7 @@ import MarkdownEngine
 @MainActor
 enum QAReplay {
 
-    static var isRequested: Bool { ProcessInfo.processInfo.environment["PAGEFLOW_QA_SCENARIO"] != nil }
+    static var isRequested: Bool { AppEnvironment.current.value("QA_SCENARIO") != nil }
 
     static func startIfRequested() {
         guard isRequested else { return }
@@ -106,8 +106,8 @@ enum QAReplay {
     // MARK: - Run
 
     private static func run() async {
-        let env = ProcessInfo.processInfo.environment
-        let requested = env["PAGEFLOW_QA_SCENARIO"] ?? "all"
+        let env = AppEnvironment.current
+        let requested = env.value("QA_SCENARIO") ?? "all"
         let scenarios = requested == "all" ? supportedScenarios :
             requested.split(separator: ",", omittingEmptySubsequences: false)
                 .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -122,7 +122,7 @@ enum QAReplay {
             finish(scenarios: scenarios, results: [], failures: ["Deferred: requested scenarios require an explicitly approved foreground session"])
             return
         }
-        let documentPath = env["PAGEFLOW_QA_DOC"]
+        let documentPath = env.value("QA_DOC")
         QAPresentation.activateIfAllowed()
 
         guard let tabManager = await waitForTabManager() else {
@@ -770,7 +770,7 @@ enum QAReplay {
         }
         func snapshot(_ name: String) {
             // The editor's own scroll view: the window's hosting view does not draw TextKit's layers.
-            guard let output = ProcessInfo.processInfo.environment["PAGEFLOW_QA_OUTPUT_DIR"], let view = Optional(c.scrollView as NSView),
+            guard let output = AppEnvironment.current.value("QA_OUTPUT_DIR"), let view = Optional(c.scrollView as NSView),
                   let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return }
             view.cacheDisplay(in: view.bounds, to: rep)
             try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: output).appendingPathComponent(name))
@@ -1006,7 +1006,7 @@ enum QAReplay {
             r.failures.append("No Bold control on the bar")
         }
         // Snapshot for review.
-        if let output = ProcessInfo.processInfo.environment["PAGEFLOW_QA_OUTPUT_DIR"],
+        if let output = AppEnvironment.current.value("QA_OUTPUT_DIR"),
            let view = c.window.contentView, let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) {
             view.cacheDisplay(in: view.bounds, to: rep)
             try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: output).appendingPathComponent("selection-bar.png"))
@@ -1597,7 +1597,7 @@ enum QAReplay {
     private static func undoCheck(_ c: Context, _ r: inout ScenarioResult) async {
         guard let undo = c.textView.undoManager else { r.failures.append("No Undo manager"); return }
         let original = c.textView.string
-        let pristine = (try? String(contentsOfFile: ProcessInfo.processInfo.environment["PAGEFLOW_QA_DOC"] ?? "", encoding: .utf8)) ?? ""
+        let pristine = (try? String(contentsOfFile: AppEnvironment.current.value("QA_DOC") ?? "", encoding: .utf8)) ?? ""
         r.notes.append("lengths: file \((pristine as NSString).length), at start \((original as NSString).length), canUndo before \(undo.canUndo)")
         c.window.makeFirstResponder(c.textView)
         guard let probe = ReadableTextLineProbe.capture(in: c.textView) else {
@@ -2191,7 +2191,7 @@ enum QAReplay {
         let undo = c.content.undoManager
         func source() -> NSString { NSString(string: controller.currentDisplayText ?? "") }
         guard let noteFolder = c.content.documentManager.documentURL?.deletingLastPathComponent() else {
-            r.failures.append("image-drop needs a saved note (PAGEFLOW_QA_DOC)")
+            r.failures.append("image-drop needs a saved note (GLOSSA_QA_DOC)")
             return
         }
         // The copies go to the note's attachments folder; a folder the app may
@@ -2407,7 +2407,7 @@ enum QAReplay {
         QAPresentation.show(c.window)
         for _ in 0..<40 where !c.window.isKeyWindow { await sleep(0.05) }
         await sleep(0.3)
-        let output = ProcessInfo.processInfo.environment["PAGEFLOW_QA_OUTPUT_DIR"].map { URL(fileURLWithPath: $0) }
+        let output = AppEnvironment.current.value("QA_OUTPUT_DIR").map { URL(fileURLWithPath: $0) }
         func snapshot(_ name: String) {
             guard let output else { return }
             compositeSnapshot(of: c.scrollView, overlays: ["CommentHighlightView", "CommentRailView", "CommentComposerView",
@@ -2876,9 +2876,9 @@ enum QAReplay {
     }
 
     private static func finish(scenarios: [String], results: [ScenarioResult], failures: [String] = []) {
-        let env = ProcessInfo.processInfo.environment
-        let runID = env["PAGEFLOW_QA_RUN_ID"] ?? UUID().uuidString
-        let directory = env["PAGEFLOW_QA_OUTPUT_DIR"].map { URL(fileURLWithPath: $0, isDirectory: true) }
+        let env = AppEnvironment.current
+        let runID = env.value("QA_RUN_ID") ?? UUID().uuidString
+        let directory = env.value("QA_OUTPUT_DIR").map { URL(fileURLWithPath: $0, isDirectory: true) }
             ?? FileManager.default.temporaryDirectory.appendingPathComponent("pageflow-qa/\(runID)", isDirectory: true)
         var failures = failures
         let passed = failures.isEmpty && !results.isEmpty && results.count == scenarios.count && results.allSatisfy(\.passed)
@@ -2901,7 +2901,7 @@ enum QAReplay {
         failures.forEach { print("QA FAIL: \($0)") }
         print("QA REPLAY \(passed && failures.isEmpty ? "PASS" : "FAIL"): \(directory.path)")
         fflush(stdout)
-        if env["PAGEFLOW_QA_EXIT"] == "1" { exit(passed && failures.isEmpty ? 0 : 1) }
+        if env.value("QA_EXIT") == "1" { exit(passed && failures.isEmpty ? 0 : 1) }
     }
 }
 #endif
